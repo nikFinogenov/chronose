@@ -8,6 +8,14 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Temporary files
+temp/
+temporary/
+temp
+.temp
+
+
+
 # Environment variables
 .env
 .env.local
