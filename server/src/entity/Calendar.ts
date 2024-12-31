@@ -1,20 +1,29 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, ManyToMany, JoinTable, BaseEntity } from "typeorm";
 import { User } from "./User";
+import { Event } from "./Event";
 
-@Entity("calendars")
-export class Event {
+@Entity()
+export class Calendar extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column()
-    title: string;
+    name: string;
 
-    @Column("text")
+    @Column({ nullable: true })
     description: string;
 
-    @Column("timestamp")
-    date: Date;
+    @ManyToOne(() => User, (user) => user.ownedCalendars, { nullable: false })
+    owner: User;
 
-    @ManyToOne(() => User, (user) => user.events, { nullable: false })
-    user: User;
+    @OneToMany(() => Event, (event) => event.calendar)
+    events: Event[];
+
+    @ManyToMany(() => User, (user) => user.calendars)
+    @JoinTable({
+        name: "calendar_users",
+        joinColumn: { name: "calendarId", referencedColumnName: "id" },
+        inverseJoinColumn: { name: "userId", referencedColumnName: "id" },
+    })
+    users: User[];
 }

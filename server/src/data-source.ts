@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { User } from "./entity/User";
 import { Event } from "./entity/Event";
+import { Calendar } from "./entity/Calendar";
 import { Client } from "pg";  // PostgreSQL client
 
 // TypeORM DataSource configuration
@@ -14,7 +15,7 @@ export const AppDataSource = new DataSource({
     database: "calendar_db",
     synchronize: true, // Automatically syncs the DB schema (not for production)
     logging: false,
-    entities: [User, Event],
+    entities: [User, Event, Calendar],
     migrations: [],
     subscribers: [],
 });

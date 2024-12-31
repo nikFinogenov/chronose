@@ -1,19 +1,23 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany } from "typeorm";
-import { Event } from "./Event";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToMany, BaseEntity } from "typeorm";
+import { Calendar } from "./Calendar";
 
-@Entity("users")
+@Entity()
 export class User extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @PrimaryGeneratedColumn()
-    id: number;
+  @Column()
+  fullName: string;
 
-    @Column()
-    name: string;
+  @Column({ unique: true })
+  email: string;
 
-    @Column()
-    email: string;
+  @Column()
+  password: string;
 
-    // Define the reverse relationship to Event
-    @OneToMany(() => Event, (event) => event.user)
-    events: Event[];
+  @ManyToMany(() => Calendar, (calendar) => calendar.users)
+  calendars: Calendar[];
+
+  @OneToMany(() => Calendar, (calendar) => calendar.owner)
+  ownedCalendars: Calendar[];
 }

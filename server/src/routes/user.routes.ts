@@ -7,18 +7,18 @@ const userRepository = AppDataSource.getRepository(User);
 
 // Получить всех пользователей
 router.get("/", async (req: Request, res: Response) => {
-    const users = await userRepository.find({ relations: ["events"] });
-    res.json(users);
+    // const users = await userRepository.find({ relations: ["events"] });
+    // res.json(users);
 });
 
 // Создать нового пользователя
 router.post("/", async (req: Request, res: Response) => {
-    const { name, email } = req.body;
+    // const { name, email } = req.body;
 
-    const user = userRepository.create({ name, email });
-    await userRepository.save(user);
+    // const user = userRepository.create({ name, email });
+    // await userRepository.save(user);
 
-    res.status(201).json(user);
+    // res.status(201).json(user);
 });
 
 export default router;

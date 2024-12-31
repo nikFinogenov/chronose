@@ -1,20 +1,23 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
-import { User } from "./User";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, BaseEntity } from "typeorm";
+import { Calendar } from "./Calendar";
 
-@Entity("events")
-export class Event {
-    @PrimaryGeneratedColumn()
-    id: number;
+@Entity()
+export class Event extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    title: string;
+  @Column()
+  title: string;
 
-    @Column("text")
-    description: string;
+  @Column({ type: "text", nullable: true })
+  description: string;
 
-    @Column("timestamp")
-    date: Date;
+  @Column()
+  startDate: Date;
 
-    @ManyToOne(() => User, (user) => user.events, { nullable: false })
-    user: User;
+  @Column()
+  endDate: Date;
+
+  @ManyToOne(() => Calendar, (calendar) => calendar.events, { nullable: false, onDelete: "CASCADE" })
+  calendar: Calendar;
 }
