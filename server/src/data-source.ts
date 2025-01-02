@@ -5,22 +5,20 @@ import { Event } from "./entity/Event";
 import { Calendar } from "./entity/Calendar";
 import { Client } from "pg";  // PostgreSQL client
 
-// TypeORM DataSource configuration
 export const AppDataSource = new DataSource({
     type: "postgres",
     host: "localhost",
     port: 5432,
-    username: "postgres", // Replace with your username
-    password: "", // Replace with your password
+    username: "postgres",
+    password: "", 
     database: "calendar_db",
-    synchronize: true, // Automatically syncs the DB schema (not for production)
+    synchronize: true,
     logging: false,
-    entities: [User, Event, Calendar],
+    entities: [Event, Calendar, User],
     migrations: [],
     subscribers: [],
 });
 
-// Function to create the database if it doesn't exist
 export const createDatabaseIfNotExists = async () => {
     const client = new Client({
         host: "localhost",
@@ -33,12 +31,10 @@ export const createDatabaseIfNotExists = async () => {
     try {
         await client.connect();
 
-        // Check if the database already exists
         const result = await client.query(
             `SELECT 1 FROM pg_database WHERE datname = 'calendar_db'`
         );
 
-        // If the database doesn't exist, create it
         if (result.rows.length === 0) {
             await client.query(`CREATE DATABASE calendar_db`);
             console.log("Database 'calendar_db' has been created!");
