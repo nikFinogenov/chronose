@@ -15,6 +15,9 @@ export class User extends BaseEntity {
 	@Column()
 	password: string;
 
+	@Column({ default: false })
+	isEmailConfirmed: boolean;
+
 	@ManyToMany(() => Calendar, calendar => calendar.users)
 	calendars: Calendar[];
 

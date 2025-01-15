@@ -121,9 +121,5 @@ export const seedDatabase = async () => {
 		console.log('Database has been seeded successfully.');
 	} catch (error) {
 		console.error('Error seeding database:', error.message || error);
-	} finally {
-		console.log('Destroying data source...');
-		await AppDataSource.destroy();
-		console.log('Data source has been destroyed.');
 	}
 };
