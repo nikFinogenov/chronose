@@ -1,38 +1,25 @@
-import { Router, Request, Response } from "express";
-import { Event } from "../entity/Event";
+import { Router, Request, Response } from 'express';
 
 const router = Router();
-// const userRepository = AppDataSource.getRepository(Event);
 
-// Получить всех пользователей
-router.get("/", async (req: Request, res: Response) => {
-    try {
-        const events = await Event.find({ relations: ["calendar"] });
-        res.json(events);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching events", error });
-    }
+router.get('/', (req: Request, res: Response) => {
+	res.json({ message: 'Get all events' });
 });
 
-// Создать нового пользователя
-router.post("/", async (req: Request, res: Response) => {
-    try {
-        const { title, description, startDate, endDate, calendar } = req.body;
-        const newEvent = Event.create({
-            title,
-            description,
-            startDate,
-            endDate,
-            calendar,
-        });
+router.get('/:eventId', (req: Request, res: Response) => {
+	res.json({ message: `Get event with ID: ${req.params.eventId}` });
+});
 
-        // Сохраняем событие в базе данных
-        await newEvent.save();
-        res.status(201).json(newEvent);
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: "Error creating event", error });
-    }
+router.post('/', (req: Request, res: Response) => {
+	res.json({ message: 'Create a new event' });
+});
+
+router.patch('/:eventId', (req: Request, res: Response) => {
+	res.json({ message: `Update event with ID: ${req.params.eventId}` });
+});
+
+router.delete('/:eventId', (req: Request, res: Response) => {
+	res.json({ message: `Delete event with ID: ${req.params.eventId}` });
 });
 
 export default router;
