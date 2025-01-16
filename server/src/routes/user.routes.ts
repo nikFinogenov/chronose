@@ -7,6 +7,7 @@ const userRepository = AppDataSource.getRepository(User);
 
 // Получить всех пользователей
 router.get("/", async (req: Request, res: Response) => {
+    res.status(201).json(`user:negr`)
     // const users = await userRepository.find({ relations: ["events"] });
     // res.json(users);
 });

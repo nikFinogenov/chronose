@@ -2,6 +2,7 @@ import express from "express";
 import { AppDataSource, createDatabaseIfNotExists } from "./src/data-source";
 import userRoutes from "./src/routes/user.routes";
 import eventRoutes from "./src/routes/event.routes";
+import calendarRoutes from "./src/routes/calendar.routes";
 
 const app = express();
 const PORT = 3000;
@@ -11,6 +12,7 @@ app.use(express.json());
 // Connect routes
 app.use("/api/users", userRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/calendars", calendarRoutes);
 
 // Create the database if it doesn't exist, then initialize the data source and start the server
 createDatabaseIfNotExists()
