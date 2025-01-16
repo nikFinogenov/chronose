@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { AuthController } from '../controllers/AuthController';
-// import { authMiddleware } from '../middlewares/Auth';
+import { authMiddleware } from '../middlewares/Auth';
 
 const router = Router();
 
@@ -15,12 +15,12 @@ router.get('/confirm-email/:token', AuthController.confirmEmail.bind(AuthControl
 router.post('/login', AuthController.login.bind(AuthController));
 
 // Logout route with middleware
-router.post('/logout', AuthController.logout.bind(AuthController));
-
-// Password reset request route
-router.post('/password-reset', AuthController.sendResetLink.bind(AuthController));
+router.post('/logout', authMiddleware, AuthController.logout.bind(AuthController));
 
 // Confirm new password route
 router.post('/password-reset/:token', AuthController.confirmNewPassword.bind(AuthController));
+
+// Password reset request route
+router.post('/password-reset', AuthController.sendResetLink.bind(AuthController));
 
 export default router;

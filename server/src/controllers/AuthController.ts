@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { AppDataSource } from '../data-source';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User'; // Assuming User entity is in this path
 import { sendResetPasswordEmail, sendConfirmationEmail } from '../utils/emailService'; // Placeholder for sending email
@@ -16,7 +16,7 @@ interface ConfirmNewPasswordBody {
 export const AuthController = {
 	// Register a new user
 	async register(req: Request, res: Response): Promise<Response> {
-		const { fullName, email, password }: { fullName:string; email: string; password: string } = req.body;
+		const { fullName, email, password }: { fullName: string; email: string; password: string } = req.body;
 
 		const userRepository = AppDataSource.getRepository(User);
 
@@ -94,9 +94,9 @@ export const AuthController = {
 		}
 	},
 
-    async logout(req: Request, res: Response): Promise<Response> {
-        return res.status(200).json({ message: 'Came out, good chel' });
-    },
+	async logout(req: Request, res: Response): Promise<Response> {
+		return res.status(200).json({ message: 'Came out, good chel' });
+	},
 
 	// Send reset link
 	async sendResetLink(req: Request, res: Response): Promise<Response> {
@@ -123,11 +123,12 @@ export const AuthController = {
 	// Confirm new password
 	async confirmNewPassword(req: Request<ConfirmNewPasswordParams, any, ConfirmNewPasswordBody>, res: Response): Promise<Response> {
 		const { token } = req.params;
-		const { newPassword } = req.body;
+		let { newPassword }: { newPassword: string } = req.body;
 
 		try {
+			console.log(token);
 			const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-
+			console.log(decoded);
 			const userRepository = AppDataSource.getRepository(User);
 			const user = await userRepository.findOne({ where: { email: decoded.email } });
 
@@ -135,11 +136,22 @@ export const AuthController = {
 				return res.status(404).json({ message: 'User not found' });
 			}
 
-			user.password = await bcrypt.hash(newPassword, 12);
+			// Преобразуем пароль в строку
+			newPassword = String(newPassword); // Это обеспечит, что пароль будет строкой
+
+			if (newPassword.trim() === '') {
+				return res.status(400).json({ message: 'Invalid password' });
+			}
+
+			// Генерация соли и хеширование пароля
+			const salt = await bcrypt.genSalt(10);
+			user.password = await bcrypt.hash(newPassword, salt);
+
 			await userRepository.save(user);
 
 			return res.status(200).json({ message: 'Password successfully updated' });
 		} catch (error) {
+			console.log(error);
 			return res.status(400).json({ message: 'Invalid or expired token' });
 		}
 	},

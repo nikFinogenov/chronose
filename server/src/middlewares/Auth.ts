@@ -1,21 +1,37 @@
-// import { Request, Response, NextFunction } from 'express';
-// import { User } from '../models/User';
-// import jwt from 'jsonwebtoken';
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+import { User } from '../models/User'; // Adjust the path to point to the correct location
+interface DecodedToken {
+	id: number;
+	email: string;
+}
 
-// export const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
-// 	const token = req.headers.authorization?.split(' ')[1];
+declare global {
+	namespace Express {
+		interface Request {
+			user?: DecodedToken | User; // Теперь можно использовать либо DecodedToken, либо User
+		}
+	}
+}
 
-// 	if (!token) {
-// 		res.status(403).json({ message: 'Access denied, no token provided' });
-// 		return;
-// 	}
+export const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
+	const token = req.headers.authorization?.split(' ')[1];
 
-// 	try {
-// 		const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-// 		req.user = decoded as User; // TypeScript should recognize 'user' now
-// 		next();
-// 	} catch (error) {
-// 		res.status(401).json({ message: 'Invalid or expired token' });
-// 		return;
-// 	}
-// };
+	if (!token) {
+		res.status(403).json({ message: 'Access denied, no token provided' });
+	}
+
+	try {
+		const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
+
+		// Присваиваем данные с типом DecodedToken
+		req.user = {
+			id: decoded.id,
+			email: decoded.email,
+		};
+
+		next();
+	} catch (error) {
+		res.status(401).json({ message: 'Invalid or expired token' });
+	}
+};
