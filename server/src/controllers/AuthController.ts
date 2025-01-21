@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { AppDataSource } from '../data-source';
+import { AppDataSource } from '../database/data-source';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User'; // Assuming User entity is in this path
@@ -35,7 +35,7 @@ export const AuthController = {
 
 			await userRepository.save(newUser);
 
-			const token = jwt.sign({ email: newUser.email }, process.env.JWT_SECRET!, { expiresIn: '1d' });
+			const token = jwt.sign({ email: newUser.email }, process.env.SECRET_KEY!, { expiresIn: '1d' });
 
 			await sendConfirmationEmail(newUser.email, token);
 
@@ -51,7 +51,7 @@ export const AuthController = {
 		const { token } = req.params;
 
 		try {
-			const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+			const decoded: any = jwt.verify(token, process.env.SECRET_KEY!);
 			const userRepository = AppDataSource.getRepository(User);
 
 			const user = await userRepository.findOne({ where: { email: decoded.email } });
@@ -86,7 +86,7 @@ export const AuthController = {
 				return res.status(400).json({ message: 'Invalid credentials' });
 			}
 
-			const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET!, { expiresIn: '1h' });
+			const token = jwt.sign({ id: user.id, email: user.email }, process.env.SECRET_KEY!, { expiresIn: '1h' });
 
 			return res.status(200).json({ message: 'Login successful', token });
 		} catch (error) {
@@ -110,7 +110,7 @@ export const AuthController = {
 				return res.status(404).json({ message: 'User not found' });
 			}
 
-			const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET!, { expiresIn: '1h' });
+			const token = jwt.sign({ email: user.email }, process.env.SECRET_KEY!, { expiresIn: '1h' });
 
 			await sendResetPasswordEmail(user.email, token);
 
@@ -127,7 +127,7 @@ export const AuthController = {
 
 		try {
 			console.log(token);
-			const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+			const decoded: any = jwt.verify(token, process.env.SECRET_KEY!);
 			console.log(decoded);
 			const userRepository = AppDataSource.getRepository(User);
 			const user = await userRepository.findOne({ where: { email: decoded.email } });

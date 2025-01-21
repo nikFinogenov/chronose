@@ -1,19 +1,19 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import { User } from './models/User';
-import { Event } from './models/Event';
-import { Calendar } from './models/Calendar';
+import { User } from '../models/User';
+import { Event } from '../models/Event';
+import { Calendar } from '../models/Calendar';
 import { Client } from 'pg'; // PostgreSQL client
 import { faker } from '@faker-js/faker';
 require('dotenv').config();
 
 export const AppDataSource = new DataSource({
 	type: 'postgres',
-	host: 'localhost',
+	host: process.env.DB_HOST,
 	port: 5432,
-	username: 'postgres',
-	password: process.env.DB_PASS,
-	database: 'mckc',
+	username: process.env.DB_USER,
+	password: process.env.DB_PASSWORD,
+	database: process.env.DB_NAME,
 	synchronize: true,
 	logging: false,
 	entities: [Event, Calendar, User],
@@ -48,6 +48,8 @@ export const createDatabaseIfNotExists = async () => {
 	}
 };
 
+
+// Faker sasat
 export const seedDatabase = async () => {
 	try {
 		console.log('Data source has been initialized. Starting to seed...');

@@ -22,7 +22,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction):
 	}
 
 	try {
-		const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
+		const decoded = jwt.verify(token, process.env.SECRET_KEY!) as DecodedToken;
 
 		// Присваиваем данные с типом DecodedToken
 		req.user = {

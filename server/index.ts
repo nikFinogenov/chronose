@@ -1,5 +1,6 @@
 import express from 'express';
-import { AppDataSource, createDatabaseIfNotExists, seedDatabase } from './src/data-source';
+import { AppDataSource, createDatabaseIfNotExists, seedDatabase } from './src/database/data-source';
+import { createUserAndDatabase } from "./src/database/db.create";
 import userRoutes from './src/routes/user.routes';
 import eventRoutes from './src/routes/event.routes';
 import calendarRoutes from './src/routes/calendar.routes';
@@ -18,7 +19,7 @@ app.use('/api/auth', authRoutes);
 
 
 // Create the database if it doesn't exist, then initialize the data source and start the server
-createDatabaseIfNotExists()
+createUserAndDatabase()
 	.then(() => {
 		AppDataSource.initialize()
 			.then(async () => {
