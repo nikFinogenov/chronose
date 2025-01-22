@@ -33,13 +33,13 @@ export const createDatabaseIfNotExists = async () => {
 	try {
 		await client.connect();
 
-		const result = await client.query(`SELECT 1 FROM pg_database WHERE datname = 'mckc'`);
+		const result = await client.query(`SELECT 1 FROM pg_database WHERE datname = '${process.env.DB_NAME}'`);
 
 		if (result.rows.length === 0) {
-			await client.query(`CREATE DATABASE mckc`);
-			console.log("Database 'mckc' has been created!");
+			await client.query(`CREATE DATABASE ${process.env.DB_NAME}`);
+			console.log(`Database '${process.env.DB_NAME}' has been created!`);
 		} else {
-			console.log("Database 'mckc' already exists.");
+			console.log(`Database '${process.env.DB_NAME}' already exists.`);
 		}
 	} catch (error) {
 		console.error('Error while checking/creating the database:', error);
