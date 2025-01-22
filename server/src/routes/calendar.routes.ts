@@ -1,25 +1,31 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
+import { CalendarController } from '../controllers/CalendarController';
 
 const router = Router();
 
-router.get('/', (req: Request, res: Response) => {
-	res.json({ message: 'Get all calendars' });
-});
+// Calendars
+router.get('/', CalendarController.getAllCalendars.bind(CalendarController));
 
-router.get('/:calendarId', (req: Request, res: Response) => {
-	res.json({ message: `Get calendar with ID: ${req.params.calendarId}` });
-});
+router.get('/owner/:calendarId', CalendarController.getOwnerByCalendarId.bind(CalendarController));
 
-router.post('/', (req: Request, res: Response) => {
-	res.json({ message: 'Create a new calendar' });
-});
+router.get('/:calendarId', CalendarController.getCalendarById.bind(CalendarController));
 
-router.patch('/:calendarId', (req: Request, res: Response) => {
-	res.json({ message: `Update calendar with ID: ${req.params.calendarId}` });
-});
+router.post('/', CalendarController.createCalendar.bind(CalendarController));
 
-router.delete('/:calendarId', (req: Request, res: Response) => {
-	res.json({ message: `Delete calendar with ID: ${req.params.calendarId}` });
-});
+router.patch('/:calendarId', CalendarController.updateCalendar.bind(CalendarController));
+
+router.delete('/:calendarId', CalendarController.deleteCalendar.bind(CalendarController));
+
+// Users in Calendar
+router.get('/:calendarId/users', CalendarController.getUsersInCalendar.bind(CalendarController));
+
+router.post('/:calendarId/users', CalendarController.addUserToCalendar.bind(CalendarController));
+
+router.delete('/:calendarId/users/:userId', CalendarController.removeUserFromCalendar.bind(CalendarController));
+
+// Events in Calendar
+router.get('/:calendarId/events', CalendarController.getEventsInCalendar.bind(CalendarController));
+
+router.post('/:calendarId/events', CalendarController.createEventInCalendar.bind(CalendarController));
 
 export default router;
