@@ -74,7 +74,7 @@ export const seedDatabase = async () => {
 				await user.save();
 				users.push(user);
 			}
-			console.log('Users created:', users);
+			console.log(`Created ${users.length} users:`);
 		}
 
 		let calendars = [];
@@ -93,7 +93,7 @@ export const seedDatabase = async () => {
 				await calendar.save();
 				calendars.push(calendar);
 			}
-			console.log('Calendars created:', calendars);
+			console.log(`Created ${calendars.length} calendars:`);
 		}
 
 		if (eventCount > 0) {
@@ -117,7 +117,7 @@ export const seedDatabase = async () => {
 					events.push(event);
 				}
 			}
-			console.log('Events created:', events);
+			console.log(`Created ${events.length} events:`);
 		}
 
 		console.log('Database has been seeded successfully.');
