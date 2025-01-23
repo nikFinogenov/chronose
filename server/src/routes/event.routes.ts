@@ -1,38 +1,14 @@
-import { Router, Request, Response } from "express";
-import { Event } from "../entity/Event";
+import { Router, Request, Response } from 'express';
+import { EventController } from '../controllers/EventController';
+import { E } from '@faker-js/faker/dist/airline-D6ksJFwG';
 
 const router = Router();
-// const userRepository = AppDataSource.getRepository(Event);
 
-// Получить всех пользователей
-router.get("/", async (req: Request, res: Response) => {
-    try {
-        const events = await Event.find({ relations: ["calendar"] });
-        res.json(events);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching events", error });
-    }
-});
-
-// Создать нового пользователя
-router.post("/", async (req: Request, res: Response) => {
-    try {
-        const { title, description, startDate, endDate, calendar } = req.body;
-        const newEvent = Event.create({
-            title,
-            description,
-            startDate,
-            endDate,
-            calendar,
-        });
-
-        // Сохраняем событие в базе данных
-        await newEvent.save();
-        res.status(201).json(newEvent);
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: "Error creating event", error });
-    }
-});
+router.get('/', EventController.getAllEvents.bind(EventController));
+router.get('/location', EventController.getEventsByLocation.bind(EventController));
+router.get('/:eventId', EventController.getEventById.bind(EventController));
+router.post('/', EventController.createEvent.bind(EventController));
+router.patch('/:eventId',EventController.updateEvent.bind(EventController));
+router.delete('/:eventId', EventController.deleteEvent.bind(EventController));
 
 export default router;
