@@ -5,6 +5,7 @@ import { E } from '@faker-js/faker/dist/airline-D6ksJFwG';
 const router = Router();
 
 router.get('/', EventController.getAllEvents.bind(EventController));
+router.get('/location', EventController.getEventsByLocation.bind(EventController));
 router.get('/:eventId', EventController.getEventById.bind(EventController));
 router.post('/', EventController.createEvent.bind(EventController));
 router.patch('/:eventId',EventController.updateEvent.bind(EventController));

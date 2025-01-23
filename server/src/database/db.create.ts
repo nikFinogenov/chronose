@@ -19,7 +19,6 @@ export const createUserAndDatabase = async (): Promise<void> => {
     let isConnected = false;
 
     try {
-        // console.log(adminDataSource);
         await adminDataSource.initialize();
         isConnected = true;
         logger.info("Connected to the default admin database successfully.");
@@ -30,22 +29,11 @@ export const createUserAndDatabase = async (): Promise<void> => {
         );
 
         if (userExists.length === 0) {
-            try {
-                // Create the user if it doesn't exist
-                await adminDataSource.query(
-                    `CREATE USER "${process.env.DB_USER}" WITH PASSWORD '${process.env.DB_PASSWORD}';`
-                );
-                logger.info(`User "${process.env.DB_USER}" created successfully.`);
-            } catch (error) {
-                // Handle and log duplicate user error
-                if (error.code === "23505" && error.constraint === "pg_authid_rolname_index") {
-                    logger.warn(
-                        `User "${process.env.DB_USER}" already exists (duplicate key violation). Skipping creation.`
-                    );
-                } else {
-                    throw error; // Re-throw unexpected errors
-                }
-            }
+            // Create the user if it doesn't exist
+            await adminDataSource.query(
+                `CREATE USER "${process.env.DB_USER}" WITH PASSWORD '${process.env.DB_PASSWORD}';`
+            );
+            logger.info(`User "${process.env.DB_USER}" created successfully.`);
         } else {
             logger.info(`User "${process.env.DB_USER}" already exists. Skipping user creation.`);
         }

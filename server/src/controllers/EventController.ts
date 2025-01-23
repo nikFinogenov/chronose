@@ -128,10 +128,15 @@ export const EventController = {
     async getEventsByLocation(req: Request, res: Response): Promise<Response> {
         const { location } = req.body;
         try {
-            const events = axios.get(`https://www.googleapis.com/calendar/v3/calendars/
-            en.uk%23holiday%40group.v.calendar.google.com/events?key=${process.env.API_KEY}`)
-            console.log(events);
-            return res.status(500).json({ message: "vashu mamu...." });
+            const calendarId = 'en.uk#holiday@group.v.calendar.google.com';
+            const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${process.env.API_KEY}`
+            axios.get(url)
+                .then(response => {
+                    res.status(200).json(response.data);
+                })
+                .catch(error => {
+                    return res.status(500).json({ 'error': "vashu mamu v podvale eb...", message: error.message });
+                });
         }
         catch (error) {
             console.error(error);
