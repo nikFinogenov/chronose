@@ -1,0 +1,26 @@
+DB_HOST=localhost
+DB_DIALECT=postgres
+DB_PORT=5432
+
+DB_ADMIN_DB=postgres
+DB_ADMIN_USER=postgres
+DB_ADMIN_PASSWORD=12345678
+
+DB_NAME=CloOk
+DB_USER=test-clook-user
+DB_PASSWORD=clook
+
+FRONT_URL=http://localhost:3000
+BACK_URL=http://localhost:3001
+SECRET_KEY='YAHUISOSAL'
+TOKEN_EXPIRES=1h
+
+EMAIL_USER=gaysex@gmail.com
+EMAIL_PASS=0000 0000 0000 0000
+
+#мем в ../utils
+API_KEY=
+AIzaSyB_oLk45jQD ->
+BKj1z-9VxM ->
+pohui x2
+z74bK9Tpc-5Rc -> 

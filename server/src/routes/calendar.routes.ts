@@ -1,38 +1,31 @@
-import { Router, Request, Response } from "express";
-import { Calendar } from "../entity/Calendar";
+import { Router } from 'express';
+import { CalendarController } from '../controllers/CalendarController';
 
 const router = Router();
-// const userRepository = AppDataSource.getRepository(Event);
 
-// Получить всех пользователей
-router.get("/", async (req: Request, res: Response) => {
-    // try {
-    //     const events = await Event.find({ relations: ["calendar"] });
-    //     res.json(events);
-    // } catch (error) {
-    //     res.status(500).json({ message: "Error fetching events", error });
-    // }
-});
+// Calendars
+router.get('/', CalendarController.getAllCalendars.bind(CalendarController));
 
-// Создать нового пользователя
-router.post("/", async (req: Request, res: Response) => {
-    // try {
-    //     const { title, description, startDate, endDate, calendar } = req.body;
-    //     const newEvent = Event.create({
-    //         title,
-    //         description,
-    //         startDate,
-    //         endDate,
-    //         calendar,
-    //     });
+router.get('/owner/:calendarId', CalendarController.getOwnerByCalendarId.bind(CalendarController));
 
-    //     // Сохраняем событие в базе данных
-    //     await newEvent.save();
-    //     res.status(201).json(newEvent);
-    // } catch (error) {
-    //     console.log(error);
-    //     res.status(500).json({ message: "Error creating event", error });
-    // }
-});
+router.get('/:calendarId', CalendarController.getCalendarById.bind(CalendarController));
+
+router.post('/', CalendarController.createCalendar.bind(CalendarController));
+
+router.patch('/:calendarId', CalendarController.updateCalendar.bind(CalendarController));
+
+router.delete('/:calendarId', CalendarController.deleteCalendar.bind(CalendarController));
+
+// Users in Calendar
+router.get('/:calendarId/users', CalendarController.getUsersInCalendar.bind(CalendarController));
+
+router.post('/:calendarId/users', CalendarController.addUserToCalendar.bind(CalendarController));
+
+router.delete('/:calendarId/users/:userId', CalendarController.removeUserFromCalendar.bind(CalendarController));
+
+// Events in Calendar
+router.get('/:calendarId/events', CalendarController.getEventsInCalendar.bind(CalendarController));
+
+router.post('/:calendarId/events', CalendarController.createEventInCalendar.bind(CalendarController));
 
 export default router;

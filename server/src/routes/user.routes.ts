@@ -1,25 +1,25 @@
-import { Router, Request, Response } from "express";
-import { AppDataSource } from "../data-source";
-import { User } from "../entity/User";
+import { Router, Request, Response } from 'express';
 
 const router = Router();
-const userRepository = AppDataSource.getRepository(User);
 
-// Получить всех пользователей
-router.get("/", async (req: Request, res: Response) => {
-    res.status(201).json(`user:negr`)
-    // const users = await userRepository.find({ relations: ["events"] });
-    // res.json(users);
+router.get('/', (req: Request, res: Response) => {
+	res.json({ message: 'Get all users' });
 });
 
-// Создать нового пользователя
-router.post("/", async (req: Request, res: Response) => {
-    // const { name, email } = req.body;
+router.get('/:userId', (req: Request, res: Response) => {
+	res.json({ message: `Get user with ID: ${req.params.userId}` });
+});
 
-    // const user = userRepository.create({ name, email });
-    // await userRepository.save(user);
+router.get('/:userId/calendars', (req: Request, res: Response) => {
+	res.json({ message: `Get calendars for user with ID: ${req.params.userId}` });
+});
 
-    // res.status(201).json(user);
+router.patch('/:userId', (req: Request, res: Response) => {
+	res.json({ message: `Update user with ID: ${req.params.userId}` });
+});
+
+router.delete('/:userId', (req: Request, res: Response) => {
+	res.json({ message: `Delete user with ID: ${req.params.userId}` });
 });
 
 export default router;
