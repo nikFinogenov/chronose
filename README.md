@@ -13,6 +13,8 @@ Ensure you have the following installed on your system:
 Before starting, create an `.env` file in the `server` directory with the following structure:
 
 ```dotenv
+PORT=8000
+
 DB_HOST=localhost
 DB_DIALECT=postgres
 DB_PORT=5432
