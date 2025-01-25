@@ -7,7 +7,7 @@ import calendarRoutes from './src/routes/calendar.routes';
 import authRoutes from './src/routes/auth.routes'
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT;
 
 app.use(express.json());
 
