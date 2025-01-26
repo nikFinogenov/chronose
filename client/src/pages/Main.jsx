@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 // import { fetchPosts } from '../services/postService';
 // import PostPreview from '../components/PostPreview';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
 import kto from '../assets/kto.jpeg';
 
@@ -11,6 +11,7 @@ import kto from '../assets/kto.jpeg';
 function Main() {
     const [loading, setLoading] = useState(true);
     const location = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const loadCals = async () => {
@@ -41,6 +42,7 @@ function Main() {
                 alt="Kto?"
                 className="rounded-full mr-2"
             />
+            <button class="btn btn-secondary mt-5" onClick={() => navigate('/login')}>Go to Login</button>
         </div>
 
     );

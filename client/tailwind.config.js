@@ -1,5 +1,9 @@
 module.exports = {
     content: ["./public/index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+    daisyui: {
+      themes: ["light", "dark", "cupcake"],
+    },
+    // prefix: 'tw-',
     theme: {
       extend: {
         animation: {
@@ -18,5 +22,5 @@ module.exports = {
         },
       },
     },
-    plugins: [require('@tailwindcss/typography')],
+    plugins: [require('@tailwindcss/typography'), require('daisyui')],
   };
