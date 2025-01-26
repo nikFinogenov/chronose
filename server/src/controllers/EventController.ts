@@ -130,8 +130,13 @@ export const EventController = {
         const { location } = req.body;
         try {
             const calendarId = 'en.uk#holiday@group.v.calendar.google.com';
-            const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${process.env.API_KEY}`
-            axios.get(url)
+            // const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${process.env.API_KEY}`
+            const calendarId2 = process.env.CAL_ID;
+            // const url2 = `http://www.google.com/calendar/feeds/${calendarId2}@group.calendar.google.com/public/basic?orderby=starttime&sortorder=ascending&futureevents=true&alt=json`;
+            // const url3 = 'https://calendar.google.com/calendar/embed?src=557e257b840e8d107489e152e47089b06807d3eae5ad108175591df36a67066b%40group.calendar.google.com&ctz=Europe%2FKiev'
+            // const url4 = 'https://calendar.google.com/calendar/ical/557e257b840e8d107489e152e47089b06807d3eae5ad108175591df36a67066b%40group.calendar.google.com/public/basic.ics'
+            const url5 = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId2)}/events?key=${process.env.API_KEY}`
+            axios.get(url5)
                 .then(response => {
                     res.status(200).json(response.data);
                 })
