@@ -35,7 +35,7 @@ function Main() {
     const handleConfirm = () => {
         console.log(country);
         if (country !== undefined) {
-            axios.get(`${process.env.REACT_APP_API_URL}/events/location`)
+            axios.post(`${process.env.REACT_APP_API_URL}/events/location`, country)
                 .then(response => {
                     console.log(response.data);
                 })

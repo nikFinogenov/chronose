@@ -2,6 +2,14 @@ import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 import { CountryDropdown } from 'react-country-region-selector';
 
+const renameCountry = (name) => {
+  const renamedCountries = {
+    "Korea, Republic of": "South Korea",
+  };
+
+  return renamedCountries[name] || name; // Use the renamed value or fallback to the original name
+};
+
 const customRender = (props) => {
   const {
     options,
@@ -13,10 +21,16 @@ const customRender = (props) => {
     ...selectProps
   } = props;
 
+  const modifiedOptions = options.map((option) => ({
+    ...option,
+    label: renameCountry(option.label),
+    value: renameCountry(option.value)
+  }));
+
   return (
     <Select
       {...selectProps}
-      options={options}
+      options={modifiedOptions}
       isDisabled={disabled}
       isSearchable={true}
       isClearable={true}

@@ -126,6 +126,7 @@ export const EventController = {
     },//tozhe samoe est v calendar controllere -_-  ->  .|.
 
     async getEventsByLocation(req: Request, res: Response): Promise<Response> {
+        console.log(req.body);
         const { location } = req.body;
         try {
             const calendarId = 'en.uk#holiday@group.v.calendar.google.com';
