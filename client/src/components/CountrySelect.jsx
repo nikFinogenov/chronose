@@ -5,6 +5,7 @@ import { CountryDropdown } from 'react-country-region-selector';
 const renameCountry = (name) => {
   const renamedCountries = {
     "Korea, Republic of": "South Korea",
+    "Korea, Democratic People's Republic of": "North Korea"
   };
 
   return renamedCountries[name] || name; // Use the renamed value or fallback to the original name
