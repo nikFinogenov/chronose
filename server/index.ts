@@ -5,9 +5,27 @@ import userRoutes from './src/routes/user.routes';
 import eventRoutes from './src/routes/event.routes';
 import calendarRoutes from './src/routes/calendar.routes';
 import authRoutes from './src/routes/auth.routes'
+import cors from 'cors';
 
 const app = express();
 const PORT = process.env.PORT;
+
+const allowedOrigins = [
+	'http://localhost:3000',
+	// `http://${IP}:3000`,
+  ];
+
+const corsOptions = {
+	origin: function (origin, callback) {
+		if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+			callback(null, true);
+		} else {
+			callback(new Error('Not allowed by CORS'));
+		}
+	},
+	credentials: true,
+  };
+  app.use(cors(corsOptions));
 
 app.use(express.json());
 
@@ -23,7 +41,7 @@ createUserAndDatabase()
 	.then(() => {
 		AppDataSource.initialize()
 			.then(async () => {
-				console.log('Data Source has been initialized!');
+				// console.log('Data Source has been initialized!');
 
 				await seedDatabase();
 

@@ -7,12 +7,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import ReactSelect from '../components/CountrySelect'
 import LoadingSpinner from '../components/LoadingSpinner';
 import kto from '../assets/kto.jpeg';
+import axios from 'axios';
 
 
 function Main() {
     const [loading, setLoading] = useState(true);
     const location = useLocation();
     const navigate = useNavigate();
+    const [country, setCountry] = useState(null);
 
     useEffect(() => {
         const loadCals = async () => {
@@ -30,6 +32,19 @@ function Main() {
         loadCals();
     }, [location]);
 
+    const handleConfirm = () => {
+        axios.get(`${process.env.REACT_APP_API_URL}/events/location`)
+        .then(response => {
+          console.log(response.data);
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    //   console.log('Selected Country:', country);
+  
+      // Add logic to use the selected values, e.g., send to an API
+    };
+
     if (loading) return <LoadingSpinner />;
 
     return (
@@ -43,8 +58,14 @@ function Main() {
                 alt="Kto?"
                 className="rounded-full mr-2"
             />
-            <button class="btn btn-secondary mt-5" onClick={() => navigate('/login')}>Go to Login</button>
-            <ReactSelect />
+            <button className="btn btn-secondary mt-5" onClick={() => navigate('/login')}>Go to Login</button>
+            <div>
+                <ReactSelect onSelectionChange={setCountry}/>
+                <button className='btn btn-success' onClick={() => handleConfirm()}>confirm</button>
+            </div>
+            <div className="events">
+
+            </div>
         </div>
 
     );

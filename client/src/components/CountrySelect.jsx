@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
-import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
+import { CountryDropdown } from 'react-country-region-selector';
 
 const customRender = (props) => {
   const {
@@ -26,9 +26,31 @@ const customRender = (props) => {
   );
 };
 
-const ReactSelect = () => {
+const ReactSelect = ({ onSelectionChange }) => {
   const [country, setCountry] = useState(undefined);
-  const [region, setRegion] = useState(undefined);
+  //   const [region, setRegion] = useState(undefined);
+
+  useEffect(() => {
+    const fetchUserCountry = async () => {
+      try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+
+        if (data && data.country_name) {
+          setCountry({ label: data.country_name, value: data.country_name });
+        }
+      } catch (error) {
+        console.error('Error fetching user country:', error);
+      }
+    };
+
+    fetchUserCountry();
+  }, []);
+  useEffect(() => {
+    if (onSelectionChange) {
+      onSelectionChange({ country });
+    }
+  }, [country, onSelectionChange]);
 
   return (
     <>
@@ -43,12 +65,12 @@ const ReactSelect = () => {
             classNamePrefix: 'country-',
             onChange: (value) => {
               setCountry(value || undefined);
-              setRegion(null);
+              //   setRegion(null);
             },
           }}
         />
       </div>
-      <div style={{ width: 200, display: 'inline-block' }}>
+      {/* <div style={{ width: 200, display: 'inline-block' }}>
         <RegionDropdown
           country={country ? country.value : ''}
           value={region ? region.value : null}
@@ -63,7 +85,7 @@ const ReactSelect = () => {
             },
           }}
         />
-      </div>
+      </div> */}
     </>
   );
 };

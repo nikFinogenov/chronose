@@ -8,6 +8,7 @@
     "@emotion/styled": "^11.14.0",
     "@mui/material": "^6.4.1",
     "@tailwindcss/typography": "^0.5.16",
+    "axios": "^1.7.9",
     "cra-template": "1.2.0",
     "react": "^19.0.0",
     "react-country-region-selector": "^4.0.2",
