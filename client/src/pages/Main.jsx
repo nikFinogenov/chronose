@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 // import { fetchPosts } from '../services/postService';
 // import PostPreview from '../components/PostPreview';
 import { useLocation, useNavigate } from 'react-router-dom';
+import ReactSelect from '../components/CountrySelect'
 import LoadingSpinner from '../components/LoadingSpinner';
 import kto from '../assets/kto.jpeg';
 
@@ -43,6 +44,7 @@ function Main() {
                 className="rounded-full mr-2"
             />
             <button class="btn btn-secondary mt-5" onClick={() => navigate('/login')}>Go to Login</button>
+            <ReactSelect />
         </div>
 
     );

@@ -10,10 +10,12 @@
     "@tailwindcss/typography": "^0.5.16",
     "cra-template": "1.2.0",
     "react": "^19.0.0",
+    "react-country-region-selector": "^4.0.2",
     "react-dom": "^19.0.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.1.2",
-    "react-scripts": "5.0.1"
+    "react-scripts": "5.0.1",
+    "react-select": "^5.10.0"
   },
   "scripts": {
     "start": "react-scripts start",
