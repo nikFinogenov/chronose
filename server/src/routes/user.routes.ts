@@ -1,25 +1,28 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
+import { UserController } from '../controllers/UserController';
 
 const router = Router();
 
-router.get('/', (req: Request, res: Response) => {
-	res.json({ message: 'Get all users' });
-});
+// TODO: what is bind and why it does not work without it
+// Create a new user
+router.post('/', UserController.createUser.bind(UserController));
 
-router.get('/:userId', (req: Request, res: Response) => {
-	res.json({ message: `Get user with ID: ${req.params.userId}` });
-});
+// Get all users
+router.get('/', UserController.getUsers.bind(UserController));
 
-router.get('/:userId/calendars', (req: Request, res: Response) => {
-	res.json({ message: `Get calendars for user with ID: ${req.params.userId}` });
-});
+// Get a specific user by ID
+router.get('/:id', UserController.getUserById.bind(UserController));
 
-router.patch('/:userId', (req: Request, res: Response) => {
-	res.json({ message: `Update user with ID: ${req.params.userId}` });
-});
+// Update a user's information
+router.patch('/:id', UserController.updateUser.bind(UserController));
 
-router.delete('/:userId', (req: Request, res: Response) => {
-	res.json({ message: `Delete user with ID: ${req.params.userId}` });
-});
+// Delete a user
+router.delete('/:id', UserController.deleteUser.bind(UserController));
+
+// Get all calendars owned by a user
+router.get('/:id/owned-calendars', UserController.getOwnedCalendars.bind(UserController));
+
+// Get all shared calendars for a user
+router.get('/:id/shared-calendars', UserController.getSharedCalendars.bind(UserController));
 
 export default router;
