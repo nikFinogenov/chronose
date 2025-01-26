@@ -33,16 +33,23 @@ function Main() {
     }, [location]);
 
     const handleConfirm = () => {
-        axios.get(`${process.env.REACT_APP_API_URL}/events/location`)
-        .then(response => {
-          console.log(response.data);
-        })
-        .catch(error => {
-          console.error(error);
-        });
-    //   console.log('Selected Country:', country);
-  
-      // Add logic to use the selected values, e.g., send to an API
+        console.log(country);
+        if (country !== undefined) {
+            axios.get(`${process.env.REACT_APP_API_URL}/events/location`)
+                .then(response => {
+                    console.log(response.data);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+        else {
+            console.log('ebanutiy?')
+        }
+
+        //   console.log('Selected Country:', country);
+
+        // Add logic to use the selected values, e.g., send to an API
     };
 
     if (loading) return <LoadingSpinner />;
@@ -60,7 +67,7 @@ function Main() {
             />
             <button className="btn btn-secondary mt-5" onClick={() => navigate('/login')}>Go to Login</button>
             <div>
-                <ReactSelect onSelectionChange={setCountry}/>
+                <ReactSelect onSelectionChange={setCountry} />
                 <button className='btn btn-success' onClick={() => handleConfirm()}>confirm</button>
             </div>
             <div className="events">

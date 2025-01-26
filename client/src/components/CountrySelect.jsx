@@ -48,7 +48,7 @@ const ReactSelect = ({ onSelectionChange }) => {
   }, []);
   useEffect(() => {
     if (onSelectionChange) {
-      onSelectionChange({ country });
+      onSelectionChange(country);
     }
   }, [country, onSelectionChange]);
 
