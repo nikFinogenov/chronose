@@ -16,7 +16,12 @@ async function getCalendarId(location: string): Promise<string | null> {
                 // Find the row where the country label matches the location
                 const row = results.find((row) => row['Religion/Country'] === location);
                 if (row) {
-                    resolve(row['calendarID']); // Assuming the column is named "CalendarId"
+                    const calendarId = row['calendarID'];
+                    if (calendarId) {
+                        resolve(calendarId); // Возвращаем найденный ID
+                    } else {
+                        resolve(process.env.CAL_ID || null); // Если ID пустой, вернуть значение из переменных окружения
+                    }
                 } else {
                     resolve(null); // No match found
                 }
@@ -160,7 +165,6 @@ export const EventController = {
 
             // Make the request to Google Calendar API
             const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${process.env.API_KEY}`;
-            const url_personal = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(process.env.CAL_ID)}/events?key=${process.env.API_KEY}`
             // console.log(url);
             axios.get(url)
                 .then(response => {
