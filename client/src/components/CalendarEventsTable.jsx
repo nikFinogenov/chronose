@@ -7,9 +7,11 @@ const CalendarEventsTable = ({ events }) => {
 
     items.forEach((item) => {
       const { summary, description, start } = item;
+
       if (!groupedEvents[summary]) {
         groupedEvents[summary] = { description, dates: [] };
       }
+
       groupedEvents[summary].dates.push(start.date);
     });
 
@@ -17,15 +19,14 @@ const CalendarEventsTable = ({ events }) => {
     return Object.entries(groupedEvents).map(([summary, data]) => ({
       summary,
       description: data.description,
-      dates: [...new Set(data.dates)].sort(), // Удаляем дублирующиеся даты
+      dates: [...new Set(data.dates)].sort(), // Удаляем дублирующиеся даты и сортируем
     }));
   };
 
   const [processedData, setProcessedData] = useState([]);
 
   useEffect(() => {
-    if (events != undefined) {
-        // console.log(events);
+    if (events) {
       setProcessedData(processEvents(events.items));
     }
   }, [events]);
@@ -44,13 +45,13 @@ const CalendarEventsTable = ({ events }) => {
         <tbody>
           {processedData.map((event, index) => (
             <tr key={index} className="border-b">
-              <td className="py-2 px-4">{event.summary}</td>
+              <td className="py-2 px-4 font-semibold">{event.summary}</td>
               <td className="py-2 px-4">{event.description || "—"}</td>
               <td className="py-2 px-4">
                 {event.dates.map((date) => (
                   <span
                     key={date}
-                    className="inline-block bg-gray-200 text-sm px-2 py-1 rounded-lg mr-2 mb-1"
+                    className="inline-block bg-blue-200 text-blue-800 text-sm px-2 py-1 rounded-lg mr-2 mb-1"
                   >
                     {date}
                   </span>
