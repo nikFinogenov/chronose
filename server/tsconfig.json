@@ -10,7 +10,13 @@
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,
 		"typeRoots": ["node_modules/@types", "types"],
+<<<<<<< HEAD
 		"types": ["express", "jest", "node"]
 	},
 	"include": ["src/**/*.ts", "src/**/*.test.ts"]
+=======
+		"types": ["express"]
+	},
+	"include": ["src/**/*", "types/**/*"]
+>>>>>>> 65156c1367936da257920441ac52f0aadae5bc4d
 }
