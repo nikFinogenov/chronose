@@ -5,6 +5,9 @@ import { Event } from '../models/Event';
 import { Calendar } from '../models/Calendar';
 import { Client } from 'pg'; // PostgreSQL client
 import { faker } from '@faker-js/faker';
+import fs from 'fs';
+import csv from 'csv-parser';
+import axios from 'axios';
 require('dotenv').config();
 
 export const AppDataSource = new DataSource({
@@ -45,6 +48,30 @@ export const createDatabaseIfNotExists = async () => {
 		console.error('Error while checking/creating the database:', error);
 	} finally {
 		await client.end();
+	}
+};
+export const createAdmin = async () => {
+	try {
+		console.log('Creating admin user...');
+
+		// Check if there's already an admin user with id 0
+		const existingAdmin = await User.findOne({ where: { id: 0 } });
+		if (existingAdmin) {
+			console.log('Admin user already exists. Skipping creation.');
+			return; // If admin exists, skip creation
+		}
+
+		// Create a new admin user
+		const adminUser = User.create({
+			fullName: 'Админ биг пенисович', // Set the name for the admin
+			email: 'a_tebya_ebet_moy_email?.com', // Admin's email
+			password: 'ультрамегабольшойсуперпаролькоторыйхуйктовзломает5423123', // Admin's password (you should hash this in a real application)
+		});
+
+		await adminUser.save();
+		console.log('Admin user created with id 0');
+	} catch (error) {
+		console.error('Error creating admin user:', error.message || error);
 	}
 };
 
@@ -125,3 +152,141 @@ export const seedDatabase = async () => {
 		console.error('Error seeding database:', error.message || error);
 	}
 };
+
+export const seedLocalEvents = async () => {
+    try {
+        console.log('Seeding local events...');
+
+        // Получаем все уникальные страны из cal.csv
+        const countries = await getCountriesFromCSV();
+
+        for (const country of countries) {
+            const calendarId = await getCalendarId(country);
+            if (!calendarId) {
+                console.log(`No calendar found for location: ${country}`);
+                continue; // Пропускаем, если календарь не найден
+            }
+
+            // Получаем события для данного календаря
+            const events = await getEventsByCalendarId(calendarId);
+            if (!events) {
+                console.log(`No events found for calendar ID: ${calendarId}`);
+                continue; // Пропускаем, если события не найдены
+            }
+
+            // Обрабатываем события
+            const groupedEvents = processEvents(events);
+
+            // Создаем календарь и события в базе данных
+            await createCalendarAndEvents(country, groupedEvents);
+		}
+        console.log('Seeding completed successfully.');
+    } catch (error) {
+        console.error('Error seeding local events:', error.message || error);
+    }
+};
+
+// Функция для получения всех уникальных стран из cal.csv
+const getCountriesFromCSV = async (): Promise<string[]> => {
+    return new Promise((resolve, reject) => {
+        const countries: Set<string> = new Set();
+
+        fs.createReadStream('cal.csv')
+            .pipe(csv())
+            .on('data', (data) => {
+                const country = data['Religion/Country'];
+                if (country) {
+                    countries.add(country);
+                }
+            })
+            .on('end', () => {
+                resolve(Array.from(countries)); // Возвращаем массив уникальных стран
+            })
+            .on('error', (err) => reject(err));
+    });
+};
+
+// Функция для получения ID календаря по стране
+async function getCalendarId(location: string): Promise<string | null> {
+    return new Promise((resolve, reject) => {
+        const results: Record<string, string>[] = [];
+
+        fs.createReadStream('cal.csv')
+            .pipe(csv())
+            .on('data', (data) => results.push(data))
+            .on('end', () => {
+                const row = results.find((row) => row['Religion/Country'] === location);
+                if (row) {
+                    const calendarId = row['calendarID'];
+                    if (calendarId) {
+                        resolve(calendarId);
+                    } else {
+                        resolve(process.env.CAL_ID || null);
+                    }
+                } else {
+                    resolve(null);
+                }
+            })
+            .on('error', (err) => reject(err));
+    });
+}
+
+// Функция для получения событий по ID календаря
+const getEventsByCalendarId = async (calendarId: string): Promise<any[]> => {
+    try {
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${process.env.API_KEY}`;
+        const response = await axios.get(url);
+        return response.data.items || [];
+    } catch (error) {
+        console.error(`Error fetching events for calendar ID ${calendarId}:`, error.message);
+        return [];
+    }
+};
+
+// Функция для обработки событий
+const processEvents = (items: any[]) => {
+    const groupedEvents: Record<string, { description: string, dates: string[] }> = {};
+    const postfixRegex = /\s*(\([^)]+\)|observed|\(tentative\)|Suspended)+/g;
+
+    items.forEach((item) => {
+        const { summary, description, start } = item;
+        const cleanedSummary = summary.replace(postfixRegex, '').trim();
+
+        if (!groupedEvents[cleanedSummary]) {
+            groupedEvents[cleanedSummary] = { description, dates: [] };
+        }
+
+        groupedEvents[cleanedSummary].dates.push(start.date);
+    });
+
+    return groupedEvents;
+};
+
+// Функция для создания календаря и событий в базе данных
+const createCalendarAndEvents = async (country: string, groupedEvents: Record<string, { description: string, dates: string[] }>) => {
+    const admin = await User.findOne({ where: { email: 'a_tebya_ebet_moy_email?.com' } });
+	const countryCalendar = await Calendar.create({
+        name: `Holidays in ${country}`,
+        description: `Holidays and events for ${country}`,
+		owner: admin,
+		users:[admin]
+    });
+    await countryCalendar.save(); // Сохраняем календарь
+	// console.log(countryCalendar);
+    for (const [eventTitle, eventData] of Object.entries(groupedEvents)) {
+        const { description, dates } = eventData;
+
+        for (let date of dates) {
+            const event = Event.create({
+                title: eventTitle,
+                description: description,
+                startDate: new Date(date),
+                endDate: new Date(date),
+                calendar: countryCalendar,
+            });
+            await event.save(); // Сохраняем событие
+            console.log(`Created event: ${eventTitle} for ${country} on ${date}`);
+        }
+    }
+};
+
