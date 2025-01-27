@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-
-=======
 import { Request, Response } from 'express';
 import { Event } from '../models/Event';
 import { Calendar } from '../models/Calendar';
@@ -182,4 +179,3 @@ export const EventController = {
         }
     }
 };
->>>>>>> 65156c1367936da257920441ac52f0aadae5bc4d

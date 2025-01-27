@@ -77,8 +77,4 @@ export const createUserAndDatabase = async (): Promise<void> => {
 };
 
 // Run the script
-<<<<<<< HEAD
-createUserAndDatabase();
-=======
 // createUserAndDatabase();
->>>>>>> 65156c1367936da257920441ac52f0aadae5bc4d

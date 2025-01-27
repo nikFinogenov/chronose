@@ -5,22 +5,15 @@ import { Event } from '../models/Event';
 import { Calendar } from '../models/Calendar';
 import { Client } from 'pg'; // PostgreSQL client
 import { faker } from '@faker-js/faker';
-<<<<<<< HEAD
-=======
 import fs from 'fs';
 import csv from 'csv-parser';
 import axios from 'axios';
->>>>>>> 65156c1367936da257920441ac52f0aadae5bc4d
 require('dotenv').config();
 
 export const AppDataSource = new DataSource({
 	type: 'postgres',
 	host: process.env.DB_HOST,
-<<<<<<< HEAD
-	port: 5432,
-=======
 	port: Number(process.env.DB_PORT),
->>>>>>> 65156c1367936da257920441ac52f0aadae5bc4d
 	username: process.env.DB_USER,
 	password: process.env.DB_PASSWORD,
 	database: process.env.DB_NAME,
@@ -57,8 +50,6 @@ export const createDatabaseIfNotExists = async () => {
 		await client.end();
 	}
 };
-<<<<<<< HEAD
-=======
 export const createAdmin = async () => {
 	try {
 		console.log('Creating admin user...');
@@ -83,7 +74,6 @@ export const createAdmin = async () => {
 		console.error('Error creating admin user:', error.message || error);
 	}
 };
->>>>>>> 65156c1367936da257920441ac52f0aadae5bc4d
 
 
 // Faker sasat
@@ -111,11 +101,7 @@ export const seedDatabase = async () => {
 				await user.save();
 				users.push(user);
 			}
-<<<<<<< HEAD
-			console.log('Users created:', users);
-=======
 			console.log(`Created ${users.length} users:`);
->>>>>>> 65156c1367936da257920441ac52f0aadae5bc4d
 		}
 
 		let calendars = [];
@@ -134,11 +120,7 @@ export const seedDatabase = async () => {
 				await calendar.save();
 				calendars.push(calendar);
 			}
-<<<<<<< HEAD
-			console.log('Calendars created:', calendars);
-=======
 			console.log(`Created ${calendars.length} calendars:`);
->>>>>>> 65156c1367936da257920441ac52f0aadae5bc4d
 		}
 
 		if (eventCount > 0) {
@@ -162,11 +144,7 @@ export const seedDatabase = async () => {
 					events.push(event);
 				}
 			}
-<<<<<<< HEAD
-			console.log('Events created:', events);
-=======
 			console.log(`Created ${events.length} events:`);
->>>>>>> 65156c1367936da257920441ac52f0aadae5bc4d
 		}
 
 		console.log('Database has been seeded successfully.');
@@ -174,8 +152,6 @@ export const seedDatabase = async () => {
 		console.error('Error seeding database:', error.message || error);
 	}
 };
-<<<<<<< HEAD
-=======
 
 export const seedLocalEvents = async () => {
     try {
@@ -314,4 +290,3 @@ const createCalendarAndEvents = async (country: string, groupedEvents: Record<st
     }
 };
 
->>>>>>> 65156c1367936da257920441ac52f0aadae5bc4d

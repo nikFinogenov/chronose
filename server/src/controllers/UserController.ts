@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-
-=======
 import { Request, Response } from 'express';
 import { Calendar } from '../models/Calendar';
 import { User } from '../models/User';
@@ -137,4 +134,3 @@ export class UserController {
         }
     }
 }
->>>>>>> 65156c1367936da257920441ac52f0aadae5bc4d
