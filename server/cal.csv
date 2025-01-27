@@ -1,6 +1,3 @@
-https://gist.github.com/dhoeric/76bd1c15168ee0ee61ad3bf1730dcb65,origin data
-https://github.com/country-regions/country-region-data/blob/master/data.json,codes for blacklist
-
 Religion/Country,calendarID
 
 Christian,en.christian#holiday@group.v.calendar.google.com
@@ -9,14 +6,14 @@ Jewish,en.judaism#holiday@group.v.calendar.google.com
 Muslim,en.islamic#holiday@group.v.calendar.google.com
 Orthodox,en.orthodox_christianity#holiday@group.v.calendar.google.com
 
-Afghanistan,en.af.official#holiday@group.v.calendar.google.com	
+Afghanistan,en.af.official#holiday@group.v.calendar.google.com
 Åland Islands,
 Albania,en.al.official#holiday@group.v.calendar.google.com
 Algeria,en.dz.official#holiday@group.v.calendar.google.com
 American Samoa,en.as.official#holiday@group.v.calendar.google.com
 Andorra,en.ad.official#holiday@group.v.calendar.google.com
 Angola,en.ao.official#holiday@group.v.calendar.google.com
-Anguilla,en.ai.official#holiday@group.v.calendar.google.com	
+Anguilla,en.ai.official#holiday@group.v.calendar.google.com
 Antarctica,
 Antigua and Barbuda,en.ag.official#holiday@group.v.calendar.google.com
 Argentina,en.ar.official#holiday@group.v.calendar.google.com
@@ -258,3 +255,5 @@ Western Sahara,
 Yemen,en.ye.official#holiday@group.v.calendar.google.com
 Zambia,en.zm.official#holiday@group.v.calendar.google.com
 Zimbabwe,en.zw.official#holiday@group.v.calendar.google.com
+https://gist.github.com/dhoeric/76bd1c15168ee0ee61ad3bf1730dcb65,origin data
+https://github.com/country-regions/country-region-data/blob/master/data.json,codes for blacklist
