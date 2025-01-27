@@ -4,17 +4,23 @@ const CalendarEventsTable = ({ events }) => {
   // Функция для фильтрации и группировки данных
   const processEvents = (items) => {
     const groupedEvents = {};
-
+  
+    // Обновленное регулярное выражение для удаления постфиксов
+    const postfixRegex = /\s*(\([^)]+\)|observed|\(tentative\)|Suspended)+/g;
+  
     items.forEach((item) => {
       const { summary, description, start } = item;
-
-      if (!groupedEvents[summary]) {
-        groupedEvents[summary] = { description, dates: [] };
+  
+      // Убираем все постфиксы из summary
+      const cleanedSummary = summary.replace(postfixRegex, '').trim();
+  
+      if (!groupedEvents[cleanedSummary]) {
+        groupedEvents[cleanedSummary] = { description, dates: [] };
       }
-
-      groupedEvents[summary].dates.push(start.date);
+  
+      groupedEvents[cleanedSummary].dates.push(start.date);
     });
-
+  
     // Преобразовать в массив и отсортировать даты
     return Object.entries(groupedEvents).map(([summary, data]) => ({
       summary,
@@ -22,7 +28,7 @@ const CalendarEventsTable = ({ events }) => {
       dates: [...new Set(data.dates)].sort(), // Удаляем дублирующиеся даты и сортируем
     }));
   };
-
+  
   const [processedData, setProcessedData] = useState([]);
 
   useEffect(() => {
