@@ -160,6 +160,7 @@ export const EventController = {
 
             // Make the request to Google Calendar API
             const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${process.env.API_KEY}`;
+            const url_personal = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(process.env.CAL_ID)}/events?key=${process.env.API_KEY}`
             // console.log(url);
             axios.get(url)
                 .then(response => {
