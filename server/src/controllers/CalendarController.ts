@@ -6,7 +6,7 @@ import { Event } from '../models/Event';
 export const CalendarController = {
 	async getAllCalendars(req: Request, res: Response): Promise<Response> {
 		try {
-			const calendars = await Calendar.find({ relations: ['id', 'owner', 'events', 'users'] });
+			const calendars = await Calendar.find({ relations: ['owner', 'events', 'users'] });
 			return res.status(200).json(calendars);
 		} catch (error) {
 			console.error(error);
@@ -20,7 +20,7 @@ export const CalendarController = {
 		try {
 			const calendar = await Calendar.findOne({
 				where: { id: Number(calendarId) },
-				relations: ['id', 'owner', 'events', 'users'],
+				relations: ['owner', 'events', 'users'],
 			});
 
 			if (!calendar) {

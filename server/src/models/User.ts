@@ -21,6 +21,6 @@ export class User extends BaseEntity {
 	@ManyToMany(() => Calendar, calendar => calendar.users)
 	calendars: Calendar[];
 
-	@OneToMany(() => Calendar, calendar => calendar.owner)
+	@OneToMany(() => Calendar, calendar => calendar.owner, { onDelete: 'CASCADE' })
 	ownedCalendars: Calendar[];
 }
