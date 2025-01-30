@@ -1,5 +1,6 @@
+// components/Main.jsx
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import ReactSelect from '../components/CountrySelect';
 import LoadingSpinner from '../components/LoadingSpinner';
 import CalendarGrid from '../components/CalendarGrid';
@@ -9,7 +10,6 @@ function Main() {
     const [loading, setLoading] = useState(true);
     const [events, setEvents] = useState([]);
     const location = useLocation();
-    const navigate = useNavigate();
     const [country, setCountry] = useState(null);
 
     useEffect(() => {
@@ -45,24 +45,17 @@ function Main() {
     if (loading) return <LoadingSpinner />;
 
     return (
-        <div className="flex flex-col items-center min-h-screen">
-            <div className="w-full flex justify-between items-center bg-purple-200 text-black p-4 shadow-md">
-                <h1 className="text-3xl font-bold">McOK Calendar</h1>
-                <button className="btn btn-secondary" onClick={() => navigate('/login')}>Go to Login</button>
+        <div className="flex w-full px-4 mt-4">
+            {/* Sidebar */}
+            <div className="w-1/4 p-4 border-r border-gray-300">
+                <h2 className="text-xl font-semibold mb-4">Select Country</h2>
+                <ReactSelect onSelectionChange={setCountry} />
+                <button className="btn btn-success mt-3 w-full" onClick={handleConfirm}>Confirm</button>
             </div>
-            
-            <div className="flex w-full px-4 mt-4">
-                {/* Sidebar */}
-                <div className="w-1/4 p-4 border-r border-gray-300">
-                    <h2 className="text-xl font-semibold mb-4">Select Country</h2>
-                    <ReactSelect onSelectionChange={setCountry} />
-                    <button className="btn btn-success mt-3 w-full" onClick={handleConfirm}>Confirm</button>
-                </div>
-                
-                {/* Calendar View */}
-                <div className="w-3/4">
-                    <CalendarGrid events={events} />
-                </div>
+
+            {/* Calendar View */}
+            <div className="w-3/4">
+                <CalendarGrid events={events} />
             </div>
         </div>
     );
