@@ -11,9 +11,5 @@
     "build": "npm run build:server && npm run build:client",
     "build:server": "cd server && npm run build",
     "build:client": "cd client && npm run build"
-  },
-  "dependencies": {
-    "axios": "^1.7.9",
-    "csv-parser": "^3.1.0"
   }
 }
