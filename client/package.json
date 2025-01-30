@@ -10,6 +10,7 @@
     "@tailwindcss/typography": "^0.5.16",
     "axios": "^1.7.9",
     "cra-template": "1.2.0",
+    "dayjs": "^1.11.13",
     "react": "^19.0.0",
     "react-country-region-selector": "^4.0.2",
     "react-dom": "^19.0.0",
