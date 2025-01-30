@@ -1,9 +1,20 @@
 import React from "react";
 import dayjs from "dayjs";
 
-const CalendarGrid = ({ events = [] }) => {
-    const startOfWeek = dayjs().startOf("week"); // Начало недели (понедельник)
-    const daysOfWeek = Array.from({ length: 7 }, (_, i) => startOfWeek.add(i, "day"));
+const CalendarGrid = ({ events = [], month = dayjs().month(), year = dayjs().year() }) => {
+    const startOfMonth = dayjs().year(year).month(month).startOf("month");
+    const endOfMonth = dayjs().year(year).month(month).endOf("month");
+
+    // Определяем первый день календаря (начало недели)
+    const startOfCalendar = startOfMonth.startOf("week");
+    const endOfCalendar = endOfMonth.endOf("week");
+    let days = [];
+    
+    const totalCells = endOfCalendar.diff(startOfCalendar, 'days') <= 35 ? 35 : 42;
+    // console.log(totalDays, daysFromPrevMonth, totalCells)
+    for (let i = 0; i < totalCells; i++) {
+        days.push(startOfCalendar.add(i, "day"));
+    }
 
     // Группируем события по датам
     const eventsByDate = events.reduce((acc, event) => {
@@ -15,16 +26,25 @@ const CalendarGrid = ({ events = [] }) => {
 
     return (
         <div className="grid grid-cols-7 gap-0.5 border-t border-l border-gray-300 bg-gray-100">
-            {daysOfWeek.map((day) => {
+            {/* Заголовки дней недели */}
+            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                <div key={day} className="text-center font-semibold p-2 bg-gray-200 border-r border-b">
+                    {day}
+                </div>
+            ))}
+
+            {/* Ячейки календаря */}
+            {days.map((day) => {
                 const dateKey = day.format("YYYY-MM-DD");
+                const isCurrentMonth = day.month() === month;
                 return (
                     <div
                         key={dateKey}
-                        className="border-r border-b border-gray-300 p-2 h-40 bg-white relative"
+                        className={`border-r border-b p-2 h-32 relative ${
+                            isCurrentMonth ? "bg-white text-black" : "bg-gray-50 text-gray-400"
+                        }`}
                     >
-                        <div className="text-xs font-semibold text-gray-700">
-                            {day.format("ddd, DD")}
-                        </div>
+                        <div className="text-xs font-semibold">{day.format("D")}</div>
                         <div className="absolute inset-0 p-1 overflow-auto">
                             {eventsByDate[dateKey]?.map((event, index) => (
                                 <div

@@ -45,7 +45,7 @@ function Main() {
     if (loading) return <LoadingSpinner />;
 
     return (
-        <div className="flex flex-col items-center pt-16 min-h-screen">
+        <div className="flex flex-col items-center min-h-screen">
             <div className="w-full flex justify-between items-center bg-purple-200 text-black p-4 shadow-md">
                 <h1 className="text-3xl font-bold">McOK Calendar</h1>
                 <button className="btn btn-secondary" onClick={() => navigate('/login')}>Go to Login</button>
