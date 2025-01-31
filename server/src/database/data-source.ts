@@ -265,6 +265,7 @@ export const seedLocalEvents = async () => {
 
             // Создаем календарь и события в базе данных
             await createCalendarAndEvents(country, groupedEvents);
+			break;
         }
         console.log('Seeding completed successfully.');
     } catch (error) {

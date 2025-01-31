@@ -4,9 +4,11 @@ import { useLocation } from 'react-router-dom';
 import ReactSelect from '../components/CountrySelect';
 import LoadingSpinner from '../components/LoadingSpinner';
 import CalendarGrid from '../components/CalendarGrid';
+import { observer } from "mobx-react-lite";
+import { dateStore } from "../store/dateStore";
 import axios from 'axios';
 
-function Main() {
+const Main = observer(() => {
     const [loading, setLoading] = useState(true);
     const [events, setEvents] = useState([]);
     const location = useLocation();
@@ -48,6 +50,9 @@ function Main() {
         <div className="flex w-full px-4 mt-4">
             {/* Sidebar */}
             <div className="w-1/4 p-4 border-r border-gray-300">
+                <div>
+                    <p>Today is {new Date(dateStore.currentDate).toLocaleDateString()}</p>
+                </div>
                 <h2 className="text-xl font-semibold mb-4">Select Country</h2>
                 <ReactSelect onSelectionChange={setCountry} />
                 <button className="btn btn-success mt-3 w-full" onClick={handleConfirm}>Confirm</button>
@@ -59,6 +64,6 @@ function Main() {
             </div>
         </div>
     );
-}
+});
 
 export default Main;

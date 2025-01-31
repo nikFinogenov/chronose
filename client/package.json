@@ -11,6 +11,8 @@
     "axios": "^1.7.9",
     "cra-template": "1.2.0",
     "dayjs": "^1.11.13",
+    "mobx": "^6.13.6",
+    "mobx-react-lite": "^4.1.0",
     "react": "^19.0.0",
     "react-country-region-selector": "^4.0.2",
     "react-dom": "^19.0.0",
