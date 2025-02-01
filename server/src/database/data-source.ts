@@ -10,6 +10,10 @@ import csv from 'csv-parser';
 import axios from 'axios';
 require('dotenv').config();
 
+const FAKER_USERS = 5;
+const FAKER_CALENDARS = 5;
+const FAKER_EVENTS = 5;
+
 export const AppDataSource = new DataSource({
 	type: 'postgres',
 	host: process.env.DB_HOST,
@@ -88,12 +92,12 @@ export const seedDatabase = async () => {
 
 		let users = [];
 
-		if (userCount > 0) {
+		if (userCount >= FAKER_USERS) {
 			console.log('Users table is not empty. Skipping user creation.');
 			users = await User.find();
 		} else {
 			console.log('Creating users...');
-			for (let i = 0; i < 5; i++) {
+			for (let i = userCount; i < FAKER_USERS; i++) {
 				const user = User.create({
 					login: faker.internet.username(),
 					fullName: faker.person.fullName(),
@@ -103,89 +107,56 @@ export const seedDatabase = async () => {
 				await user.save();
 				users.push(user);
 			}
-			console.log(`Created ${users.length} users:`);
+			console.log(`Created ${users.length} users.`);
 		}
 
 		let calendars = [];
-		if (calendarCount > 0) {
+		if (calendarCount >= FAKER_CALENDARS) {
 			console.log('Calendars table is not empty. Skipping calendar creation.');
 			calendars = await Calendar.find();
 		} else {
 			console.log('Creating calendars...');
-			for (let i = 0; i < 3; i++) {
+			for (let i = calendarCount; i < FAKER_CALENDARS; i++) {
+				const userID = Math.floor(Math.random() * users.length);
 				const calendar = Calendar.create({
 					name: `Calendar ${i + 1}`,
 					description: faker.lorem.sentence(),
-					owner: users[i],
-					users: [users[i], users[(i + 1) % users.length]],
+					owner: users[userID],
+					users: [users[userID], users[(userID + 1) % users.length]],
 				});
 				await calendar.save();
 				calendars.push(calendar);
 			}
-			console.log(`Created ${calendars.length} calendars:`);
+			console.log(`Created ${calendars.length} calendars.`);
 		}
 
-		if (eventCount > 0) {
+		if (eventCount >= FAKER_EVENTS) {
 			console.log('Events table is not empty. Skipping event creation.');
 		} else {
 			console.log('Creating events...');
 			const events = [];
-			for (const calendar of calendars) {
-				for (let j = 0; j < 2; j++) {
-					const startDate = faker.date.future();
-					const endDate = faker.date.future({ refDate: startDate });
+			for (let i = eventCount; i < FAKER_EVENTS; i++) {
+				const calendar = calendars[i % calendars.length];
+				const startDate = faker.date.future();
+				const endDate = faker.date.future({ refDate: startDate });
 
-					const event = Event.create({
-						title: faker.lorem.words(3),
-						description: faker.lorem.sentence(),
-						startDate,
-						endDate,
-						calendar,
-					});
-					await event.save();
-					events.push(event);
-				}
+				const event = Event.create({
+					title: faker.lorem.words(3),
+					description: faker.lorem.sentence(),
+					startDate,
+					endDate,
+					calendar,
+				});
+				await event.save();
+				events.push(event);
 			}
-			console.log(`Created ${events.length} events:`);
+			console.log(`Created ${events.length} events.`);
 		}
 
 		console.log('Database has been seeded successfully.');
 	} catch (error) {
 		console.error('Error seeding database:', error.message || error);
 	}
-};
-
-export const seedLocalEvents = async () => {
-    try {
-        console.log('Seeding local events...');
-
-        // Получаем все уникальные страны из cal.csv
-        const countries = await getCountriesFromCSV();
-
-        for (const country of countries) {
-            const calendarId = await getCalendarId(country);
-            if (!calendarId) {
-                console.log(`No calendar found for location: ${country}`);
-                continue; // Пропускаем, если календарь не найден
-            }
-
-            // Получаем события для данного календаря
-            const events = await getEventsByCalendarId(calendarId);
-            if (!events) {
-                console.log(`No events found for calendar ID: ${calendarId}`);
-                continue; // Пропускаем, если события не найдены
-            }
-
-            // Обрабатываем события
-            const groupedEvents = processEvents(events);
-
-            // Создаем календарь и события в базе данных
-            await createCalendarAndEvents(country, groupedEvents);
-		}
-        console.log('Seeding completed successfully.');
-    } catch (error) {
-        console.error('Error seeding local events:', error.message || error);
-    }
 };
 
 // Функция для получения всех уникальных стран из cal.csv
@@ -264,17 +235,55 @@ const processEvents = (items: any[]) => {
     return groupedEvents;
 };
 
-// Функция для создания календаря и событий в базе данных
+export const seedLocalEvents = async () => {
+    try {
+        console.log('Seeding local events...');
+
+        // Получаем все уникальные страны из cal.csv
+        const countries = await getCountriesFromCSV();
+
+        for (const country of countries) {
+            const existingCalendar = await Calendar.findOne({ where: { name: `Holidays in ${country}` } });
+            if (existingCalendar) {
+                console.log(`Calendar for ${country} already exists. Skipping.`);
+                continue;
+            }
+
+            const calendarId = await getCalendarId(country);
+            if (!calendarId) {
+                console.log(`No calendar found for location: ${country}`);
+                continue; // Пропускаем, если календарь не найден
+            }
+
+            // Получаем события для данного календаря
+            const events = await getEventsByCalendarId(calendarId);
+            if (!events) {
+                console.log(`No events found for calendar ID: ${calendarId}`);
+                continue; // Пропускаем, если события не найдены
+            }
+
+            // Обрабатываем события
+            const groupedEvents = processEvents(events);
+
+            // Создаем календарь и события в базе данных
+            await createCalendarAndEvents(country, groupedEvents);
+        }
+        console.log('Seeding completed successfully.');
+    } catch (error) {
+        console.error('Error seeding local events:', error.message || error);
+    }
+};
+
 const createCalendarAndEvents = async (country: string, groupedEvents: Record<string, { description: string, dates: string[] }>) => {
     const admin = await User.findOne({ where: { email: 'a_tebya_ebet_moy_email?.com' } });
-	const countryCalendar = await Calendar.create({
+    const countryCalendar = await Calendar.create({
         name: `Holidays in ${country}`,
         description: `Holidays and events for ${country}`,
-		owner: admin,
-		users:[admin]
+        owner: admin,
+        users:[admin]
     });
     await countryCalendar.save(); // Сохраняем календарь
-	// console.log(countryCalendar);
+
     for (const [eventTitle, eventData] of Object.entries(groupedEvents)) {
         const { description, dates } = eventData;
 
@@ -291,4 +300,5 @@ const createCalendarAndEvents = async (country: string, groupedEvents: Record<st
         }
     }
 };
+
 
