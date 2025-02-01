@@ -50,12 +50,13 @@ export const createDatabaseIfNotExists = async () => {
 		await client.end();
 	}
 };
+
 export const createAdmin = async () => {
 	try {
 		console.log('Creating admin user...');
 
 		// Check if there's already an admin user with id 0
-		const existingAdmin = await User.findOne({ where: { id: 0 } });
+		const existingAdmin = await User.findOne({ where: { login: "admin" } });
 		if (existingAdmin) {
 			console.log('Admin user already exists. Skipping creation.');
 			return; // If admin exists, skip creation
@@ -63,9 +64,10 @@ export const createAdmin = async () => {
 
 		// Create a new admin user
 		const adminUser = User.create({
-			fullName: 'Админ биг пенисович', // Set the name for the admin
-			email: 'a_tebya_ebet_moy_email?.com', // Admin's email
-			password: 'ультрамегабольшойсуперпаролькоторыйхуйктовзломает5423123', // Admin's password (you should hash this in a real application)
+			login: 'admin',
+			fullName: 'Admin', // Set the name for the admin
+			email: 'admin@example.com', // Admin's email
+			password: 'admin', // Admin's password (you should hash this in a real application)
 		});
 
 		await adminUser.save();
@@ -74,7 +76,6 @@ export const createAdmin = async () => {
 		console.error('Error creating admin user:', error.message || error);
 	}
 };
-
 
 // Faker sasat
 export const seedDatabase = async () => {
@@ -94,7 +95,8 @@ export const seedDatabase = async () => {
 			console.log('Creating users...');
 			for (let i = 0; i < 5; i++) {
 				const user = User.create({
-					fullName: faker.name.fullName(),
+					login: faker.internet.username(),
+					fullName: faker.person.fullName(),
 					email: faker.internet.email(),
 					password: faker.internet.password(),
 				});

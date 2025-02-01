@@ -42,7 +42,7 @@ createUserAndDatabase()
 		AppDataSource.initialize()
 			.then(async () => {
 				// console.log('Data Source has been initialized!');
-				// await seedDatabase();
+				await seedDatabase();
 				await createAdmin();
 				await seedLocalEvents();
 
