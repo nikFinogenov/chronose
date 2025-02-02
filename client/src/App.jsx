@@ -6,6 +6,7 @@ import Main from './pages/Main';
 import Error from './pages/Error';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import Month from './pages/Month';
 // import { AxiosInterceptor } from './services/index'
 
 function AppContent() {
@@ -17,6 +18,7 @@ function AppContent() {
           <Route path="/" element={<Main />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/month" element={<Month />} />
           <Route path="*" element={<Error />} />
         </Routes>
       </main>
