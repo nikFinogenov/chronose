@@ -14,6 +14,9 @@ class DateStore {
     prevDay() {
         this.currentDate = new Date(new Date(this.currentDate).setDate(new Date(this.currentDate).getDate() - 1)).toISOString();
     }
+    today() {
+        this.currentDate = new Date().toISOString();
+    }
     updateDate() {
         this.currentDate = new Date().toISOString();
     }

@@ -23,6 +23,12 @@ function Header() {
           Next day &gt;
         </button>
         <button
+          className="btn btn-primary ml-2"
+          onClick={() => dateStore.today()}
+        >
+          TODAY
+        </button>
+        <button
           className="btn btn-secondary ml-4"
           onClick={() => navigate('/login')}
         >

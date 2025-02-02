@@ -6,6 +6,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import CalendarGrid from '../components/CalendarGrid';
 import { observer } from "mobx-react-lite";
 import { dateStore } from "../store/dateStore";
+import MicroMonth from '../components/MicroMonth';
 import axios from 'axios';
 
 const Main = observer(() => {
@@ -53,6 +54,9 @@ const Main = observer(() => {
                 <div>
                     <p>Today is {new Date(dateStore.currentDate).toLocaleDateString()}</p>
                 </div>
+
+                <MicroMonth />
+
                 <h2 className="text-xl font-semibold mb-4">Select Country</h2>
                 <ReactSelect onSelectionChange={setCountry} />
                 <button className="btn btn-success mt-3 w-full" onClick={handleConfirm}>Confirm</button>
