@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
 import CalendarGrid from '../components/CalendarGrid';
+import Sidebar from '../components/Sidebar';
 import { observer } from "mobx-react-lite";
 
 const Main = observer(() => {
@@ -29,8 +30,8 @@ const Main = observer(() => {
 
     return (
         <div className="flex w-full px-4 mt-4">
-            {/* Calendar View */}
-            <div className="w-3/4">
+            <Sidebar />
+            <div className="w-full">
                 <CalendarGrid events={events} />
             </div>
         </div>

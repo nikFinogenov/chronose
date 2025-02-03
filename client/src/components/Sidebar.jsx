@@ -23,16 +23,16 @@ function Sidebar() {
     };
 
     return (
-        <div className="w-1/4 p-4 border-r border-gray-300">
+        <div className="p-4 border-r border-gray-300">
             <div>
                 <p>Today is {new Date(dateStore.currentDate).toLocaleDateString()}</p>
             </div>
 
             <MicroMonth />
 
-            <h2 className="text-xl font-semibold mb-4">Select Country</h2>
+            <h2 className="text-xl font-semibold mt-6">Select Country</h2>
             <ReactSelect onSelectionChange={setCountry} />
-            <button className="btn btn-success mt-3 w-full" onClick={handleConfirm}>Confirm</button>
+            <button className="btn btn-success mt-3" onClick={handleConfirm}>Confirm</button>
         </div>
     )
 }

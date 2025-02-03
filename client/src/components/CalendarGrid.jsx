@@ -17,12 +17,12 @@ const CalendarGrid = ({ events = [], month = dayjs().month(), year = dayjs().yea
     }
 
     // Группируем события по датам
-    const eventsByDate = events.reduce((acc, event) => {
+    const eventsByDate = events ? events.reduce((acc, event) => {
         const dateKey = dayjs(event.startDate).format("YYYY-MM-DD");
         if (!acc[dateKey]) acc[dateKey] = [];
         acc[dateKey].push(event);
         return acc;
-    }, {});
+    }, {}) : null;
 
     return (
         <div className="grid grid-cols-7 gap-0.5 border-t border-l border-gray-300 bg-gray-100">
@@ -46,7 +46,7 @@ const CalendarGrid = ({ events = [], month = dayjs().month(), year = dayjs().yea
                     >
                         <div className="text-xs font-semibold">{day.format("D")}</div>
                         <div className="absolute inset-0 p-1 overflow-auto">
-                            {eventsByDate[dateKey]?.map((event, index) => (
+                            {eventsByDate && eventsByDate[dateKey]?.map((event, index) => (
                                 <div
                                     key={index}
                                     className="bg-blue-500 text-white text-xs px-2 py-1 rounded-md mb-1 shadow-sm"

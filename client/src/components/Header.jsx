@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { dateStore } from "../store/dateStore";
 
 function Header() {
@@ -13,7 +13,10 @@ function Header() {
 
   return (
     <div className="w-full flex justify-between items-center bg-purple-200 text-black p-4 shadow-md">
-      <h1 className="text-3xl font-bold">McOK Calendar</h1>
+      {/* <h1 className="text-3xl font-bold">McOK Calendar</h1> */}
+      <h1 className="text-2xl font-bold ml-4 sm:block hidden">
+        <Link to="/">CloOk Calendar</Link>
+      </h1>
       <div className="flex items-center">
         <div className="dropdown dropdown-end">
           <div tabIndex={0} role="button" className="btn m-1">
@@ -23,9 +26,8 @@ function Header() {
             {["Day", "Week", "Month", "Year"].map((view) => (
               <li key={view}>
                 <p
-                  className={`cursor-pointer p-2 rounded ${
-                    activeView === view ? "bg-purple-300" : "hover:bg-purple-100"
-                  }`}
+                  className={`cursor-pointer p-2 rounded ${activeView === view ? "bg-purple-300" : "hover:bg-purple-100"
+                    }`}
                   onClick={() => handleNavigation(view)}
                 >
                   {view}
