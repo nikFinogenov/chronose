@@ -1,61 +1,64 @@
-// import axios from "axios";
-// import { useNavigate } from "react-router-dom";
-// // import { useContext } from "react";
-// // import { NotifyContext } from "../context/NotifyContext";
-// // import { AuthContext } from "../context/AuthContext";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { userStore } from "../store/userStore"; // Импортируйте userStore
 
-// const API_URL = process.env.REACT_APP_API;
+const API_URL = process.env.REACT_APP_API_URL;
 
-// const api = axios.create({
-//     withCredentials: true,
-//     baseURL: API_URL,
-// });
+const api = axios.create({
+    withCredentials: true,
+    baseURL: API_URL,
+});
 
-// const AxiosInterceptor = () => {
-//     const navigate = useNavigate();
-//     // const showNotification = useContext(NotifyContext);
-//     // const { logout, user } = useContext(AuthContext);
+const AxiosInterceptor = () => {
+    const navigate = useNavigate();
 
-//     api.interceptors.request.use((config) => {
-//         // console.log(config.method, config.url);
+    api.interceptors.request.use((config) => {
+        // Проверяем, подтвержден ли email пользователя
+        if (userStore.user && !userStore.user.emailConfirmed) {
+            const controller = new AbortController();
+            config.signal = controller.signal;
 
-//         if (user && !user.emailConfirmed) {
-//             const controller = new AbortController();
-//             config.signal = controller.signal;
+            controller.abort();
+            // Здесь можно добавить уведомление, если нужно
+            // showNotification("Please confirm your email to perform this action.", "error");
 
-//             controller.abort();
-//             // showNotification("Please confirm your email to perform this action.", "error");
+            return config;
+        }
 
-//             return config;
-//         }
+        // Добавляем токен авторизации, если пользователь авторизован
+        if (userStore.user) {
+            config.headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
+        }
 
-//         if (user) config.headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
+        return config;
+    });
 
-//         return config;
-//     });
+    api.interceptors.response.use(
+        (response) => {
+            return response; // Возвращаем ответ
+        },
+        async (error) => {
+            if (axios.isCancel(error)) {
+                console.log("Request was canceled:", error.message);
+                return;
+            }
+            if (error.response) {
+                if (error.response.status === 401) {
+                    await userStore.logout(); // Вызываем метод logout из userStore
+                    navigate("/login");
+                    // Здесь можно добавить уведомление, если нужно
+                    // showNotification("Please log in.", "error");
+                }
+                if (error.response.status === 403) {
+                    // Здесь можно добавить уведомление, если нужно
+                    // showNotification("Access denied. You do not have permission to perform this action.", "error");
+                }
+            }
+            throw error; // Пробрасываем ошибку дальше
+        }
+    );
 
-//     api.interceptors.response.use(
-//         (config) => {
-//             return config;
-//         },
-//         async (error) => {
-//             if (axios.isCancel(error)) {
-//                 console.log("Request was canceled:", error.message);
-//                 return;
-//             }
-//             if (error.response.status === 401) {
-//                 // logout();
-//                 navigate("/login");
-//                 // showNotification("Please log in.", "error");
-//             }
-//             if (error.response.status === 403) {
-//                 // showNotification("Access denied. You do not have permission to perform this action.", "error");
-//             }
-//             throw error;
-//         }
-//     );
+    return null; // Компонент не рендерит ничего
+};
 
-//     return null;
-// };
-
-// export { api, AxiosInterceptor };
+export { api, AxiosInterceptor };

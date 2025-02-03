@@ -44,7 +44,7 @@ createUserAndDatabase()
 				// console.log('Data Source has been initialized!');
 				await seedDatabase();
 				await createAdmin();
-				//await seedLocalEvents();
+				// await seedLocalEvents();
 
 				app.listen(PORT, () => {
 					console.log(`Server is running on http://localhost:${PORT}`);

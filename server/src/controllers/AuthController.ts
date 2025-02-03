@@ -16,7 +16,7 @@ interface ConfirmNewPasswordBody {
 export const AuthController = {
 	// Register a new user
 	async register(req: Request, res: Response): Promise<Response> {
-		const { login, fullName, email, password }: { login: string,  fullName: string; email: string; password: string } = req.body;
+		const { fullName, email, password, country }: { fullName: string; email: string; password: string; country: string; } = req.body;
 
 		const userRepository = AppDataSource.getRepository(User);
 
@@ -28,10 +28,11 @@ export const AuthController = {
 
 			const hashedPassword = await bcrypt.hash(password, 10);
 			const newUser = userRepository.create({
-				login,
+				// login,
 				fullName,
 				email,
 				password: hashedPassword,
+				country
 			});
 
 			console.log(newUser);
@@ -73,14 +74,14 @@ export const AuthController = {
 	// Login user
 	async login(req: Request, res: Response): Promise<Response> {
 		const { email, password }: { email: string; password: string } = req.body;
+		// console.log(email);
 
 		const userRepository = AppDataSource.getRepository(User);
 
 		try {
 			const user = await userRepository.findOne({ where: { email } });
-
-			if (!user || !user.isEmailConfirmed) {
-				return res.status(400).json({ message: 'Invalid credentials or email not confirmed' });
+			if (!user) {
+				return res.status(400).json({ message: 'Invalid credentials' });
 			}
 
 			const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -88,8 +89,7 @@ export const AuthController = {
 				return res.status(400).json({ message: 'Invalid credentials' });
 			}
 
-			const token = jwt.sign({ id: user.id, email: user.email }, process.env.SECRET_KEY!, { expiresIn: '1h' });
-
+			const token = jwt.sign({ id: user.id, email: user.email, country: user.country }, process.env.SECRET_KEY!, { expiresIn: '1h' });
 			return res.status(200).json({ message: 'Login successful', token });
 		} catch (error) {
 			return res.status(500).json({ message: 'Login failed' });

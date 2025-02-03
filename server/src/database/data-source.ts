@@ -60,7 +60,7 @@ export const createAdmin = async () => {
 		console.log('Creating admin user...');
 
 		// Check if there's already an admin user with id 0
-		const existingAdmin = await User.findOne({ where: { login: "admin" } });
+		const existingAdmin = await User.findOne({ where: { email: "a_tebya_ebet_moy_email?.com" } });
 		if (existingAdmin) {
 			console.log('Admin user already exists. Skipping creation.');
 			return; // If admin exists, skip creation
@@ -68,7 +68,7 @@ export const createAdmin = async () => {
 
 		// Create a new admin user
 		const adminUser = User.create({
-			login: 'admin',
+			// login: 'admin',
 			fullName: 'Admin', // Set the name for the admin
 			email: 'admin@example.com', // Admin's email
 			password: 'admin', // Admin's password (you should hash this in a real application)
@@ -99,7 +99,7 @@ export const seedDatabase = async () => {
 			console.log('Creating users...');
 			for (let i = userCount; i < FAKER_USERS; i++) {
 				const user = User.create({
-					login: faker.internet.username(),
+					// login: faker.internet.username(),
 					fullName: faker.person.fullName(),
 					email: faker.internet.email(),
 					password: faker.internet.password(),
@@ -267,6 +267,7 @@ export const seedLocalEvents = async () => {
 
             // Создаем календарь и события в базе данных
             await createCalendarAndEvents(country, groupedEvents);
+			break;
         }
         console.log('Seeding completed successfully.');
     } catch (error) {
