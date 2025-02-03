@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { observer } from 'mobx-react-lite';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { userStore } from '../store/userStore'; // Импортируйте userStore
-import { createUser } from '../services/userService';
+// import { createUser } from '../services/userService';
 
-const Register = observer(() => {
+function Register () {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [fullName, setFullName] = useState('');
@@ -45,10 +44,11 @@ const Register = observer(() => {
                 const message = await userStore.register(fullName, email, password);
                 // const message = await createUser(fullName, email, password);
                 if (message) {
-                    navigate('/');
+                    navigate('/login');
                 }
             } catch (error) {
-                setServerError(error.response.data.error);
+                // console.log(error);
+                setServerError(error.message);
             } finally {
                 setLoading(false);
             }
@@ -130,6 +130,6 @@ const Register = observer(() => {
                 </div>
             </div>
         ))
-});
+};
 
 export default Register;

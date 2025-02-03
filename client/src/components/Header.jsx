@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { dateStore } from "../store/dateStore";
+import { userStore } from '../store/userStore';
+import { observer } from 'mobx-react-lite';
 
-function Header() {
+const Header = observer(() => {
   const navigate = useNavigate();
   const [activeView, setActiveView] = useState("Month"); // По умолчанию "Month"
 
@@ -17,6 +19,7 @@ function Header() {
       <h1 className="text-2xl font-bold ml-4 sm:block hidden">
         <Link to="/">CloOk Calendar</Link>
       </h1>
+      {userStore.user && <h2>Email here: {userStore.user.email}</h2>}
       <div className="flex items-center">
         <div className="dropdown dropdown-end">
           <div tabIndex={0} role="button" className="btn m-1">
@@ -48,9 +51,12 @@ function Header() {
         <button className="btn btn-secondary ml-4" onClick={() => navigate('/login')}>
           Go to Login
         </button>
+        <button className="btn btn-secondary ml-4" onClick={() => userStore.logout()}>
+          Go to Logout
+        </button>
       </div>
     </div>
   );
-}
+});
 
 export default Header;

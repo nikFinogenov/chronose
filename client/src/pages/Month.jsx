@@ -16,7 +16,7 @@ const Month = observer(() => {
         <div className="flex w-full px-4 mt-4">
             <Sidebar />
             <div className="w-full">
-                {setEvents([])}
+                {/* {setEvents([])} */}
                 <CalendarGrid events={events} />
             </div>
         </div>

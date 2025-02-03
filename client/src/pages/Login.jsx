@@ -1,10 +1,11 @@
-import { useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 // import { AuthContext } from '../context/AuthContext';
 // import { NotifyContext } from '../context/NotifyContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Tooltip from '@mui/material/Tooltip';
 import video from '../assets/video.mp4'
+import { userStore } from '../store/userStore'; // Импортируйте userStore
 
 function Login() {
     // const { login, user } = useContext(AuthContext);  
@@ -13,33 +14,33 @@ function Login() {
     // const showNotification = useContext(NotifyContext);
     const [serverError, setServerError] = useState('');
     const [loading, setLoading] = useState(false);
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
 
 
-    // useEffect(() => {
-    //     if (user) {
-    //         showNotification("Already logged in!", 'info');
-    //         navigate('/');
-    //     }
-    //     }, [user, navigate, showNotification]);
+    useEffect(() => {
+        if (userStore.user) {
+            // showNotification("Already logged in!", 'info');
+            navigate('/');
+        }
+    }, [navigate]);
     // }, [navigate]);
 
     const handleSubmit = async (e) => {
-        // e.preventDefault();
+        e.preventDefault();
         setServerError('');
-        // setLoading(true);
-        // try {
-        //     const { user, message } = await login(email, password);
-        //     if (user) {
-        //         // showNotification(message, 'success');
-        //         navigate('/');
-        //     }
-        // } catch (error) {
-        //     console.log(error);
-        //     setServerError(error.response.data.error);
-        // } finally {
-        setLoading(false);
-        // }
+        setLoading(true);
+        try {
+            const message = await userStore.login(email, password);
+            if (message) {
+                // showNotification(message, 'success');
+                navigate('/');
+            }
+        } catch (error) {
+            console.log(error);
+            setServerError(error.message);
+        } finally {
+            setLoading(false);
+        }
 
     };
 

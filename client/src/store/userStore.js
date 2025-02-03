@@ -1,7 +1,8 @@
 import { makeAutoObservable, runInAction } from "mobx";
 // import axios from "axios"; // Предполагается, что вы используете axios для запросов
 import { api } from "../services";
-import { createUser } from "../services/userService";
+import { createUser, getUser } from "../services/userService";
+import { jwtDecode } from "jwt-decode";
 
 class UserStore {
     user = null; // Хранит информацию о текущем пользователе
@@ -28,13 +29,48 @@ class UserStore {
 
             // Если регистрация успешна, сохраняем пользователя
             runInAction(() => {
-                this.user = response.data.user; // Предполагается, что сервер возвращает объект пользователя
+                // this.user = response.data.user; // Предполагается, что сервер возвращает объект пользователя
             });
-
-            return response.data.message; // Возвращаем сообщение от сервера
+            console.log(response);
+            return response.message; // Возвращаем сообщение от сервера
         } catch (error) {
             runInAction(() => {
                 this.error = error.response ? error.response.data.error : "Registration failed"; // Обработка ошибки
+            });
+            throw error; // Пробрасываем ошибку дальше
+        } finally {
+            runInAction(() => {
+                this.loading = false; // Сбрасываем состояние загрузки
+            });
+        }
+    }
+
+    async login(email, password) {
+        this.loading = true; // Устанавливаем состояние загрузки
+        this.error = null; // Сбрасываем ошибку
+
+        try {
+            // const response = await api.post(`${API_URL}/register/`, {
+            //     email,
+            //     username,
+            //     fullName,
+            //     password
+            // });
+            const response = await getUser(email, password);
+
+            // Если регистрация успешна, сохраняем пользователя
+            runInAction(() => {
+                console.log(response);
+                localStorage.setItem('token', response.token);
+                const decoded = jwtDecode(response.token); // Предполагается, что сервер возвращает объект пользователя
+                this.user = decoded;
+                console.log(this.user);
+            });
+
+            return response.message; // Возвращаем сообщение от сервера
+        } catch (error) {
+            runInAction(() => {
+                this.error = error.response ? error.response.message : "Login failed"; // Обработка ошибки
             });
             throw error; // Пробрасываем ошибку дальше
         } finally {
