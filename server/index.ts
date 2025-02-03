@@ -7,13 +7,13 @@ import calendarRoutes from './src/routes/calendar.routes';
 import authRoutes from './src/routes/auth.routes'
 import cors from 'cors';
 
-const app = express();
+export const app = express();
 const PORT = process.env.PORT;
 
 const allowedOrigins = [
 	'http://localhost:3000',
 	// `http://${IP}:3000`,
-  ];
+];
 
 const corsOptions = {
 	origin: function (origin, callback) {
@@ -24,8 +24,8 @@ const corsOptions = {
 		}
 	},
 	credentials: true,
-  };
-  app.use(cors(corsOptions));
+};
+app.use(cors(corsOptions));
 
 app.use(express.json());
 
