@@ -2,6 +2,33 @@ import { Request, Response } from 'express';
 import { Event } from '../models/Event';
 import { Calendar } from '../models/Calendar';
 import axios from 'axios';
+import fs from 'fs';
+import csv from 'csv-parser';
+
+async function getCalendarId(location: string): Promise<string | null> {
+    return new Promise((resolve, reject) => {
+        const results: Record<string, string>[] = [];
+
+        fs.createReadStream('cal.csv')
+            .pipe(csv())
+            .on('data', (data) => results.push(data))
+            .on('end', () => {
+                // Find the row where the country label matches the location
+                const row = results.find((row) => row['Religion/Country'] === location);
+                if (row) {
+                    const calendarId = row['calendarID'];
+                    if (calendarId) {
+                        resolve(calendarId); // Возвращаем найденный ID
+                    } else {
+                        resolve(process.env.CAL_ID || null); // Если ID пустой, вернуть значение из переменных окружения
+                    }
+                } else {
+                    resolve(null); // No match found
+                }
+            })
+            .on('error', (err) => reject(err));
+    });
+}
 
 export const EventController = {
     async getAllEvents(req: Request, res: Response): Promise<Response> {
@@ -19,7 +46,7 @@ export const EventController = {
 
         try {
             const event = await Event.findOne({
-                where: { id: Number(eventId) },
+                where: { id: eventId },
                 relations: ['calendar'],
             });
 
@@ -39,7 +66,7 @@ export const EventController = {
         const { title, description, startDate, endDate } = req.body;
 
         try {
-            const calendar = await Calendar.findOne({ where: { id: Number(calendarId) } });
+            const calendar = await Calendar.findOne({ where: { id: calendarId } });
 
             if (!calendar) {
                 return res.status(404).json({ message: 'Calendar not found' });
@@ -66,7 +93,7 @@ export const EventController = {
         const { title, description, startDate, endDate } = req.body;
 
         try {
-            const event = await Event.findOne({ where: { id: Number(eventId) } });
+            const event = await Event.findOne({ where: { id: eventId } });
 
             if (!event) {
                 return res.status(404).json({ message: 'Event not found' });
@@ -90,7 +117,7 @@ export const EventController = {
         const { eventId } = req.params;
 
         try {
-            const event = await Event.findOne({ where: { id: Number(eventId) } });
+            const event = await Event.findOne({ where: { id: eventId } });
 
             if (!event) {
                 return res.status(404).json({ message: 'Event not found' });
@@ -110,7 +137,7 @@ export const EventController = {
 
         try {
             const calendar = await Calendar.findOne({
-                where: { id: Number(calendarId) },
+                where: { id: calendarId },
                 relations: ['events'],
             });
 
@@ -126,21 +153,29 @@ export const EventController = {
     },//tozhe samoe est v calendar controllere -_-  ->  .|.
 
     async getEventsByLocation(req: Request, res: Response): Promise<Response> {
-        const { location } = req.body;
+        const country = req.body;
+        // console.log(country.label);
         try {
-            const calendarId = 'en.uk#holiday@group.v.calendar.google.com';
-            const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${process.env.API_KEY}`
+            // Get the calendar ID for the location
+            const calendarId = await getCalendarId(country.label);
+            if (!calendarId) {
+                return res.status(404).json({ error: `No calendar found for location: ${country.label}` });
+            }
+            // console.log(calendarId)
+
+            // Make the request to Google Calendar API
+            const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${process.env.API_KEY}`;
+            // console.log(url);
             axios.get(url)
                 .then(response => {
                     res.status(200).json(response.data);
                 })
                 .catch(error => {
-                    return res.status(500).json({ 'error': "vashu mamu v podvale eb...", message: error.message });
+                    return res.status(500).json({ error: "Error fetching events", message: error.message });
                 });
-        }
-        catch (error) {
+        } catch (error) {
             console.error(error);
-            return res.status(500).json({ message: `Error fetching events for ${location}` });
+            return res.status(500).json({ message: `Error fetching events for ${country.label}` });
         }
     }
 };

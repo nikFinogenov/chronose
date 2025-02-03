@@ -4,8 +4,8 @@ import { Event } from './Event';
 
 @Entity()
 export class Calendar extends BaseEntity {
-	@PrimaryGeneratedColumn()
-	id: number;
+	@PrimaryGeneratedColumn('uuid')
+	id: string;
 
 	@Column()
 	name: string;
@@ -13,13 +13,13 @@ export class Calendar extends BaseEntity {
 	@Column({ nullable: true })
 	description: string;
 
-	@ManyToOne(() => User, user => user.ownedCalendars, { nullable: false })
+	@ManyToOne(() => User, user => user.ownedCalendars, { nullable: false, onDelete: 'CASCADE' })
 	owner: User;
 
-	@OneToMany(() => Event, event => event.calendar)
+	@OneToMany(() => Event, event => event.calendar, { cascade: true, onDelete: 'CASCADE' })
 	events: Event[];
 
-	@ManyToMany(() => User, user => user.calendars)
+	@ManyToMany(() => User, user => user.calendars, { onDelete: 'CASCADE' })
 	@JoinTable({
 		name: 'calendar_users',
 		joinColumn: { name: 'calendarId', referencedColumnName: 'id' },

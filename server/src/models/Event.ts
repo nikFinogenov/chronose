@@ -3,8 +3,8 @@ import { Calendar } from './Calendar';
 
 @Entity()
 export class Event extends BaseEntity {
-	@PrimaryGeneratedColumn()
-	id: number;
+	@PrimaryGeneratedColumn('uuid')
+	id: string;
 
 	@Column()
 	title: string;

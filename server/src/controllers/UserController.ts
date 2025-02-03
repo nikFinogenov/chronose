@@ -45,7 +45,7 @@ export class UserController {
         const { id } = req.params;
 
         try {
-            const user = await User.findOne({ where: { id: parseInt(id) }, relations: ['ownedCalendars', 'calendars'] });
+            const user = await User.findOne({ where: { id: id }, relations: ['ownedCalendars', 'calendars'] });
             if (!user) {
                 return res.status(404).json({ message: 'User not found.' });
             }
@@ -63,7 +63,7 @@ export class UserController {
         const { fullName, email, password, isEmailConfirmed } = req.body;
 
         try {
-            const user = await User.findOneBy({ id: parseInt(id) });
+            const user = await User.findOneBy({ id: id });
             if (!user) {
                 return res.status(404).json({ message: 'User not found.' });
             }
@@ -87,7 +87,7 @@ export class UserController {
         const { id } = req.params;
 
         try {
-            const user = await User.findOneBy({ id: parseInt(id) });
+            const user = await User.findOneBy({ id: id });
             if (!user) {
                 return res.status(404).json({ message: 'User not found.' });
             }
@@ -105,7 +105,7 @@ export class UserController {
         const { id } = req.params;
 
         try {
-            const user = await User.findOne({ where: { id: parseInt(id) }, relations: ['ownedCalendars'] });
+            const user = await User.findOne({ where: { id: id }, relations: ['ownedCalendars'] });
             if (!user) {
                 return res.status(404).json({ message: 'User not found.' });
             }
@@ -122,7 +122,7 @@ export class UserController {
         const { id } = req.params;
 
         try {
-            const user = await User.findOne({ where: { id: parseInt(id) }, relations: ['calendars'] });
+            const user = await User.findOne({ where: { id: id }, relations: ['calendars'] });
             if (!user) {
                 return res.status(404).json({ message: 'User not found.' });
             }
