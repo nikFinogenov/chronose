@@ -16,7 +16,7 @@ interface ConfirmNewPasswordBody {
 export const AuthController = {
 	// Register a new user
 	async register(req: Request, res: Response): Promise<Response> {
-		const { fullName, email, password }: { fullName: string; email: string; password: string } = req.body;
+		const { fullName, email, password, country }: { fullName: string; email: string; password: string; country: string; } = req.body;
 
 		const userRepository = AppDataSource.getRepository(User);
 
@@ -31,6 +31,7 @@ export const AuthController = {
 				fullName,
 				email,
 				password: hashedPassword,
+				country
 			});
 
 			await userRepository.save(newUser);

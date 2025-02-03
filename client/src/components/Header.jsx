@@ -20,6 +20,7 @@ const Header = observer(() => {
         <Link to="/">CloOk Calendar</Link>
       </h1>
       {userStore.user && <h2>Email here: {userStore.user.email}</h2>}
+      {userStore.user && <h2>Country huy: {userStore.user.country}</h2>}
       <div className="flex items-center">
         <div className="dropdown dropdown-end">
           <div tabIndex={0} role="button" className="btn m-1">
