@@ -1,50 +1,60 @@
-import { useState } from 'react';
-// import { AuthContext } from '../context/AuthContext';
-// import { NotifyContext } from '../context/NotifyContext';
-// import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { observer } from 'mobx-react-lite';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { userStore } from '../store/userStore'; // Импортируйте userStore
+import { createUser } from '../services/userService';
 
-function Register() {
-    // const { register, user } = useContext(AuthContext);
-    // const showNotification = useContext(NotifyContext);
+const Register = observer(() => {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [fullName, setFullName] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [errors] = useState({});
-    const [serverError] = useState('');
-    const [loading] = useState(false);
-    // const navigate = useNavigate();
+    const [errors, setErrors] = useState({});
+    const [serverError, setServerError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
-    // useEffect(() => {
-    //     if (user) {
-    //         showNotification("Already logged in!", 'info');
-    //         navigate('/');
-    //     }
-    // }, [navigate]);
+    useEffect(() => {
+        if (userStore.user) {
+            navigate('/');
+        }
+    }, [navigate]);
+
+    const validate = () => {
+        const errors = {};
+        // if (!fullName) errors.fullName = "Full name is required";
+        // if (!username) errors.username = "Username is required";
+        // if (fullName.length < 2) errors.fullName = "Full name must be at least 2 characters";
+        // if (username.length < 2) errors.username = "Username must be at least 2 characters";
+        // if (!email || !/\S+@\S+\.\S+/.test(email)) errors.email = "Valid Email is required";
+        // if (password.length < 6) errors.password = "Password must be at least 6 characters";
+        // if (password !== confirmPassword) errors.confirmPassword = "Passwords must match";
+        return errors;
+    };
 
     const handleSubmit = async (e) => {
-        // e.preventDefault();
-        // const validationErrors = validate();
-        // setErrors(validationErrors);
-        // setServerError('');
-        // setLoading(true);
-        // if (Object.keys(validationErrors).length === 0) {
-        //     try {
-        //         const message = await register(email, username, fullName, password);
-        //         if (message) {
-        //             showNotification(message, 'info');
-        //             navigate('/');
-        //         }
-        //     } catch (error) {
-        //         setServerError(error.response.data.error);
-        //     } finally {
-        //         setLoading(false);
-        //     }
-        // } else {
-        //     setLoading(false);
-        // }
+        e.preventDefault();
+        const validationErrors = validate();
+        setErrors(validationErrors);
+        setServerError('');
+        setLoading(true);
+        if (Object.keys(validationErrors).length === 0) {
+            try {
+                const message = await userStore.register(fullName, email, password);
+                // const message = await createUser(fullName, email, password);
+                if (message) {
+                    navigate('/');
+                }
+            } catch (error) {
+                setServerError(error.response.data.error);
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            setLoading(false);
+        }
     };
 
     return (
@@ -109,7 +119,6 @@ function Register() {
                             {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
                         </div>
 
-
                         <button type="submit" className="w-full bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600">
                             Register
                         </button>
@@ -121,6 +130,6 @@ function Register() {
                 </div>
             </div>
         ))
-}
+});
 
 export default Register;

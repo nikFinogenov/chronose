@@ -37,10 +37,10 @@ function Header() {
           </ul>
         </div>
         <button className="btn btn-primary mr-2" onClick={() => dateStore.prevDay()}>
-          &lt; Prev day
+          &lt; Prev
         </button>
         <button className="btn btn-primary ml-2" onClick={() => dateStore.nextDay()}>
-          Next day &gt;
+          Next &gt;
         </button>
         <button className="btn btn-primary ml-2" onClick={() => dateStore.today()}>
           TODAY
