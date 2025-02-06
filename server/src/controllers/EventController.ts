@@ -46,7 +46,7 @@ export const EventController = {
 
         try {
             const event = await Event.findOne({
-                where: { id: Number(eventId) },
+                where: { id: eventId },
                 relations: ['calendar'],
             });
 
@@ -66,7 +66,7 @@ export const EventController = {
         const { title, description, startDate, endDate } = req.body;
 
         try {
-            const calendar = await Calendar.findOne({ where: { id: Number(calendarId) } });
+            const calendar = await Calendar.findOne({ where: { id: calendarId } });
 
             if (!calendar) {
                 return res.status(404).json({ message: 'Calendar not found' });
@@ -93,7 +93,7 @@ export const EventController = {
         const { title, description, startDate, endDate } = req.body;
 
         try {
-            const event = await Event.findOne({ where: { id: Number(eventId) } });
+            const event = await Event.findOne({ where: { id: eventId } });
 
             if (!event) {
                 return res.status(404).json({ message: 'Event not found' });
@@ -117,7 +117,7 @@ export const EventController = {
         const { eventId } = req.params;
 
         try {
-            const event = await Event.findOne({ where: { id: Number(eventId) } });
+            const event = await Event.findOne({ where: { id: eventId } });
 
             if (!event) {
                 return res.status(404).json({ message: 'Event not found' });
@@ -137,7 +137,7 @@ export const EventController = {
 
         try {
             const calendar = await Calendar.findOne({
-                where: { id: Number(calendarId) },
+                where: { id: calendarId },
                 relations: ['events'],
             });
 

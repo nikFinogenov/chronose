@@ -6,7 +6,7 @@ import { Event } from '../models/Event';
 export const CalendarController = {
 	async getAllCalendars(req: Request, res: Response): Promise<Response> {
 		try {
-			const calendars = await Calendar.find({ relations: ['id', 'owner', 'events', 'users'] });
+			const calendars = await Calendar.find({ relations: ['owner', 'events', 'users'] });
 			return res.status(200).json(calendars);
 		} catch (error) {
 			console.error(error);
@@ -19,8 +19,8 @@ export const CalendarController = {
 
 		try {
 			const calendar = await Calendar.findOne({
-				where: { id: Number(calendarId) },
-				relations: ['id', 'owner', 'events', 'users'],
+				where: { id: calendarId },
+				relations: ['owner', 'events', 'users'],
 			});
 
 			if (!calendar) {
@@ -39,7 +39,7 @@ export const CalendarController = {
 
 		try {
 			const calendar = await Calendar.findOne({
-				where: { id: Number(calendarId) },
+				where: { id: calendarId },
 				relations: ['owner', 'users', 'events'],
 			});
 
@@ -58,7 +58,7 @@ export const CalendarController = {
 		const { name, description, ownerId } = req.body;
 
 		try {
-			const owner = await User.findOne({ where: { id: Number(ownerId) } });
+			const owner = await User.findOne({ where: { id: ownerId } });
 			if (!owner) {
 				return res.status(404).json({ message: 'Owner not found' });
 			}
@@ -83,7 +83,7 @@ export const CalendarController = {
 		const { name, description } = req.body;
 
 		try {
-			const calendar = await Calendar.findOne({ where: { id: Number(calendarId) } });
+			const calendar = await Calendar.findOne({ where: { id: calendarId } });
 
 			if (!calendar) {
 				return res.status(404).json({ message: 'Calendar not found' });
@@ -105,7 +105,7 @@ export const CalendarController = {
 		const { calendarId } = req.params;
 
 		try {
-			const calendar = await Calendar.findOne({ where: { id: Number(calendarId) } });
+			const calendar = await Calendar.findOne({ where: { id: calendarId } });
 
 			if (!calendar) {
 				return res.status(404).json({ message: 'Calendar not found' });
@@ -125,7 +125,7 @@ export const CalendarController = {
 
 		try {
 			const calendar = await Calendar.findOne({
-				where: { id: Number(calendarId) },
+				where: { id: calendarId },
 				relations: ['users'],
 			});
 
@@ -150,7 +150,7 @@ export const CalendarController = {
 
 		try {
 			const calendar = await Calendar.findOne({
-				where: { id: Number(calendarId) },
+				where: { id: calendarId },
 				relations: ['users'],
 			});
 
@@ -158,7 +158,7 @@ export const CalendarController = {
 				return res.status(404).json({ message: 'Calendar not found' });
 			}
 
-			const user = await User.findOne({ where: { id: Number(userId) } });
+			const user = await User.findOne({ where: { id: calendarId } });
 
 			if (!user) {
 				return res.status(404).json({ message: 'User not found' });
@@ -184,7 +184,7 @@ export const CalendarController = {
 
 		try {
 			const calendar = await Calendar.findOne({
-				where: { id: Number(calendarId) },
+				where: { id: calendarId },
 				relations: ['users'],
 			});
 
@@ -192,7 +192,7 @@ export const CalendarController = {
 				return res.status(404).json({ message: 'Calendar not found' });
 			}
 
-			const userIndex = calendar.users.findIndex(u => u.id === Number(userId));
+			const userIndex = calendar.users.findIndex(u => u.id === userId);
 
 			if (userIndex === -1) {
 				return res.status(404).json({ message: 'User not found in the calendar' });
@@ -213,7 +213,7 @@ export const CalendarController = {
 
 		try {
 			const calendar = await Calendar.findOne({
-				where: { id: Number(calendarId) },
+				where: { id: calendarId },
 				relations: ['events'],
 			});
 
@@ -233,7 +233,7 @@ export const CalendarController = {
 		const { title, description, startDate, endDate } = req.body;
 
 		try {
-			const calendar = await Calendar.findOne({ where: { id: Number(calendarId) } });
+			const calendar = await Calendar.findOne({ where: { id: calendarId } });
 
 			if (!calendar) {
 				return res.status(404).json({ message: 'Calendar not found' });

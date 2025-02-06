@@ -3,8 +3,11 @@ import { Calendar } from './Calendar';
 
 @Entity()
 export class User extends BaseEntity {
-	@PrimaryGeneratedColumn()
-	id: number;
+	@PrimaryGeneratedColumn('uuid')
+	id: string;
+
+	// @Column({ unique: true})
+	// login: string;
 
 	@Column()
 	fullName: string;
@@ -24,6 +27,6 @@ export class User extends BaseEntity {
 	@ManyToMany(() => Calendar, calendar => calendar.users)
 	calendars: Calendar[];
 
-	@OneToMany(() => Calendar, calendar => calendar.owner)
+	@OneToMany(() => Calendar, calendar => calendar.owner, { onDelete: 'CASCADE' })
 	ownedCalendars: Calendar[];
 }

@@ -28,16 +28,18 @@ export const AuthController = {
 
 			const hashedPassword = await bcrypt.hash(password, 10);
 			const newUser = userRepository.create({
+				// login,
 				fullName,
 				email,
 				password: hashedPassword,
 				country
 			});
 
+			console.log(newUser);
+
 			await userRepository.save(newUser);
 
 			const token = jwt.sign({ email: newUser.email }, process.env.SECRET_KEY!, { expiresIn: '1d' });
-
 			await sendConfirmationEmail(newUser.email, token);
 
 			return res.status(201).json({ message: 'User registered successfully. Please confirm your email.' });
