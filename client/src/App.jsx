@@ -22,6 +22,7 @@ function AppContent() {
               <Route path="/register" element={<Register />} />
               <Route path="/month" element={<Month />} />
               <Route path="/day" element={<Day />} />
+              {/* <Route path="/day" element={<Day date={new Date()} />} /> */}
               <Route path="*" element={<Error />} />
             </Routes>
           </main>
