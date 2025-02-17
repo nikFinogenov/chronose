@@ -58,11 +58,18 @@ const Day = observer(() => {
     setStartTop(events[index].top);
   };
 
+  // Helper function to snap value to nearest step (15 minutes)
+  const snapToStep = (value) => {
+    const step = 16; // 15 minutes is 16px per step (since each hour is 64px, and each step is 1/4)
+    const remainder = value % step;
+    if (remainder === 0) return value; // already aligned
+    return value - remainder + (remainder > step / 2 ? step : 0);
+  };
+
   // Handle mouse move
   const handleMouseMove = (e) => {
     if (resizeIndex !== null) {
       const delta = e.clientY - startY;
-
       const step = 16;
       const adjustedDelta = Math.round(delta / step) * step;
 
@@ -84,6 +91,12 @@ const Day = observer(() => {
 
           let newEndTime = `${newEndHour}:${newEndMinute === 0 ? "00" : newEndMinute}`;
 
+          // Limiting the height and end time to not exceed 24:00
+          if (newEndHour >= 24) {
+            newHeight = (24 - event.startHour) * 64; // Max height to fill till 24:00
+            newEndTime = "24:00";
+          }
+
           event.height = newHeight;
           event.endTime = newEndTime;
 
@@ -96,14 +109,37 @@ const Day = observer(() => {
 
     if (draggingIndex !== null) {
       const delta = e.clientY - startY;
-      const newTop = startTop + delta;
+      let newTop = startTop + delta;
 
+      // Snapping the newTop value to the nearest 15-minute step (16px per step)
+      newTop = snapToStep(newTop);
+
+      // Limiting top to not go below 0 (00:00) or above 23 hours (24:00)
+      newTop = Math.max(0, Math.min(newTop, 23 * 64));
+
+      // Calculate the new time based on the top position
+      const newStartHour = Math.floor(newTop / 64);
+      const newStartMinute = (Math.round((newTop % 64) / 16) * 30) % 60; // 30-minute increments
+
+      const newStartTime = `${newStartHour}:${newStartMinute === 0 ? "00" : newStartMinute}`;
+
+      // Update event's start time and position
       requestAnimationFrame(() => {
         setEvents((prevEvents) => {
           const newEvents = [...prevEvents];
           const event = newEvents[draggingIndex];
 
           event.top = newTop;
+          event.startTime = newStartTime;
+
+          // Calculate end time based on new start time and height
+          const newEndTop = event.top + event.height;
+          const newEndHour = Math.floor(newEndTop / 64);
+          const newEndMinute = (Math.round((newEndTop % 64) / 16) * 30) % 60;
+
+          const newEndTime = `${newEndHour}:${newEndMinute === 0 ? "00" : newEndMinute}`;
+
+          event.endTime = newEndTime;
 
           return newEvents;
         });
