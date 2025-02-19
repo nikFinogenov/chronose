@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { dateStore } from "../store/dateStore";
 import { userStore } from '../store/userStore';
 import { observer } from 'mobx-react-lite';
+import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 
 const Header = observer(() => {
   const navigate = useNavigate();
@@ -41,8 +42,13 @@ const Header = observer(() => {
       {dateStore.currentDate && <h3>current day is: {new Date(dateStore.currentDate).toLocaleDateString()}</h3>}
       <div className="flex items-center">
         <div className="dropdown dropdown-end">
-          <div tabIndex={0} role="button" className="btn m-1 w-32" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          <div tabIndex={0} role="button" className="btn mx-2 w-28 flex justify-between" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {activeView}
+            {isMenuOpen ? <IoMdArrowDropup size={20}/> : < IoMdArrowDropdown size={20}/>}
+            {/* <IoMdArrowDropdown
+              size={20}
+              className={`icon-transition ${isMenuOpen ? "icon-rotated-right" : "icon-rotated-left"}`}
+            />   */}
           </div>
           {isMenuOpen && (
             <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow">

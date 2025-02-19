@@ -5,6 +5,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import { dateStore } from "../store/dateStore";
 
 const Day = observer(() => {
   const [events, setEvents] = useState([]);
@@ -46,10 +47,10 @@ const Day = observer(() => {
       prevEvents.map((event) =>
         event.id === changeInfo.event.id
           ? {
-              ...event,
-              start: changeInfo.event.start,
-              end: changeInfo.event.end,
-            }
+            ...event,
+            start: changeInfo.event.start,
+            end: changeInfo.event.end,
+          }
           : event
       )
     );
@@ -60,7 +61,9 @@ const Day = observer(() => {
       <Sidebar />
       <div className="flex-1">
         <FullCalendar
+          key={new Date(dateStore.currentDate)}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          initialDate={new Date(dateStore.currentDate)}
           initialView="timeGridDay"
           selectable={true}
           editable={true}
