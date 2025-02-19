@@ -2,10 +2,10 @@
   "name": "mcok",
   "version": "1.0.0",
   "scripts": {
-    "install": "npm run install:server && npm run install:client",
+    "install": "npm run install:server & npm run install:client",
     "install:server": "cd server && npm install",
     "install:client": "cd client && npm install",
-    "start": "npm run start:server && npm run start:client",
+    "start": "npm run start:server & npm run start:client",
     "start:server": "cd server && npm run dev",
     "start:client": "cd client && npm start",
     "build": "npm run build:server && npm run build:client",
