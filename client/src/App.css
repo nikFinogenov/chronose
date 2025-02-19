@@ -40,3 +40,7 @@
     transform: rotate(360deg);
   }
 }
+.fc-day-today {
+  background-color: inherit !important; 
+  /* background-color: rgba(6, 231, 197, 0.05) !important; */
+}

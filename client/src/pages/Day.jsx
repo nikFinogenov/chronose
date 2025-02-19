@@ -68,6 +68,17 @@ const Day = observer(() => {
           select={handleSelect}
           eventChange={handleEventChange} // Update events on drag or resize
           height="auto"
+          slotLabelFormat={{
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false, // 24-часовой формат
+          }}
+          allDaySlot={false}
+          headerToolbar={{
+            left: "title", // Empty to remove 'prev' button
+            center: "", // Show only the title in the center
+            right: "", // Empty to remove 'next' button
+          }}
         />
 
         {showModal && (

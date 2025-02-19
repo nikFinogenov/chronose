@@ -38,9 +38,10 @@ const Header = observer(() => {
       </h1>
       {userStore.user && <h2>Email here: {userStore.user.email}</h2>}
       {userStore.user && <h2>Country huy: {userStore.user.country}</h2>}
+      {dateStore.currentDate && <h3>current day is: {new Date(dateStore.currentDate).toLocaleDateString()}</h3>}
       <div className="flex items-center">
         <div className="dropdown dropdown-end">
-          <div tabIndex={0} role="button" className="btn m-1" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          <div tabIndex={0} role="button" className="btn m-1 w-32" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {activeView}
           </div>
           {isMenuOpen && (
@@ -63,10 +64,10 @@ const Header = observer(() => {
           )}
 
         </div>
-        <button className="btn btn-primary mr-2" onClick={() => dateStore.prevDay()}>
+        <button className="btn btn-primary mr-2" onClick={() => dateStore.prev(activeView.toLowerCase())}>
           &lt; Prev
         </button>
-        <button className="btn btn-primary ml-2" onClick={() => dateStore.nextDay()}>
+        <button className="btn btn-primary ml-2" onClick={() => dateStore.next(activeView.toLowerCase())}>
           Next &gt;
         </button>
         <button className="btn btn-primary ml-2" onClick={() => dateStore.today()}>
