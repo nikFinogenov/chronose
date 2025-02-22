@@ -8,6 +8,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Month from './pages/Month';
 import Day from './pages/Day';
+import Year from './pages/Year'
 // import Sidebar from './components/Sidebar';
 import { AxiosInterceptor } from './services/index'
 
@@ -22,6 +23,7 @@ function AppContent() {
               <Route path="/register" element={<Register />} />
               <Route path="/month" element={<Month />} />
               <Route path="/day" element={<Day />} />
+              <Route path="/year" element={<Year />} />
               {/* <Route path="/day" element={<Day date={new Date()} />} /> */}
               <Route path="*" element={<Error />} />
             </Routes>
