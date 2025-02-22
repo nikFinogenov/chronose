@@ -4,13 +4,13 @@ import { dateStore } from "../store/dateStore";
 function MicroMonth({ month = null }) {
     const [selectedMonth, setSelectedMonth] = useState(new Date(dateStore.currentDate));
     // console.log(new Date(dateStore.currentDate).getFullYear());   
-    // useEffect(() => {
-    //     if (month) {
-    //         const newDate = new Date(new Date(dateStore.currentDate).getFullYear(), Number(month) - 1, 1);
-    //         setSelectedMonth(newDate);
-    //     }
-    //     // else setSelectedMonth(new Date(dateStore.currentDate));
-    // }, [month]);
+    useEffect(() => {
+        if (month) {
+            const newDate = new Date(new Date(dateStore.currentDate).getFullYear(), Number(month) - 1, 1);
+            setSelectedMonth(newDate);
+        }
+        // else setSelectedMonth(new Date(dateStore.currentDate));
+    }, [month]);
 
     // if (month) setSelectedMonth(new Date(`01.${month}.${new Date(dateStore.currentDate).getFullYear()}`));
 
@@ -66,7 +66,7 @@ function MicroMonth({ month = null }) {
     }
 
     return (
-        <div className="p-4 border rounded-lg shadow-lg w-64 text-center">
+        <div className="p-4 border rounded-lg shadow-lg w-64 text-center mt-50">
             <div className="flex justify-between mb-2">
                 <h2 className="text-lg font-semibold">{monthName}</h2>
                 <div>

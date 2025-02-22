@@ -23,7 +23,7 @@ function Sidebar() {
     // };
 
     return (
-        <div className="p-4 border-r border-gray-300">
+        <div className="p-4 border-r border-gray-300 mb-50">
             <div>
                 <p>Today is {new Date(dateStore.currentDate).toLocaleDateString()}</p>
             </div>
