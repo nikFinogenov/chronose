@@ -28,4 +28,8 @@ router.get('/:calendarId/events', CalendarController.getEventsInCalendar.bind(Ca
 
 router.post('/:calendarId/events', CalendarController.createEventInCalendar.bind(CalendarController));
 
+router.get('/invite/:calendarId', CalendarController.getInviteLink.bind(CalendarController)); 
+
+router.post('/join/:inviteToken', CalendarController.joinCalendar.bind(CalendarController));
+
 export default router;

@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, ManyToMany, JoinTable, BaseEntity } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, ManyToMany, JoinTable, BaseEntity, BeforeInsert } from 'typeorm';
 import { User } from './User';
 import { Event } from './Event';
+import { randomUUID } from 'crypto';
 
 @Entity()
 export class Calendar extends BaseEntity {
@@ -26,4 +27,12 @@ export class Calendar extends BaseEntity {
 		inverseJoinColumn: { name: 'userId', referencedColumnName: 'id' },
 	})
 	users: User[];
+
+	@Column({ unique: true })
+	inviteToken: string;
+
+	@BeforeInsert()
+	generateInviteToken() {
+		this.inviteToken = randomUUID();
+	}
 }

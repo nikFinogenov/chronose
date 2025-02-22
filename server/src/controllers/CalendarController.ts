@@ -142,10 +142,10 @@ export const CalendarController = {
 
 	async addUserToCalendar(req: Request, res: Response): Promise<Response> {
 		const { calendarId } = req.params;
-		const { userId } = req.body;
+		const { email } = req.body;
 
-		if (!userId) {
-			return res.status(400).json({ message: 'User ID is required' });
+		if (!email) {
+			return res.status(400).json({ message: 'Email is required' });
 		}
 
 		try {
@@ -158,14 +158,13 @@ export const CalendarController = {
 				return res.status(404).json({ message: 'Calendar not found' });
 			}
 
-			const user = await User.findOne({ where: { id: calendarId } });
+			const user = await User.findOne({ where: { email } });
 
 			if (!user) {
 				return res.status(404).json({ message: 'User not found' });
 			}
 
-			const isUserAlreadyAdded = calendar.users.some(u => u.id === user.id);
-			if (isUserAlreadyAdded) {
+			if (calendar.users.some(u => u.id === user.id)) {
 				return res.status(400).json({ message: 'User is already in the calendar' });
 			}
 
@@ -252,6 +251,58 @@ export const CalendarController = {
 		} catch (error) {
 			console.log(error);
 			return res.status(500).json({ message: 'Error creating event' });
+		}
+	},
+
+	async getInviteLink(req: Request, res: Response) {
+		const { calendarId } = req.params;
+
+		try {
+			const calendar = await Calendar.findOne({ where: { id: calendarId } });
+
+			if (!calendar) {
+				return res.status(404).json({ message: 'Calendar not found' });
+			}
+
+			const inviteLink = `${process.env.BACK_URL}api/calendar/join/${calendar.inviteToken}`;
+			return res.json({ inviteLink });
+		} catch (error) {
+			console.error(error);
+			return res.status(500).json({ message: 'Error generating invite link' });
+		}
+	},
+
+	async joinCalendar(req: Request, res: Response) {
+		const { inviteToken } = req.params;
+		const userId = req.body.userId;
+
+		try {
+			const calendar = await Calendar.findOne({
+				where: { inviteToken },
+				relations: ['users'],
+			});
+
+			if (!calendar) {
+				return res.status(404).json({ message: 'Invalid or expired invite link' });
+			}
+
+			const user = await User.findOne({ where: { id: userId } });
+
+			if (!user) {
+				return res.status(404).json({ message: 'User not found' });
+			}
+
+			if (calendar.users.some(u => u.id === user.id)) {
+				return res.status(400).json({ message: 'You are already in this calendar' });
+			}
+
+			calendar.users.push(user);
+			await calendar.save();
+
+			return res.json({ message: 'Joined the calendar successfully', calendar });
+		} catch (error) {
+			console.error(error);
+			return res.status(500).json({ message: 'Error joining calendar' });
 		}
 	},
 };
