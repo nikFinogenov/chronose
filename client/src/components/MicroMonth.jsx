@@ -2,17 +2,18 @@ import React, { useState, useEffect } from "react";
 import { dateStore } from "../store/dateStore";
 
 function MicroMonth({ month = null }) {
-    const [selectedMonth, setSelectedMonth] = useState('');
+    const [selectedMonth, setSelectedMonth] = useState(new Date(dateStore.currentDate));
     // console.log(new Date(dateStore.currentDate).getFullYear());   
-    useEffect(() => {
-        if (month) {
-            const newDate = new Date(new Date(dateStore.currentDate).getFullYear(), Number(month) - 1, 1);
-            setSelectedMonth(newDate);
-        }
-        else setSelectedMonth(new Date(dateStore.currentDate));
-    }, [month]);
+    // useEffect(() => {
+    //     if (month) {
+    //         const newDate = new Date(new Date(dateStore.currentDate).getFullYear(), Number(month) - 1, 1);
+    //         setSelectedMonth(newDate);
+    //     }
+    //     // else setSelectedMonth(new Date(dateStore.currentDate));
+    // }, [month]);
 
     // if (month) setSelectedMonth(new Date(`01.${month}.${new Date(dateStore.currentDate).getFullYear()}`));
+
     const handlePrevMonth = () => {
         setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1, 1));
     };
@@ -97,8 +98,7 @@ function MicroMonth({ month = null }) {
                     return (
                         <div
                             key={index}
-                            className={`p-2 text-sm rounded ${currentMonth ? "text-black" : "text-gray-400"} 
-                ${today.getTime() === dateToCompare.getTime() ? "border-1" : ""}`}
+                            className={`p-2 text-sm rounded ${currentMonth ? "text-black" : "text-gray-400"}`}
                         >
                             {day}
                         </div>
