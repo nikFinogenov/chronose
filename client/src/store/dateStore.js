@@ -7,13 +7,52 @@ class DateStore {
         makeAutoObservable(this);
     }
 
-    nextDay() {
-        this.currentDate = new Date(new Date(this.currentDate).setDate(new Date(this.currentDate).getDate() + 1)).toISOString();
+    next(type) {
+        const currentDate = new Date(this.currentDate);
+    
+        switch (type) {
+            case 'day':
+                currentDate.setDate(currentDate.getDate() + 1);
+                break;
+            case 'month':
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                break;
+            case 'year':
+                currentDate.setFullYear(currentDate.getFullYear() + 1);
+                break;
+            case 'week':
+                currentDate.setDate(currentDate.getDate() + 7);  // Adds 7 days for the next week
+                break;
+            default:
+                break;
+        }
+    
+        this.currentDate = currentDate.toISOString();
     }
-
-    prevDay() {
-        this.currentDate = new Date(new Date(this.currentDate).setDate(new Date(this.currentDate).getDate() - 1)).toISOString();
+    
+    prev(type) {
+        const currentDate = new Date(this.currentDate);
+    
+        switch (type) {
+            case 'day':
+                currentDate.setDate(currentDate.getDate() - 1);
+                break;
+            case 'month':
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                break;
+            case 'year':
+                currentDate.setFullYear(currentDate.getFullYear() - 1);
+                break;
+            case 'week':
+                currentDate.setDate(currentDate.getDate() - 7);  // Subtracts 7 days for the previous week
+                break;
+            default:
+                break;
+        }
+    
+        this.currentDate = currentDate.toISOString();
     }
+    
     today() {
         this.currentDate = new Date().toISOString();
     }

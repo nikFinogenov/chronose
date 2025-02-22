@@ -1,8 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { dateStore } from "../store/dateStore";
 
-function MicroMonth() {
+function MicroMonth({ month = null }) {
     const [selectedMonth, setSelectedMonth] = useState(new Date(dateStore.currentDate));
+    // console.log(new Date(dateStore.currentDate).getFullYear());   
+    // useEffect(() => {
+    //     if (month) {
+    //         const newDate = new Date(new Date(dateStore.currentDate).getFullYear(), Number(month) - 1, 1);
+    //         setSelectedMonth(newDate);
+    //     }
+    //     // else setSelectedMonth(new Date(dateStore.currentDate));
+    // }, [month]);
+
+    // if (month) setSelectedMonth(new Date(`01.${month}.${new Date(dateStore.currentDate).getFullYear()}`));
 
     const handlePrevMonth = () => {
         setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1, 1));
@@ -60,10 +70,10 @@ function MicroMonth() {
             <div className="flex justify-between mb-2">
                 <h2 className="text-lg font-semibold">{monthName}</h2>
                 <div>
-                    <button className="btn btn-sm btn-ghost" onClick={handlePrevMonth}>
+                    <button className={`btn btn-sm btn-ghost ${month ? "hidden" : ""}`} onClick={handlePrevMonth}>
                         ◀
                     </button>
-                    <button className="btn btn-sm btn-ghost" onClick={handleNextMonth}>
+                    <button className={`btn btn-sm btn-ghost ${month ? "hidden" : ""}`} onClick={handleNextMonth}>
                         ▶
                     </button>
                 </div>
@@ -80,15 +90,20 @@ function MicroMonth() {
 
             {/* Календарь (6x7) */}
             <div className="grid grid-cols-7 gap-1 mt-1">
-                {days.map(({ day, currentMonth }, index) => (
-                    <div
-                        key={index}
-                        className={`p-2 text-sm rounded ${currentMonth ? "text-black" : "text-gray-400"
-                            }`}
-                    >
-                        {day}
-                    </div>
-                ))}
+                {days.map(({ day, currentMonth }, index) => {
+                    const today = new Date();
+                    const currentYear = new Date(dateStore.currentDate).getFullYear();
+                    const dateToCompare = new Date(currentYear, currentMonth - 1, day); // Correct date format
+
+                    return (
+                        <div
+                            key={index}
+                            className={`p-2 text-sm rounded ${currentMonth ? "text-black" : "text-gray-400"}`}
+                        >
+                            {day}
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );

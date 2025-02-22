@@ -1,5 +1,5 @@
 // components/Main.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // import LoadingSpinner from '../components/LoadingSpinner';
 import CalendarGrid from '../components/CalendarGrid';
 import Sidebar from '../components/Sidebar';
@@ -9,6 +9,9 @@ const Month = observer(() => {
     // const [loading, setLoading] = useState(true);
     const [events, setEvents] = useState([]);
     // setEvents(null);
+    // useEffect(() => {
+            // setEvents([]);
+    // }, [events]);
 
     // if (loading) return <LoadingSpinner />;
 

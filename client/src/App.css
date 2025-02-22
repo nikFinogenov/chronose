@@ -40,3 +40,16 @@
     transform: rotate(360deg);
   }
 }
+.fc-day-today {
+  background-color: inherit !important; 
+  /* background-color: rgba(6, 231, 197, 0.05) !important; */
+}
+.icon-transition {
+  transition: transform 0.2s ease-in-out;
+}
+.icon-rotated-left {
+  transform: rotate(180deg);
+}
+.icon-rotated-right {
+  transform: rotate(-180deg);
+}

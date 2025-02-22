@@ -1,17 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { dateStore } from "../store/dateStore";
 import { userStore } from '../store/userStore';
 import { observer } from 'mobx-react-lite';
+import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 
 const Header = observer(() => {
   const navigate = useNavigate();
   const [activeView, setActiveView] = useState("Month"); // По умолчанию "Month"
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleNavigation = (view) => {
     setActiveView(view);
     navigate(`/${view.toLowerCase()}`);
   };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Проверяем, был ли клик внутри элемента с классом "dropdown"
+      if (!event.target.closest(".dropdown")) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener("click", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   return (
     <div className="w-full flex justify-between items-center bg-purple-200 text-black p-4 shadow-md">
@@ -21,29 +39,41 @@ const Header = observer(() => {
       </h1>
       {userStore.user && <h2>Email here: {userStore.user.email}</h2>}
       {userStore.user && <h2>Country huy: {userStore.user.country}</h2>}
+      {dateStore.currentDate && <h3>current day is: {new Date(dateStore.currentDate).toLocaleDateString()}</h3>}
       <div className="flex items-center">
         <div className="dropdown dropdown-end">
-          <div tabIndex={0} role="button" className="btn m-1">
+          <div tabIndex={0} role="button" className="btn mx-2 w-28 flex justify-between" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {activeView}
+            {isMenuOpen ? <IoMdArrowDropup size={20}/> : < IoMdArrowDropdown size={20}/>}
+            {/* <IoMdArrowDropdown
+              size={20}
+              className={`icon-transition ${isMenuOpen ? "icon-rotated-right" : "icon-rotated-left"}`}
+            />   */}
           </div>
-          <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-            {["Day", "Week", "Month", "Year"].map((view) => (
-              <li key={view}>
-                <p
-                  className={`cursor-pointer p-2 rounded ${activeView === view ? "bg-purple-300" : "hover:bg-purple-100"
-                    }`}
-                  onClick={() => handleNavigation(view)}
-                >
-                  {view}
-                </p>
-              </li>
-            ))}
-          </ul>
+          {isMenuOpen && (
+            <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow">
+              {["Day", "Week", "Month", "Year"].map((view) => (
+                <li key={view}>
+                  <p
+                    className={`cursor-pointer p-2 rounded ${activeView === view ? "bg-purple-300" : "hover:bg-purple-100"
+                      }`}
+                    onClick={() => {
+                      handleNavigation(view);
+                      setIsMenuOpen(!isMenuOpen);
+                    }}
+                  >
+                    {view}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+
         </div>
-        <button className="btn btn-primary mr-2" onClick={() => dateStore.prevDay()}>
+        <button className="btn btn-primary mr-2" onClick={() => dateStore.prev(activeView.toLowerCase())}>
           &lt; Prev
         </button>
-        <button className="btn btn-primary ml-2" onClick={() => dateStore.nextDay()}>
+        <button className="btn btn-primary ml-2" onClick={() => dateStore.next(activeView.toLowerCase())}>
           Next &gt;
         </button>
         <button className="btn btn-primary ml-2" onClick={() => dateStore.today()}>
