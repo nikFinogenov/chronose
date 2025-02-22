@@ -63,7 +63,7 @@ function MicroMonth({ month = null }) {
     }
 
     return (
-        <div className="p-4 border rounded-lg shadow-lg w-64 text-center">
+        <div className="p-4 border rounded-lg shadow-lg w-64 text-center mt-50">
             <div className="flex justify-between mb-2">
                 <h2 className="text-lg font-semibold">{month ? monthName.split(' ')[0] : monthName}</h2>
                 <div>
