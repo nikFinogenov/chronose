@@ -91,7 +91,7 @@ function MicroMonth({ month = null }) {
                             key={index}
                             className={`p-2 text-sm 
                                 ${currentMonth ? "text-black" : "text-gray-400"} 
-                                ${today.getTime() === new Date(selectedMonth.getFullYear(), monthNum, day).getTime() ? "border border-indigo-600" : ""}
+                                ${today.getTime() === new Date(selectedMonth.getFullYear(), monthNum, day).getTime() && currentMonth ? "border border-indigo-600" : ""}
                                 `}
                         >
                             {day}

@@ -61,7 +61,7 @@ const Day = observer(() => {
     return (
         <div className="flex h-max p-4">
             <Sidebar />
-            <div className="flex-1">
+            <div className="flex-1 w-full">
                 <FullCalendar
                     key={new Date(dateStore.currentDate)}
                     plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
