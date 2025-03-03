@@ -2,16 +2,10 @@ import React, { useState, useEffect } from "react";
 import { dateStore } from "../store/dateStore";
 
 function MicroMonth({ month = null }) {
-    const [selectedMonth, setSelectedMonth] = useState(null);
+    const [selectedMonth, setSelectedMonth] = useState(new Date(dateStore.currentDate));
+    const selectectedMonthForParameter = new Date(new Date(dateStore.currentDate).getFullYear(), Number(month) - 1, 1);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    // const currentYear = ;
-    useEffect(() => {
-        const newDate = month
-            ? new Date(new Date(dateStore.currentDate).getFullYear(), Number(month) - 1, 1)
-            : new Date(dateStore.currentDate);
-        setSelectedMonth(newDate);
-    }, [month]);
 
     if (!selectedMonth) return null; // Prevent rendering before state is initialized
 
@@ -22,14 +16,15 @@ function MicroMonth({ month = null }) {
     const handleNextMonth = () => {
         setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 1));
     };
+    const mnth = month ? selectectedMonthForParameter : selectedMonth;
 
-    const monthName = selectedMonth.toLocaleString("default", { month: "long", year: "numeric" });
+    const monthName = mnth.toLocaleString("default", { month: "long", year: "numeric" });
 
-    const firstDayOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1).getDay();
-    const lastDayOfMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0).getDate();
+    const firstDayOfMonth = new Date(mnth.getFullYear(), mnth.getMonth(), 1).getDay();
+    const lastDayOfMonth = new Date(mnth.getFullYear(), mnth.getMonth() + 1, 0).getDate();
     const firstDayOffset = firstDayOfMonth;
 
-    const lastMonthDays = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 0).getDate();
+    const lastMonthDays = new Date(mnth.getFullYear(), mnth.getMonth(), 0).getDate();
     const totalCells = 6 * 7;
     const nextMonthDays = totalCells - (firstDayOffset + lastDayOfMonth);
 
@@ -40,7 +35,7 @@ function MicroMonth({ month = null }) {
         days.push({
             day: lastMonthDays - i + 1,
             currentMonth: false,
-            monthNum: selectedMonth.getMonth() - 1
+            monthNum: mnth.getMonth() - 1
         });
     }
 
@@ -49,7 +44,7 @@ function MicroMonth({ month = null }) {
         days.push({
             day,
             currentMonth: true,
-            monthNum: selectedMonth.getMonth()
+            monthNum: mnth.getMonth()
         });
     }
 
@@ -58,7 +53,7 @@ function MicroMonth({ month = null }) {
         days.push({
             day: i,
             currentMonth: false,
-            monthNum: selectedMonth.getMonth() + 1
+            monthNum: mnth.getMonth() + 1
         });
     }
 
@@ -91,7 +86,7 @@ function MicroMonth({ month = null }) {
                             key={index}
                             className={`p-2 text-sm 
                                 ${currentMonth ? "text-black" : "text-gray-400"} 
-                                ${today.getTime() === new Date(selectedMonth.getFullYear(), monthNum, day).getTime() && currentMonth ? "border border-indigo-600" : ""}
+                                ${today.getTime() === new Date(mnth.getFullYear(), monthNum, day).getTime() && currentMonth ? "border border-indigo-600" : ""}
                                 `}
                         >
                             {day}

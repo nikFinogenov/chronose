@@ -56,7 +56,7 @@ const Header = observer(() => {
 				<div className="dropdown dropdown-end">
 					<div tabIndex={0} role="button" className="header-btn flex items-center justify-between w-32" onClick={() => setIsMenuOpen(!isMenuOpen)}>
 						{activeView}
-						{isMenuOpen ? <IoMdArrowDropup size={20} /> : <IoMdArrowDropdown size={20} />}
+						{isMenuOpen ? <IoMdArrowDropup size={20} className='pointer-events-none'/> : <IoMdArrowDropdown size={20} className='pointer-events-none'/>}
 					</div>
 					{isMenuOpen && (
 						<ul tabIndex={0} className="dropdown-content bg-white border border-[#dadce0] rounded-md shadow-md z-50 w-32 p-2">
