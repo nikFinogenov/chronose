@@ -5,11 +5,14 @@
     "install": "npm run install:server & npm run install:client",
     "install:server": "cd server && npm install",
     "install:client": "cd client && npm install",
-    "start": "npm run start:server & npm run start:client",
+    "start": "concurrently \"npm run start:client\" \"npm run start:server\"",
     "start:server": "cd server && npm run dev",
     "start:client": "cd client && npm start",
     "build": "npm run build:server && npm run build:client",
     "build:server": "cd server && npm run build",
     "build:client": "cd client && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   }
 }

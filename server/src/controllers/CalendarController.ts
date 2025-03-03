@@ -256,15 +256,24 @@ export const CalendarController = {
 
 	async getInviteLink(req: Request, res: Response) {
 		const { calendarId } = req.params;
+		const userId = req.user.id; // предполагается, что ID пользователя есть в req.user
 
 		try {
-			const calendar = await Calendar.findOne({ where: { id: calendarId } });
+			const calendar = await Calendar.findOne({
+				where: { id: calendarId },
+				relations: ['owner'],
+			});
 
 			if (!calendar) {
 				return res.status(404).json({ message: 'Calendar not found' });
 			}
 
-			const inviteLink = `${process.env.BACK_URL}api/calendar/join/${calendar.inviteToken}`;
+			// Проверяем, является ли пользователь владельцем
+			if (calendar.owner.id !== userId) {
+				return res.status(403).json({ message: 'Only the calendar owner can generate an invite link' });
+			}
+
+			const inviteLink = `${process.env.BACK_URL}/api/calendar/join/${calendar.inviteToken}`;
 			return res.json({ inviteLink });
 		} catch (error) {
 			console.error(error);
