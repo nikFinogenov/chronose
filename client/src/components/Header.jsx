@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { dateStore } from "../store/dateStore";
-// import { userStore } from '../store/userStore';
+import { userStore } from '../store/userStore';
 import { observer } from 'mobx-react-lite';
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
@@ -28,7 +28,7 @@ const Header = observer(() => {
 	// Update activeView when the URL changes
 	useEffect(() => {
 		setActiveView(getActiveViewFromPath());
-	}, [location.pathname, getActiveViewFromPath]); 
+	}, [location.pathname, getActiveViewFromPath]);
 
 	useEffect(() => {
 		const handleClickOutside = (event) => {
@@ -56,7 +56,7 @@ const Header = observer(() => {
 				<div className="dropdown dropdown-end">
 					<div tabIndex={0} role="button" className="header-btn flex items-center justify-between w-32" onClick={() => setIsMenuOpen(!isMenuOpen)}>
 						{activeView}
-						{isMenuOpen ? <IoMdArrowDropup size={20} className='pointer-events-none'/> : <IoMdArrowDropdown size={20} className='pointer-events-none'/>}
+						{isMenuOpen ? <IoMdArrowDropup size={20} className='pointer-events-none' /> : <IoMdArrowDropdown size={20} className='pointer-events-none' />}
 					</div>
 					{isMenuOpen && (
 						<ul tabIndex={0} className="dropdown-content bg-white border border-[#dadce0] rounded-md shadow-md z-50 w-32 p-2">
@@ -86,9 +86,14 @@ const Header = observer(() => {
 				<button className="header-btn" onClick={() => dateStore.next(activeView.toLowerCase())}>
 					<IoChevronForward size={18} />
 				</button>
-				<button className="header-btn" onClick={() => navigate('/login')}>
+				{userStore.user === null ? (<button className="header-btn" onClick={() => navigate('/login')}>
 					Login
-				</button>
+				</button>) : (
+					<button className="header-btn" onClick={() => userStore.logout()}>
+						Logout
+					</button>)}
+
+
 			</div>
 		</div>
 	);

@@ -1,19 +1,9 @@
 import { api } from './index'
-// import { userStore } from '../store/userStore';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-export const getUserCalendars = async (id) => {
-    try {
-        const response = await api.get(`${API_URL}/users/:${id}/owned-calendars`);
-        // console.log(response);
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
-};
 
-export const createUser = async (fullName, email, password) => {
+export const getCalendar = async (fullName, email, password) => {
     try {
         const countryData = await fetch('https://ipapi.co/json/');
         const data = await countryData.json();
@@ -28,11 +18,15 @@ export const createUser = async (fullName, email, password) => {
     }
 };
 
-export const getUser = async (email, password) => {
+export const createCalendar = async (fullName, email, password) => {
     try {
-        const response = await api.post(`${API_URL}/auth/login`, {
-            email, password
+        const countryData = await fetch('https://ipapi.co/json/');
+        const data = await countryData.json();
+        const country = data && data.country_name ? data.country_name : null;
+        const response = await api.post(`${API_URL}/auth/register`, {
+            fullName, email, password, country
         });
+        // const response = await userStore.register(login, email, fullName, password);
         return response.data;
     } catch (error) {
         throw error;
