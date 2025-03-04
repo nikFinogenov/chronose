@@ -1,93 +1,97 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { dateStore } from "../store/dateStore";
-import { userStore } from '../store/userStore';
+// import { userStore } from '../store/userStore';
 import { observer } from 'mobx-react-lite';
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
+import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 
 const Header = observer(() => {
-  const navigate = useNavigate();
-  const [activeView, setActiveView] = useState("Month"); // По умолчанию "Month"
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const navigate = useNavigate();
+	const location = useLocation();
 
-  const handleNavigation = (view) => {
-    setActiveView(view);
-    navigate(`/${view.toLowerCase()}`);
-  };
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      // Проверяем, был ли клик внутри элемента с классом "dropdown"
-      if (!event.target.closest(".dropdown")) {
-        setIsMenuOpen(false);
-      }
-    };
+	// Extract the view from the URL path and use "day" as default
+	const getActiveViewFromPath = useCallback(() => {
+		const path = location.pathname.replace("/", ""); // Remove leading "/"
+		const validViews = ["day", "week", "month", "year"];
+		return validViews.includes(path) ? path.charAt(0).toUpperCase() + path.slice(1) : "Month";
+	}, [location.pathname]); // Dependency added
 
-    if (isMenuOpen) {
-      document.addEventListener("click", handleClickOutside);
-    }
+	const [activeView, setActiveView] = useState(getActiveViewFromPath);
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [isMenuOpen]);
+	const handleNavigation = (view) => {
+		setActiveView(view);
+		navigate(`/${view.toLowerCase()}`);
+	};
 
-  return (
-    <div className="w-full flex justify-between items-center bg-purple-200 text-black p-4 shadow-md">
-      {/* <h1 className="text-3xl font-bold">McOK Calendar</h1> */}
-      <h1 className="text-2xl font-bold ml-4 sm:block hidden">
-        <Link to="/">CloOk Calendar</Link>
-      </h1>
-      {userStore.user && <h2>Email here: {userStore.user.email}</h2>}
-      {userStore.user && <h2>Country huy: {userStore.user.country}</h2>}
-      {dateStore.currentDate && <h3>current day is: {new Date(dateStore.currentDate).toLocaleDateString()}</h3>}
-      <div className="flex items-center">
-        <div className="dropdown dropdown-end">
-          <div tabIndex={0} role="button" className="btn mx-2 w-28 flex justify-between" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {activeView}
-            {isMenuOpen ? <IoMdArrowDropup size={20}/> : < IoMdArrowDropdown size={20}/>}
-            {/* <IoMdArrowDropdown
-              size={20}
-              className={`icon-transition ${isMenuOpen ? "icon-rotated-right" : "icon-rotated-left"}`}
-            />   */}
-          </div>
-          {isMenuOpen && (
-            <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow">
-              {["Day", "Week", "Month", "Year"].map((view) => (
-                <li key={view}>
-                  <p
-                    className={`cursor-pointer p-2 rounded ${activeView === view ? "bg-purple-300" : "hover:bg-purple-100"
-                      }`}
-                    onClick={() => {
-                      handleNavigation(view);
-                      setIsMenuOpen(!isMenuOpen);
-                    }}
-                  >
-                    {view}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
+	// Update activeView when the URL changes
+	useEffect(() => {
+		setActiveView(getActiveViewFromPath());
+	}, [location.pathname, getActiveViewFromPath]); 
 
-        </div>
-        <button className="btn btn-primary mr-2" onClick={() => dateStore.prev(activeView.toLowerCase())}>
-          &lt; Prev
-        </button>
-        <button className="btn btn-primary ml-2" onClick={() => dateStore.next(activeView.toLowerCase())}>
-          Next &gt;
-        </button>
-        <button className="btn btn-primary ml-2" onClick={() => dateStore.today()}>
-          TODAY
-        </button>
-        <button className="btn btn-secondary ml-4" onClick={() => navigate('/login')}>
-          Go to Login
-        </button>
-        <button className="btn btn-secondary ml-4" onClick={() => userStore.logout()}>
-          Go to Logout
-        </button>
-      </div>
-    </div>
-  );
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			if (!event.target.closest(".dropdown")) {
+				setIsMenuOpen(false);
+			}
+		};
+
+		if (isMenuOpen) {
+			document.addEventListener("click", handleClickOutside);
+		}
+
+		return () => {
+			document.removeEventListener("click", handleClickOutside);
+		};
+	}, [isMenuOpen]);
+
+	return (
+		<div className="w-full flex justify-between items-center bg-purple-200 text-black p-4 shadow-md gradient">
+			<h1 className="text-2xl font-bold ml-4 sm:block hidden text-gradient">
+				<Link to="/">CloOk</Link>
+			</h1>
+
+			<div className="flex items-center">
+				<div className="dropdown dropdown-end">
+					<div tabIndex={0} role="button" className="header-btn flex items-center justify-between w-32" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+						{activeView}
+						{isMenuOpen ? <IoMdArrowDropup size={20} className='pointer-events-none'/> : <IoMdArrowDropdown size={20} className='pointer-events-none'/>}
+					</div>
+					{isMenuOpen && (
+						<ul tabIndex={0} className="dropdown-content bg-white border border-[#dadce0] rounded-md shadow-md z-50 w-32 p-2">
+							{["Day", "Week", "Month", "Year"].map((view) => (
+								<li key={view}>
+									<p
+										className={`cursor-pointer p-2 rounded ${activeView === view ? "bg-gray-200" : "hover:bg-gray-100"}`}
+										onClick={() => {
+											handleNavigation(view);
+											setIsMenuOpen(false);
+										}}
+									>
+										{view}
+									</p>
+								</li>
+							))}
+						</ul>
+					)}
+				</div>
+
+				<button className="header-btn" onClick={() => dateStore.today()}>
+					Today
+				</button>
+				<button className="header-btn" onClick={() => dateStore.prev(activeView.toLowerCase())}>
+					<IoChevronBack size={18} />
+				</button>
+				<button className="header-btn" onClick={() => dateStore.next(activeView.toLowerCase())}>
+					<IoChevronForward size={18} />
+				</button>
+				<button className="header-btn" onClick={() => navigate('/login')}>
+					Login
+				</button>
+			</div>
+		</div>
+	);
 });
 
 export default Header;
