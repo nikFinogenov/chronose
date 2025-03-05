@@ -1,13 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToMany, BaseEntity } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToMany, BaseEntity, JoinTable } from 'typeorm';
 import { Calendar } from './Calendar';
+import { Event } from './Event';
 
 @Entity()
 export class User extends BaseEntity {
 	@PrimaryGeneratedColumn('uuid')
 	id: string;
-
-	// @Column({ unique: true})
-	// login: string;
 
 	@Column()
 	fullName: string;
@@ -29,4 +27,12 @@ export class User extends BaseEntity {
 
 	@OneToMany(() => Calendar, calendar => calendar.owner, { onDelete: 'CASCADE' })
 	ownedCalendars: Calendar[];
+
+	@ManyToMany(() => Event, event => event.users, { onDelete: 'CASCADE' })
+	@JoinTable({
+		name: 'event_users',
+		joinColumn: { name: 'userId', referencedColumnName: 'id' },
+		inverseJoinColumn: { name: 'eventId', referencedColumnName: 'id' },
+	})
+	events: Event[];
 }
