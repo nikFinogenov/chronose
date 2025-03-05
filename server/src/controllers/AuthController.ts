@@ -49,6 +49,42 @@ export const AuthController = {
 		}
 	},
 
+	async me(req: Request, res: Response): Promise<Response> {
+		try {
+			const { token } = req.body; // Получаем токен из запроса
+	
+			if (!token) {
+				return res.status(401).json({ error: 'Unauthorized' });
+			}
+	
+			// Декодируем токен
+			const decoded: any = jwt.verify(token, process.env.SECRET_KEY!);
+	
+			const userRepository = AppDataSource.getRepository(User);
+			const user = await userRepository.findOne({
+				where: { id: decoded.id },
+				// select: ['id', 'login', 'fullName', 'profilePicture', 'email', 'role', 'rating', 'emailConfirmed']
+				select: ['id', 'fullName', 'email', 'country', 'isEmailConfirmed']
+			});
+	
+			if (!user) {
+				return res.status(404).json({ error: 'User not found' });
+			}
+	
+			return res.status(200).json({ user });
+		} catch (error) {
+			console.error('Error retrieving user:', error);
+	
+			if (error.name === 'TokenExpiredError') {
+				return res.status(401).json({ error: 'Token has expired' });
+			} else if (error.name === 'JsonWebTokenError') {
+				return res.status(401).json({ error: 'Invalid token' });
+			}
+	
+			return res.status(500).json({ error: 'Could not retrieve user information' });
+		}
+	},	
+
 	// Confirm email
 	async confirmEmail(req: Request, res: Response): Promise<Response> {
 		const { token } = req.params;

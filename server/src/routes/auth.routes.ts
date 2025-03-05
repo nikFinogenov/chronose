@@ -11,6 +11,8 @@ router.post('/register', AuthController.register.bind(AuthController));
 // Confirm email route
 router.get('/confirm-email/:token', AuthController.confirmEmail.bind(AuthController));
 
+router.post('/me', AuthController.me.bind(AuthController));
+
 // Login route
 router.post('/login', AuthController.login.bind(AuthController));
 
