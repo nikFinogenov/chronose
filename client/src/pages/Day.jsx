@@ -80,6 +80,17 @@ const Day = observer(() => {
                         hour12: false, // 24-часовой формат
                     }}
                     allDaySlot={false}
+                    // allDayText="GMT+01"
+                    slotLabelContent={(arg) => (
+                        <div className="relative">
+                            {arg.text}
+                            {arg.time.hour === 0 && arg.time.minute === 0 && (
+                                <div className="absolute -top-5 left-0 text-sm font-semibold text-gray-500">
+                                    GMT+01
+                                </div>
+                            )}
+                        </div>
+                    )}
                     headerToolbar={{
                         left: "title", // Empty to remove 'prev' button
                         center: "", // Show only the title in the center

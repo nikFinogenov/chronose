@@ -60,11 +60,11 @@ class UserStore {
 
             // Если регистрация успешна, сохраняем пользователя
             runInAction(() => {
-                console.log(response);
+                // console.log(response);
                 localStorage.setItem('token', response.token);
                 const decoded = jwtDecode(response.token); // Предполагается, что сервер возвращает объект пользователя
                 this.user = decoded;
-                console.log(this.user);
+                // console.log(this.user);
             });
 
             return response.message; // Возвращаем сообщение от сервера
