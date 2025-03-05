@@ -73,7 +73,7 @@ function MicroMonth({ month = null }) {
 
             {/* Days of the week */}
             <div className="grid grid-cols-7 gap-1 text-xs font-semibold text-gray-700">
-                {["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"].map((day) => (
+                {["Vs", "Pn", "Vt", "Sr", "Cht", "Pt", "St"].map((day) => (
                     <div key={day} className="p-1">{day}</div>
                 ))}
             </div>
