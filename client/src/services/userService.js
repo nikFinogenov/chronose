@@ -5,10 +5,11 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 export const getUserCalendars = async (id) => {
     try {
-        const response = await api.get(`${API_URL}/users/:${id}/owned-calendars`);
-        // console.log(response);
+        console.log(id);
+        const response = await api.get(`${API_URL}/users/${encodeURIComponent(id)}/owned-calendars`);
         return response.data;
     } catch (error) {
+        console.log(error);
         throw error;
     }
 };
@@ -37,4 +38,12 @@ export const getUser = async (email, password) => {
     } catch (error) {
         throw error;
     }
+};
+
+export const fetchCurrentUser = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
+    const response = await api.post(`${API_URL}/auth/me`, { token });
+    return response.data.user;
 };

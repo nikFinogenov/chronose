@@ -31,8 +31,8 @@ function Sidebar()  {
     useEffect(() => {
         const loadCalendars = async () => {
             try {
-                console.log(userStore.user.id);
-                // const response = userStore.user ? getUserCalendars(userStore.user?.id) : null;
+                console.log(userStore.user?.id);
+                // const response = userStore.user !== null ? getUserCalendars(userStore.user?.id) : null;
             } catch (error) {
                 console.error('Failed to load user calendars:', error);
             }

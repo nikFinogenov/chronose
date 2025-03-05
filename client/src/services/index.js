@@ -38,6 +38,7 @@ const AxiosInterceptor = () => {
             return response; // Возвращаем ответ
         },
         async (error) => {
+            console.log(error);
             if (axios.isCancel(error)) {
                 console.log("Request was canceled:", error.message);
                 return;
