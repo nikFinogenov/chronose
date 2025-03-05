@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import MicroMonth from "./MicroMonth";
 // import ReactSelect from "./CountrySelect";
 import { dateStore } from "../store/dateStore";
-import { userStore } from "../store/userStore";
-import { getUserCalendars } from "../services/userService"
+// import { userStore } from "../store/userStore";
+// import { getUserCalendars } from "../services/userService"
 // import { get } from "mobx";
 // import axios from 'axios';
 
@@ -25,20 +25,20 @@ function Sidebar()  {
     //     }
     // };
 
-    const [isCountryOpen, setIsCountryOpen] = useState(false);
+    // const [isCountryOpen, setIsCountryOpen] = useState(false);
 
 
     useEffect(() => {
         const loadCalendars = async () => {
             try {
-                console.log(userStore.user?.id);
+                // console.log(userStore.user?.id);
                 // const response = userStore.user !== null ? getUserCalendars(userStore.user?.id) : null;
             } catch (error) {
                 console.error('Failed to load user calendars:', error);
             }
         };
         loadCalendars();
-    }, [userStore.user]);
+    }, []);
 
     return (
         <div className="p-4 border-r border-gray-300 mb-50">

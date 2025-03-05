@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { dateStore } from "../store/dateStore";
 
 function MicroMonth({ month = null }) {
@@ -81,19 +81,24 @@ function MicroMonth({ month = null }) {
             {/* Calendar Grid (6x7) */}
             <div className="grid grid-cols-7 gap-1 mt-1">
                 {days.map(({ day, currentMonth, monthNum }, index) => {
+                    const isToday =
+                        today.getTime() === new Date(mnth.getFullYear(), monthNum, day).getTime() &&
+                        currentMonth;
+
                     return (
                         <div
                             key={index}
-                            className={`p-2 text-sm 
-                                ${currentMonth ? "text-black" : "text-gray-400"} 
-                                ${today.getTime() === new Date(mnth.getFullYear(), monthNum, day).getTime() && currentMonth ? "border border-indigo-600" : ""}
-                                `}
+                            className={`flex justify-center items-center w-8 h-8 text-sm
+          ${currentMonth ? "text-black" : "text-gray-400"}  
+          ${isToday ? "border border-indigo-600 rounded-full font-bold" : ""}
+        `}
                         >
                             {day}
                         </div>
                     );
                 })}
             </div>
+
         </div>
     );
 }
