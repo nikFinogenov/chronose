@@ -4,6 +4,7 @@ import { User } from '../models/User';
 import { Event } from '../models/Event';
 import { Calendar } from '../models/Calendar';
 import { Client } from 'pg'; // PostgreSQL client
+import { UserSubscriber } from '../utils/userSubscriver';
 import { faker } from '@faker-js/faker';
 import fs from 'fs';
 import csv from 'csv-parser';
@@ -25,7 +26,7 @@ export const AppDataSource = new DataSource({
 	logging: false,
 	entities: [Event, Calendar, User],
 	migrations: [],
-	subscribers: [],
+	subscribers: [UserSubscriber],
 });
 
 export const createDatabaseIfNotExists = async () => {
@@ -60,7 +61,7 @@ export const createAdmin = async () => {
 		console.log('Creating admin user...');
 
 		// Check if there's already an admin user with id 0
-		const existingAdmin = await User.findOne({ where: { email: "a_tebya_ebet_moy_email?.com" } });
+		const existingAdmin = await User.findOne({ where: { email: "admin@example.com" } });
 		if (existingAdmin) {
 			console.log('Admin user already exists. Skipping creation.');
 			return; // If admin exists, skip creation
@@ -72,6 +73,7 @@ export const createAdmin = async () => {
 			fullName: 'Admin', // Set the name for the admin
 			email: 'admin@example.com', // Admin's email
 			password: 'admin', // Admin's password (you should hash this in a real application)
+			isEmailConfirmed: true,
 		});
 
 		await adminUser.save();

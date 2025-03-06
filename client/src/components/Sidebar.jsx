@@ -1,28 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
+import { observer } from "mobx-react-lite";
 import MicroMonth from "./MicroMonth";
 import { dateStore } from "../store/dateStore";
 import { userStore } from "../store/userStore";
-import { getUserCalendars } from "../services/userService";
+import { calendarStore } from "../store/calendarStore";
 
-function Sidebar() {
-    const [calendars, setCalendars] = useState([]);
-
+const Sidebar = observer(() => {
     useEffect(() => {
-        const loadCalendars = async () => {
-            try {
-                if (userStore.user) {
-                    const response = await getUserCalendars(userStore.user.id);
-                    setCalendars(response); // Устанавливаем календари в state
-                }
-            } catch (error) {
-                console.error("Failed to load user calendars:", error);
-            }
-        };
-        loadCalendars();
+        if (userStore.user) {
+            calendarStore.loadCalendars(userStore.user.id);
+        }
+
+        // return () => {
+        //     calendarStore.clearCalendars(); // Clear calendars on user logout
+        // };
     }, []);
 
     return (
         <div className="p-4 border-r border-gray-300 bg-base-100 min-h-screen">
+            <p className="hidden">{userStore.user?.id ? "" : ""}</p>
             <div className="mb-4 text-lg font-semibold">
                 Today is {new Date(dateStore.currentDate).toLocaleDateString()}
             </div>
@@ -30,13 +26,12 @@ function Sidebar() {
             <MicroMonth />
 
             <div className="join join-vertical w-full bg-base-100 mt-4">
-                {/* My Calendars */}
                 <div className="collapse collapse-arrow join-item border border-base-300">
                     <input type="checkbox" defaultChecked />
                     <div className="collapse-title font-semibold">My calendars</div>
                     <div className="collapse-content text-sm space-y-2">
-                        {calendars.length > 0 ? (
-                            calendars.map((calendar) => (
+                        {calendarStore.calendars?.length > 0 ? (
+                            calendarStore.calendars.map((calendar) => (
                                 <label key={calendar.id} className="flex items-center gap-2">
                                     <input type="checkbox" className="checkbox checkbox-primary" />
                                     <span>{calendar.name}</span>
@@ -48,7 +43,6 @@ function Sidebar() {
                     </div>
                 </div>
 
-                {/* Other Calendars */}
                 <div className="collapse collapse-arrow join-item border border-base-300">
                     <input type="checkbox" />
                     <div className="collapse-title font-semibold">Other calendars</div>
@@ -59,6 +53,6 @@ function Sidebar() {
             </div>
         </div>
     );
-}
+});
 
 export default Sidebar;

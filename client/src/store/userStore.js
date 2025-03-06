@@ -3,6 +3,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { api } from "../services";
 import { createUser, getUser } from "../services/userService";
 import { jwtDecode } from "jwt-decode";
+import { calendarStore } from "./calendarStore";
 
 class UserStore {
     user = null; // Хранит информацию о текущем пользователе
@@ -86,6 +87,8 @@ class UserStore {
             // await api.post('/api/logout');
             runInAction(() => {
                 this.user = null; // Сбрасываем пользователя
+                localStorage.clear();
+                calendarStore.clearCalendars();
             });
         } catch (error) {
             console.error("Logout failed", error);
