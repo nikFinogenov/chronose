@@ -1,71 +1,64 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import MicroMonth from "./MicroMonth";
-// import ReactSelect from "./CountrySelect";
 import { dateStore } from "../store/dateStore";
 import { userStore } from "../store/userStore";
-import { getUserCalendars } from "../services/userService"
-// import { get } from "mobx";
-// import axios from 'axios';
+import { getUserCalendars } from "../services/userService";
 
-function Sidebar()  {
-    // const [country, setCountry] = useState(null);
-    // const [events, setEvents] = useState([]);
-    // const handleConfirm = () => {
-    //     if (country) {
-    //         axios.post(`${process.env.REACT_APP_API_URL}/events/location`, country)
-    //             .then(response => {
-    //                 setEvents(response.data);
-    //                 console.log('Country submitted:', response.data);
-    //             })
-    //             .catch(error => {
-    //                 console.error('Error submitting country:', error);
-    //             });
-    //     } else {
-    //         console.warn('Country not selected');
-    //     }
-    // };
-
-    // const [isCountryOpen, setIsCountryOpen] = useState(false);
-
+function Sidebar() {
+    const [calendars, setCalendars] = useState([]);
 
     useEffect(() => {
         const loadCalendars = async () => {
             try {
-                // console.log(userStore.user?.id);
-                const response = userStore.user ? getUserCalendars(userStore.user?.id) : null;
+                if (userStore.user) {
+                    const response = await getUserCalendars(userStore.user.id);
+                    setCalendars(response); // Устанавливаем календари в state
+                }
             } catch (error) {
-                console.error('Failed to load user calendars:', error);
+                console.error("Failed to load user calendars:", error);
             }
         };
         loadCalendars();
     }, []);
 
     return (
-        <div className="p-4 border-r border-gray-300 mb-50">
-            <div>
-                <p>Today is {new Date(dateStore.currentDate).toLocaleDateString()}</p>
+        <div className="p-4 border-r border-gray-300 bg-base-100 min-h-screen">
+            <div className="mb-4 text-lg font-semibold">
+                Today is {new Date(dateStore.currentDate).toLocaleDateString()}
             </div>
 
             <MicroMonth />
-            <div className="join join-vertical bg-base-100">
-                <div className="collapse collapse-arrow join-item border-base-300 border">
+
+            <div className="join join-vertical w-full bg-base-100 mt-4">
+                {/* My Calendars */}
+                <div className="collapse collapse-arrow join-item border border-base-300">
                     <input type="checkbox" defaultChecked />
                     <div className="collapse-title font-semibold">My calendars</div>
-                    {/* <div className="collapse-content text-sm">Click .</div> */}
+                    <div className="collapse-content text-sm space-y-2">
+                        {calendars.length > 0 ? (
+                            calendars.map((calendar) => (
+                                <label key={calendar.id} className="flex items-center gap-2">
+                                    <input type="checkbox" className="checkbox checkbox-primary" />
+                                    <span>{calendar.name}</span>
+                                </label>
+                            ))
+                        ) : (
+                            <p className="text-gray-500">No calendars found</p>
+                        )}
+                    </div>
                 </div>
-                <div className="collapse collapse-arrow join-item border-base-300 border">
-                    <input type="checkbox" defaultChecked />
+
+                {/* Other Calendars */}
+                <div className="collapse collapse-arrow join-item border border-base-300">
+                    <input type="checkbox" />
                     <div className="collapse-title font-semibold">Other calendars</div>
-                    {/* <div className="collapse-content text-sm">Click .</div> */}
+                    <div className="collapse-content text-sm text-gray-500">
+                        No additional calendars available.
+                    </div>
                 </div>
             </div>
-
-
-            {/* <h2 className="text-xl font-semibold mt-6">Select Country</h2> */}
-            {/* <ReactSelect onSelectionChange={setCountry} /> */}
-            {/* <button className="btn btn-success mt-3" onClick={handleConfirm}>Confirm</button> */}
         </div>
-    )
+    );
 }
 
 export default Sidebar;

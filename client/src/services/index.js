@@ -16,7 +16,7 @@ const AxiosInterceptor = () => {
         // console.log(!userStore.user.isEmailConfirmed);
         // Проверяем, подтвержден ли email пользователя
         if (userStore.user && !userStore.user.isEmailConfirmed) {
-            console.log(userStore.user);
+            // console.log(userStore.user);
             const controller = new AbortController();
             config.signal = controller.signal;
 
@@ -40,9 +40,9 @@ const AxiosInterceptor = () => {
             return response; // Возвращаем ответ
         },
         async (error) => {
-            console.log(error);
+            // console.log(error);
             if (axios.isCancel(error)) {
-                console.log("Request was canceled:", error.message);
+                // console.log("Request was canceled:", error.message);
                 return Promise.resolve({ data: null });
             }
             if (error.response) {

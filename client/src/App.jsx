@@ -15,17 +15,19 @@ import { fetchCurrentUser } from './services/userService'; // Импорт фу�
 import { userStore } from './store/userStore';
 
 function AppContent() {
-  const [user, setUser] = useState(null); // Храним пользователя
+  // const [user, setUser] = useState(null); // Храним пользователя
   const [loading, setLoading] = useState(true); // Флаг загрузки
 
   useEffect(() => {
     const loadUser = async () => {
       try {
         const currentUser = await fetchCurrentUser();
-        userStore.user = currentUser;
+        userStore.setUser(currentUser);
+        // userStore.user = currentUser;
         // setUser(currentUser); // Устанавливаем пользователя
       } catch (error) {
         console.error('Failed to fetch user:', error);
+        userStore.logout();
       } finally {
         setLoading(false); // Завершаем загрузку
       }

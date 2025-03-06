@@ -31,7 +31,7 @@ class UserStore {
             runInAction(() => {
                 // this.user = response.data.user; // Предполагается, что сервер возвращает объект пользователя
             });
-            console.log(response);
+            // console.log(response);
             return response.message; // Возвращаем сообщение от сервера
         } catch (error) {
             runInAction(() => {
@@ -103,6 +103,9 @@ class UserStore {
             console.error("Fetch user failed", error);
         }
     }
+    setUser(userData) {
+        this.user = userData;
+      }
 }
 
 export const userStore = new UserStore();

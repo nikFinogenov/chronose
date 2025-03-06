@@ -5,11 +5,11 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 export const getUserCalendars = async (id) => {
     try {
-        console.log(id);
+        // console.log(id);
         const response = await api.get(`${API_URL}/users/${encodeURIComponent(id)}/owned-calendars`);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };

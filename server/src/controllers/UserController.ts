@@ -103,7 +103,7 @@ export class UserController {
     // Get all calendars owned by a user
     static async getOwnedCalendars(req: Request, res: Response): Promise<Response> {
         const { id } = req.params;
-        console.log(id);
+        // console.log(id);
 
         try {
             const user = await User.findOne({ where: { id: id }, relations: ['ownedCalendars'] });
