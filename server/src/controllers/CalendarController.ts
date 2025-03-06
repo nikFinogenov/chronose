@@ -273,7 +273,7 @@ export const CalendarController = {
 				return res.status(403).json({ message: 'Only the calendar owner can generate an invite link' });
 			}
 
-			const inviteLink = `${process.env.BACK_URL}/api/calendar/join/${calendar.inviteToken}`;
+			const inviteLink = `${process.env.BACK_URL}/api/calendars/join/${calendar.inviteToken}`;
 			return res.json({ inviteLink });
 		} catch (error) {
 			console.error(error);

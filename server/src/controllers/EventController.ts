@@ -197,7 +197,7 @@ export const EventController = {
 				return res.status(403).json({ message: 'Only the calendar owner can invite users to events' });
 			}
 
-			const inviteLink = `${process.env.BACK_URL}/api/event/join/${event.id}`;
+			const inviteLink = `${process.env.BACK_URL}/api/events/join/${event.id}`;
 			return res.json({ inviteLink });
 		} catch (error) {
 			console.error(error);

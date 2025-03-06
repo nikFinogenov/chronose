@@ -26,12 +26,12 @@ export const AuthController = {
 				return res.status(400).json({ message: 'Email already in use' });
 			}
 
-			const hashedPassword = await bcrypt.hash(password, 10);
+			//const hashedPassword = await bcrypt.hash(password, 10);
 			const newUser = userRepository.create({
 				// login,
 				fullName,
 				email,
-				password: hashedPassword,
+				password,
 				country
 			});
 
@@ -119,8 +119,10 @@ export const AuthController = {
 			if (!user) {
 				return res.status(400).json({ message: 'Invalid credentials' });
 			}
-
+			console.log(password);
+			console.log(user.password);
 			const isPasswordValid = await bcrypt.compare(password, user.password);
+			console.log(isPasswordValid);
 			if (!isPasswordValid) {
 				return res.status(400).json({ message: 'Invalid credentials' });
 			}
