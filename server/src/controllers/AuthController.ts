@@ -122,11 +122,7 @@ export const AuthController = {
 			console.log(password);
 			console.log(user.password);
 			const isPasswordValid = await bcrypt.compare(password, user.password);
-<<<<<<< HEAD
-			console.log(isPasswordValid);
-=======
 			// console.log(password, user.password);
->>>>>>> 1a4504043ba3426a6be06699193a018605d12251
 			if (!isPasswordValid) {
 				return res.status(400).json({ message: 'Invalid credentials' });
 			}

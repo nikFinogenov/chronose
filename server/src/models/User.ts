@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToMany, BaseEntity, BeforeInsert, AfterInsert } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToMany, BaseEntity, BeforeInsert, AfterInsert, JoinTable } from 'typeorm';
 import { Calendar } from './Calendar';
 import { Event } from './Event';
 import bcrypt from 'bcrypt';
