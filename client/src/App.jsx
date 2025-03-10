@@ -10,6 +10,7 @@ import Month from './pages/Month';
 import Day from './pages/Day';
 import Year from './pages/Year';
 import Week from './pages/Week';
+import Loading from './components/Loading';
 import { AxiosInterceptor } from './services/index';
 import { fetchCurrentUser } from './services/userService'; // Импорт функции
 import { userStore } from './store/userStore';
@@ -22,6 +23,10 @@ function AppContent() {
     const loadUser = async () => {
       try {
         const currentUser = await fetchCurrentUser();
+        if (!currentUser) {
+          userStore.logout(); // Ensure userStore handles logout properly
+          return;
+      }
         userStore.setUser(currentUser);
         // userStore.user = currentUser;
         // setUser(currentUser); // Устанавливаем пользователя
@@ -37,7 +42,7 @@ function AppContent() {
   }, []);
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return <div className="flex justify-center items-center h-screen"><Loading /></div>;
   }
 
   return (

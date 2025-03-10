@@ -44,6 +44,13 @@ export const fetchCurrentUser = async () => {
     const token = localStorage.getItem('token');
     if (!token) return null;
 
-    const response = await api.post(`${API_URL}/auth/me`, { token });
-    return response.data.user;
+    try {
+        const response = await api.post(`${API_URL}/auth/me`, { token });
+        return response.data.user;
+    } catch (error) {
+        if (error.response?.status === 401) {
+            return null; // Token is invalid/expired, return null
+        }
+        throw error; // Rethrow other errors
+    }
 };

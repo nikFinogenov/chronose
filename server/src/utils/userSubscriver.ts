@@ -19,6 +19,7 @@ export class UserSubscriber implements EntitySubscriberInterface<User> {
             description: "My personal calendar^^",
             owner: user
         });
+        calendar.users = [user]; 
 
         await event.manager.save(calendar); // Сохраняем в рамках той же транзакции
         console.log(`✅ Personal calendar created for user: ${user.id}`);

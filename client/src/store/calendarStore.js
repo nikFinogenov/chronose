@@ -1,5 +1,6 @@
 import { makeAutoObservable } from "mobx";
 import { getUserCalendars } from "../services/userService";
+import { createCalendar } from "../services/calendarService"
 
 class CalendarStore {
     calendars = [];
@@ -23,12 +24,24 @@ class CalendarStore {
         }
     }
 
+    async newCalendar(name, desc, userId) {
+        try {
+            const response = await createCalendar(name, desc, userId);
+            if (response.status === 201) {
+                this.setCalendars([...this.calendars, response.data]); // Append new calendar
+                // this.calendars.push(response.data);
+            }
+            // this.setCalendars(response);
+        } catch (error) {
+            console.error("Failed to create calendar:", error);
+        }
+    }
     clearCalendars() {
         this.calendars = [];
     }
     setCalendars(calendarData) {
         this.calendars = calendarData;
-      }
+    }
 }
 
 export const calendarStore = new CalendarStore();

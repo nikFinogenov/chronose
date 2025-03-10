@@ -1,5 +1,5 @@
 import express from 'express';
-import { AppDataSource, createDatabaseIfNotExists, createAdmin, seedDatabase, seedLocalEvents } from './src/database/data-source';
+import { AppDataSource, createDatabaseIfNotExists, createAdmin, seedDatabase, seedLocalEvents, createLocalDump, restoreLocalDump, localEventsBackup } from './src/database/data-source';
 import { createUserAndDatabase } from "./src/database/db.create";
 import userRoutes from './src/routes/user.routes';
 import eventRoutes from './src/routes/event.routes';
@@ -42,9 +42,18 @@ createUserAndDatabase()
 		AppDataSource.initialize()
 			.then(async () => {
 				// console.log('Data Source has been initialized!');
-				await seedDatabase();
 				await createAdmin();
+
+
+				// await localEventsBackup();
+
+
 				// await seedLocalEvents();
+				await seedDatabase();
+
+
+				// createLocalEventDump();
+				// restoreLocalEventDump();
 
 				app.listen(PORT, () => {
 					console.log(`Server is running on http://localhost:${PORT}`);
