@@ -26,7 +26,7 @@ export const AuthController = {
 				return res.status(400).json({ message: 'Email already in use' });
 			}
 
-			//const hashedPassword = await bcrypt.hash(password, 10);
+			// const hashedPassword = await bcrypt.hash(password, 10);
 			const newUser = userRepository.create({
 				// login,
 				fullName,
@@ -35,7 +35,7 @@ export const AuthController = {
 				country
 			});
 
-			console.log(newUser);
+			// console.log(newUser);
 
 			await userRepository.save(newUser);
 
@@ -122,12 +122,16 @@ export const AuthController = {
 			console.log(password);
 			console.log(user.password);
 			const isPasswordValid = await bcrypt.compare(password, user.password);
+<<<<<<< HEAD
 			console.log(isPasswordValid);
+=======
+			// console.log(password, user.password);
+>>>>>>> 1a4504043ba3426a6be06699193a018605d12251
 			if (!isPasswordValid) {
 				return res.status(400).json({ message: 'Invalid credentials' });
 			}
 
-			const token = jwt.sign({ id: user.id, email: user.email, country: user.country }, process.env.SECRET_KEY!, { expiresIn: '1h' });
+			const token = jwt.sign({ id: user.id, email: user.email, country: user.country, isEmailConfirmed: user.isEmailConfirmed }, process.env.SECRET_KEY!, { expiresIn: '1h' });
 			return res.status(200).json({ message: 'Login successful', token });
 		} catch (error) {
 			return res.status(500).json({ message: 'Login failed' });

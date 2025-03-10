@@ -3,11 +3,13 @@ import { DataSource } from 'typeorm';
 import { User } from '../models/User';
 import { Event } from '../models/Event';
 import { Calendar } from '../models/Calendar';
-import { Client } from 'pg'; // PostgreSQL client
-import { faker } from '@faker-js/faker';
+import { Client } from 'pg';
+import { UserSubscriber } from '../utils/userSubscriver';
+import { faker, tr } from '@faker-js/faker';
 import fs from 'fs';
 import csv from 'csv-parser';
 import axios from 'axios';
+import { exec, execSync } from "child_process"
 require('dotenv').config();
 
 const FAKER_USERS = 5;
@@ -25,7 +27,7 @@ export const AppDataSource = new DataSource({
 	logging: false,
 	entities: [Event, Calendar, User],
 	migrations: [],
-	subscribers: [],
+	subscribers: [UserSubscriber],
 });
 
 export const createDatabaseIfNotExists = async () => {
@@ -59,29 +61,27 @@ export const createAdmin = async () => {
 	try {
 		console.log('Creating admin user...');
 
-		// Check if there's already an admin user with id 0
-		const existingAdmin = await User.findOne({ where: { email: "a_tebya_ebet_moy_email?.com" } });
+		const existingAdmin = await User.findOne({ where: { email: "admin@example.com" } });
 		if (existingAdmin) {
 			console.log('Admin user already exists. Skipping creation.');
-			return; // If admin exists, skip creation
+			return; 
 		}
 
-		// Create a new admin user
 		const adminUser = User.create({
 			// login: 'admin',
-			fullName: 'Admin', // Set the name for the admin
-			email: 'admin@example.com', // Admin's email
-			password: 'admin', // Admin's password (you should hash this in a real application)
+			fullName: 'Admin',
+			email: 'admin@example.com',
+			password: 'admin',
+			isEmailConfirmed: true,
 		});
 
-		await adminUser.save();
+		await User.save(adminUser);
 		console.log('Admin user created with id 0');
 	} catch (error) {
 		console.error('Error creating admin user:', error.message || error);
 	}
 };
 
-// Faker sasat
 export const seedDatabase = async () => {
 	try {
 		console.log('Data source has been initialized. Starting to seed...');
@@ -159,147 +159,197 @@ export const seedDatabase = async () => {
 	}
 };
 
-// Функция для получения всех уникальных стран из cal.csv
 const getCountriesFromCSV = async (): Promise<string[]> => {
-    return new Promise((resolve, reject) => {
-        const countries: Set<string> = new Set();
+	return new Promise((resolve, reject) => {
+		const countries: Set<string> = new Set();
 
-        fs.createReadStream('cal.csv')
-            .pipe(csv())
-            .on('data', (data) => {
-                const country = data['Religion/Country'];
-                if (country) {
-                    countries.add(country);
-                }
-            })
-            .on('end', () => {
-                resolve(Array.from(countries)); // Возвращаем массив уникальных стран
-            })
-            .on('error', (err) => reject(err));
-    });
+		fs.createReadStream('cal.csv')
+			.pipe(csv())
+			.on('data', (data) => {
+				const country = data['Religion/Country'];
+				if (country) {
+					countries.add(country);
+				}
+			})
+			.on('end', () => {
+				resolve(Array.from(countries));
+			})
+			.on('error', (err) => reject(err));
+	});
 };
 
-// Функция для получения ID календаря по стране
 async function getCalendarId(location: string): Promise<string | null> {
-    return new Promise((resolve, reject) => {
-        const results: Record<string, string>[] = [];
+	return new Promise((resolve, reject) => {
+		const results: Record<string, string>[] = [];
 
-        fs.createReadStream('cal.csv')
-            .pipe(csv())
-            .on('data', (data) => results.push(data))
-            .on('end', () => {
-                const row = results.find((row) => row['Religion/Country'] === location);
-                if (row) {
-                    const calendarId = row['calendarID'];
-                    if (calendarId) {
-                        resolve(calendarId);
-                    } else {
-                        resolve(process.env.CAL_ID || null);
-                    }
-                } else {
-                    resolve(null);
-                }
-            })
-            .on('error', (err) => reject(err));
-    });
+		fs.createReadStream('cal.csv')
+			.pipe(csv())
+			.on('data', (data) => results.push(data))
+			.on('end', () => {
+				const row = results.find((row) => row['Religion/Country'] === location);
+				if (row) {
+					const calendarId = row['calendarID'];
+					if (calendarId) {
+						resolve(calendarId);
+					} else {
+						resolve(process.env.CAL_ID || null);
+					}
+				} else {
+					resolve(null);
+				}
+			})
+			.on('error', (err) => reject(err));
+	});
 }
 
-// Функция для получения событий по ID календаря
 const getEventsByCalendarId = async (calendarId: string): Promise<any[]> => {
-    try {
-        const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${process.env.API_KEY}`;
-        const response = await axios.get(url);
-        return response.data.items || [];
-    } catch (error) {
-        console.error(`Error fetching events for calendar ID ${calendarId}:`, error.message);
-        return [];
-    }
+	try {
+		const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${process.env.API_KEY}`;
+		const response = await axios.get(url);
+		return response.data.items || [];
+	} catch (error) {
+		console.error(`Error fetching events for calendar ID ${calendarId}:`, error.message);
+		return [];
+	}
 };
 
-// Функция для обработки событий
 const processEvents = (items: any[]) => {
-    const groupedEvents: Record<string, { description: string, dates: string[] }> = {};
-    const postfixRegex = /\s*(\([^)]+\)|observed|\(tentative\)|Suspended)+/g;
+	const groupedEvents: Record<string, { description: string, dates: string[] }> = {};
+	const postfixRegex = /\s*(\([^)]+\)|observed|\(tentative\)|Suspended)+/g;
 
-    items.forEach((item) => {
-        const { summary, description, start } = item;
-        const cleanedSummary = summary.replace(postfixRegex, '').trim();
+	items.forEach((item) => {
+		const { summary, description, start } = item;
+		const cleanedSummary = summary.replace(postfixRegex, '').trim();
 
-        if (!groupedEvents[cleanedSummary]) {
-            groupedEvents[cleanedSummary] = { description, dates: [] };
-        }
+		if (!groupedEvents[cleanedSummary]) {
+			groupedEvents[cleanedSummary] = { description, dates: [] };
+		}
 
-        groupedEvents[cleanedSummary].dates.push(start.date);
-    });
+		groupedEvents[cleanedSummary].dates.push(start.date);
+	});
 
-    return groupedEvents;
+	return groupedEvents;
 };
 
 export const seedLocalEvents = async () => {
-    try {
-        console.log('Seeding local events...');
+	try {
+		console.log('Seeding local events...');
 
-        // Получаем все уникальные страны из cal.csv
-        const countries = await getCountriesFromCSV();
+		const countries = await getCountriesFromCSV();
 
-        for (const country of countries) {
-            const existingCalendar = await Calendar.findOne({ where: { name: `Holidays in ${country}` } });
-            if (existingCalendar) {
-                console.log(`Calendar for ${country} already exists. Skipping.`);
-                continue;
-            }
+		for (const country of countries) {
+			const existingCalendar = await Calendar.findOne({ where: { name: `Holidays in ${country}` } });
+			if (existingCalendar) {
+				// console.log(`Calendar for ${country} already exists. Skipping.`);
+				continue;
+			}
 
-            const calendarId = await getCalendarId(country);
-            if (!calendarId) {
-                console.log(`No calendar found for location: ${country}`);
-                continue; // Пропускаем, если календарь не найден
-            }
+			const calendarId = await getCalendarId(country);
+			if (!calendarId) {
+				// console.log(`No calendar found for location: ${country}`);
+				continue;
+			}
 
-            // Получаем события для данного календаря
-            const events = await getEventsByCalendarId(calendarId);
-            if (!events) {
-                console.log(`No events found for calendar ID: ${calendarId}`);
-                continue; // Пропускаем, если события не найдены
-            }
+			const events = await getEventsByCalendarId(calendarId);
+			if (!events) {
+				// console.log(`No events found for calendar ID: ${calendarId}`);
+				continue;
+			}
 
-            // Обрабатываем события
-            const groupedEvents = processEvents(events);
+			const groupedEvents = processEvents(events);
 
-            // Создаем календарь и события в базе данных
-            await createCalendarAndEvents(country, groupedEvents);
-			break;
-        }
-        console.log('Seeding completed successfully.');
-    } catch (error) {
-        console.error('Error seeding local events:', error.message || error);
-    }
+			await createCalendarAndEvents(country, groupedEvents);
+			console.log(`Calendar succesfuly created for location: ${country}`);
+			// break;
+		}
+		console.log('Seeding completed successfully.');
+	} catch (error) {
+		console.error('Error seeding local events:', error.message || error);
+	}
 };
 
 const createCalendarAndEvents = async (country: string, groupedEvents: Record<string, { description: string, dates: string[] }>) => {
-    const admin = await User.findOne({ where: { email: 'a_tebya_ebet_moy_email?.com' } });
-    const countryCalendar = await Calendar.create({
-        name: `Holidays in ${country}`,
-        description: `Holidays and events for ${country}`,
-        owner: admin,
-        users:[admin]
-    });
-    await countryCalendar.save(); // Сохраняем календарь
+	const admin = await User.findOne({ where: { email: 'admin@example.com' } });
+	const countryCalendar = await Calendar.create({
+		name: `Holidays in ${country}`,
+		description: `Holidays and events for ${country}`,
+		owner: admin,
+		users: [admin]
+	});
+	await countryCalendar.save(); // Сохраняем календарь
 
-    for (const [eventTitle, eventData] of Object.entries(groupedEvents)) {
-        const { description, dates } = eventData;
+	for (const [eventTitle, eventData] of Object.entries(groupedEvents)) {
+		const { description, dates } = eventData;
 
-        for (let date of dates) {
-            const event = Event.create({
-                title: eventTitle,
-                description: description,
-                startDate: new Date(date),
-                endDate: new Date(date),
-                calendar: countryCalendar,
-            });
-            await event.save(); // Сохраняем событие
-            console.log(`Created event: ${eventTitle} for ${country} on ${date}`);
-        }
-    }
+		for (let date of dates) {
+			const event = Event.create({
+				title: eventTitle,
+				description: description,
+				startDate: new Date(date),
+				endDate: new Date(date),
+				calendar: countryCalendar,
+			});
+			await event.save(); // Сохраняем событие
+			// console.log(`Created event: ${eventTitle} for ${country} on ${date}`);
+		}
+	}
 };
 
+export const updateOwnerIdInDump = (adminId) => {
+    let dumpContent = fs.readFileSync("my_dump.sql", "utf8");
 
+    const lines = dumpContent.split('\n').slice(23, 261);
+
+    lines.forEach((line, index) => {
+        let tmp = line.split(',');
+
+        if (tmp.length > 6) {
+            tmp[6] = ` '${adminId}');`;
+            lines[index] = tmp.join(',');
+        }
+    });
+
+    let updatedContent = lines.join('\n');
+
+    dumpContent = dumpContent.split('\n').slice(0, 22).join('\n') + '\n' + updatedContent + '\n' + dumpContent.split('\n').slice(261).join('\n');
+
+    fs.writeFileSync("my_dump.sql", dumpContent);
+    console.log("ownerId успешно заменён!");
+};
+
+export const createLocalDump = async () => {
+	console.log("Creating dump...");
+	exec("pg_dump --column-inserts --data-only --table=calendar --table=event CloOk > my_dump.sql");
+	console.log("Dump created succesfully!");
+};
+export const restoreLocalDump = async () => {
+	console.log("Restoring dump...");
+
+	const userRepository = AppDataSource.getRepository(User);
+	const admin = await userRepository.findOne({ where: { email: 'admin@example.com' } });
+
+	if (!admin) {
+		console.error("Admin user not found!");
+		return;
+	}
+
+	const adminId = admin.id;
+	await updateOwnerIdInDump(adminId);
+	execSync("psql CloOk -f my_dump.sql -q");
+
+	console.log("Dump restored successfully!");
+};
+
+export const localEventsBackup = async () => {
+	const isDump = fs.existsSync('my_dump.sql')
+	const calendarRepository = AppDataSource.getRepository(Calendar);
+	const calendarCount = await calendarRepository.count();
+	if (calendarCount < 237) {
+		isDump ? await restoreLocalDump() : await seedLocalEvents();
+	}
+	if (!isDump) {
+		// console.log("SACHEMMMMMM");
+		await createLocalDump();
+	}
+	if (calendarCount >= 237 && isDump) console.log("Nothing to do!")
+};

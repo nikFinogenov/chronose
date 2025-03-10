@@ -5,11 +5,11 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 export const getUserCalendars = async (id) => {
     try {
-        console.log(id);
+        // console.log(id);
         const response = await api.get(`${API_URL}/users/${encodeURIComponent(id)}/owned-calendars`);
         return response.data;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         throw error;
     }
 };
@@ -44,6 +44,13 @@ export const fetchCurrentUser = async () => {
     const token = localStorage.getItem('token');
     if (!token) return null;
 
-    const response = await api.post(`${API_URL}/auth/me`, { token });
-    return response.data.user;
+    try {
+        const response = await api.post(`${API_URL}/auth/me`, { token });
+        return response.data.user;
+    } catch (error) {
+        if (error.response?.status === 401) {
+            return null; // Token is invalid/expired, return null
+        }
+        throw error; // Rethrow other errors
+    }
 };

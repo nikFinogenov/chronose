@@ -36,8 +36,8 @@ function Login() {
                 navigate('/');
             }
         } catch (error) {
-            console.log(error);
-            setServerError(error.message);
+            // console.log(error);
+            setServerError(error.response.data.message);
         } finally {
             setLoading(false);
         }

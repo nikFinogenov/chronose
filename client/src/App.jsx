@@ -10,22 +10,29 @@ import Month from './pages/Month';
 import Day from './pages/Day';
 import Year from './pages/Year';
 import Week from './pages/Week';
+import Loading from './components/Loading';
 import { AxiosInterceptor } from './services/index';
 import { fetchCurrentUser } from './services/userService'; // Импорт функции
 import { userStore } from './store/userStore';
 
 function AppContent() {
-  const [user, setUser] = useState(null); // Храним пользователя
+  // const [user, setUser] = useState(null); // Храним пользователя
   const [loading, setLoading] = useState(true); // Флаг загрузки
 
   useEffect(() => {
     const loadUser = async () => {
       try {
         const currentUser = await fetchCurrentUser();
-        userStore.user = currentUser;
+        if (!currentUser) {
+          userStore.logout(); // Ensure userStore handles logout properly
+          return;
+      }
+        userStore.setUser(currentUser);
+        // userStore.user = currentUser;
         // setUser(currentUser); // Устанавливаем пользователя
       } catch (error) {
         console.error('Failed to fetch user:', error);
+        userStore.logout();
       } finally {
         setLoading(false); // Завершаем загрузку
       }
@@ -35,7 +42,7 @@ function AppContent() {
   }, []);
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return <div className="flex justify-center items-center h-screen"><Loading /></div>;
   }
 
   return (

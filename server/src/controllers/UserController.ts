@@ -21,6 +21,12 @@ export class UserController {
             // const hashedPassword = await bcrypt.hash(password, 10);
             const user = User.create({ fullName, email, password });
             await user.save();
+            // const calendar = Calendar.create({
+            //     name: user.fullName,
+            //     description: "My personal calendar^^",
+            //     owner: user
+            // });
+            // await calendar.save();
 
             return res.status(201).json({ message: 'User created successfully.', user });
         } catch (error) {
@@ -103,7 +109,7 @@ export class UserController {
     // Get all calendars owned by a user
     static async getOwnedCalendars(req: Request, res: Response): Promise<Response> {
         const { id } = req.params;
-        console.log(id);
+        // console.log(id);
 
         try {
             const user = await User.findOne({ where: { id: id }, relations: ['ownedCalendars'] });

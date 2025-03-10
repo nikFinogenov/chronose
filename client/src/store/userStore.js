@@ -3,6 +3,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { api } from "../services";
 import { createUser, getUser } from "../services/userService";
 import { jwtDecode } from "jwt-decode";
+import { calendarStore } from "./calendarStore";
 
 class UserStore {
     user = null; // Хранит информацию о текущем пользователе
@@ -31,7 +32,7 @@ class UserStore {
             runInAction(() => {
                 // this.user = response.data.user; // Предполагается, что сервер возвращает объект пользователя
             });
-            console.log(response);
+            // console.log(response);
             return response.message; // Возвращаем сообщение от сервера
         } catch (error) {
             runInAction(() => {
@@ -60,11 +61,11 @@ class UserStore {
 
             // Если регистрация успешна, сохраняем пользователя
             runInAction(() => {
-                console.log(response);
+                // console.log(response);
                 localStorage.setItem('token', response.token);
                 const decoded = jwtDecode(response.token); // Предполагается, что сервер возвращает объект пользователя
                 this.user = decoded;
-                console.log(this.user);
+                // console.log(this.user);
             });
 
             return response.message; // Возвращаем сообщение от сервера
@@ -86,6 +87,8 @@ class UserStore {
             // await api.post('/api/logout');
             runInAction(() => {
                 this.user = null; // Сбрасываем пользователя
+                localStorage.clear();
+                calendarStore.clearCalendars();
             });
         } catch (error) {
             console.error("Logout failed", error);
@@ -103,6 +106,9 @@ class UserStore {
             console.error("Fetch user failed", error);
         }
     }
+    setUser(userData) {
+        this.user = userData;
+      }
 }
 
 export const userStore = new UserStore();
