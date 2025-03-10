@@ -11,7 +11,7 @@ DB_USER=test-clook-user
 DB_PASSWORD=clook
 
 FRONT_URL=http://localhost:3000
-BACK_URL=http://localhost:3001
+BACK_URL=http://localhost:8000
 SECRET_KEY='YAHUISOSAL'
 TOKEN_EXPIRES=1h
 

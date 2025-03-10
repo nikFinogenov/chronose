@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendConfirmationEmail = async (email: string, token: string) => {
-	const confirmationUrl = `http://localhost:3001/api/auth/confirm-email/${token}`;
+	const confirmationUrl = `http://localhost:8000/api/auth/confirm-email/${token}`;
 
 	// Setup email data
 	const mailOptions = {
@@ -37,7 +37,7 @@ export const sendConfirmationEmail = async (email: string, token: string) => {
 
 // Utility function to send the password reset email
 export const sendResetPasswordEmail = async (email: string, token: string) => {
-	const resetUrl = `http://localhost:3001/api/auth/password-reset/${token}`;
+	const resetUrl = `http://localhost:8000/api/auth/password-reset/${token}`;
 
 	// Setup email data
 	const mailOptions = {
