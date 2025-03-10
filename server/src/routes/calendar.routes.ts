@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { CalendarController } from '../controllers/CalendarController';
+import { authMiddleware } from '../middlewares/Auth';
 
 const router = Router();
 
@@ -28,8 +29,8 @@ router.get('/:calendarId/events', CalendarController.getEventsInCalendar.bind(Ca
 
 router.post('/:calendarId/events', CalendarController.createEventInCalendar.bind(CalendarController));
 
-router.get('/invite/:calendarId', CalendarController.getInviteLink.bind(CalendarController)); 
+router.get('/invite/:calendarId', authMiddleware, CalendarController.getInviteLink.bind(CalendarController)); 
 
-router.post('/join/:inviteToken', CalendarController.joinCalendar.bind(CalendarController));
+router.post('/join/:inviteToken', authMiddleware, CalendarController.joinCalendar.bind(CalendarController));
 
 export default router;

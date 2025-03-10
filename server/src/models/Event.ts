@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, BaseEntity } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, BaseEntity, ManyToMany } from 'typeorm';
 import { Calendar } from './Calendar';
+import { User } from './User';
 
 @Entity()
 export class Event extends BaseEntity {
@@ -20,4 +21,7 @@ export class Event extends BaseEntity {
 
 	@ManyToOne(() => Calendar, calendar => calendar.events, { nullable: false, onDelete: 'CASCADE' })
 	calendar: Calendar;
+
+	@ManyToMany(() => User, user => user.events, { onDelete: 'CASCADE' })
+	users: User[];
 }

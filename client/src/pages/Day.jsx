@@ -6,6 +6,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { dateStore } from "../store/dateStore";
+import EventModal from "../components/EventModal";
 
 const Day = observer(() => {
     const [events, setEvents] = useState([]);
@@ -14,15 +15,21 @@ const Day = observer(() => {
         title: "",
         start: null,
         end: null,
+        description: "",
+        location: "",
+        participants: [],
+        color: "#000000",
     });
-
-    // const currTime = new Date().toLocaleTimeString;
 
     const handleSelect = (selectionInfo) => {
         setNewEvent({
             title: "",
             start: selectionInfo.start,
             end: selectionInfo.end,
+            description: "",
+            location: "",
+            participants: [],
+            color: "#000000",
         });
         setShowModal(true);
     };
@@ -36,11 +43,23 @@ const Day = observer(() => {
                     title: newEvent.title,
                     start: newEvent.start,
                     end: newEvent.end,
+                    description: newEvent.description,
+                    location: newEvent.location,
+                    participants: newEvent.participants,
+                    color: newEvent.color,
                     editable: true,
                 },
             ]);
             setShowModal(false);
-            setNewEvent({ title: "", start: null, end: null });
+            setNewEvent({
+                title: "",
+                start: null,
+                end: null,
+                description: "",
+                location: "",
+                participants: [],
+                color: "#000000",
+            });
         }
     };
 
@@ -48,11 +67,7 @@ const Day = observer(() => {
         setEvents((prevEvents) =>
             prevEvents.map((event) =>
                 event.id === changeInfo.event.id
-                    ? {
-                        ...event,
-                        start: changeInfo.event.start,
-                        end: changeInfo.event.end,
-                    }
+                    ? { ...event, start: changeInfo.event.start, end: changeInfo.event.end }
                     : event
             )
         );
@@ -72,12 +87,12 @@ const Day = observer(() => {
                     events={events}
                     nowIndicator={true}
                     select={handleSelect}
-                    eventChange={handleEventChange} // Update events on drag or resize
+                    eventChange={handleEventChange}
                     height="auto"
                     slotLabelFormat={{
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false, // 24-часовой формат
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false,
                     }}
                     allDaySlot={false}
                     // allDayText="GMT+01"
@@ -92,41 +107,19 @@ const Day = observer(() => {
                         </div>
                     )}
                     headerToolbar={{
-                        left: "title", // Empty to remove 'prev' button
-                        center: "", // Show only the title in the center
-                        right: "", // Empty to remove 'next' button
+                        left: "title",
+                        center: "",
+                        right: "",
                     }}
                 />
 
                 {showModal && (
-                    <div className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50 z-50">
-                        <div className="bg-white p-6 rounded-lg shadow-lg">
-                            <h2 className="text-lg font-bold mb-4">Create New Event</h2>
-                            <input
-                                type="text"
-                                placeholder="Event Title"
-                                className="border p-2 w-full mb-4"
-                                value={newEvent.title}
-                                onChange={(e) =>
-                                    setNewEvent({ ...newEvent, title: e.target.value })
-                                }
-                            />
-                            <div className="flex justify-end space-x-4">
-                                <button
-                                    className="px-4 py-2 bg-gray-300 rounded"
-                                    onClick={() => setShowModal(false)}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    className="px-4 py-2 bg-blue-500 text-white rounded"
-                                    onClick={handleSave}
-                                >
-                                    Save
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <EventModal
+                        newEvent={newEvent}
+                        setNewEvent={setNewEvent}
+                        handleSave={handleSave}
+                        setShowModal={setShowModal}
+                    />
                 )}
             </div>
         </div>
