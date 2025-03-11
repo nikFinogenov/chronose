@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, BaseEntity, ManyToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, BaseEntity, ManyToMany, JoinTable } from 'typeorm';
 import { Calendar } from './Calendar';
 import { User } from './User';
 
@@ -23,5 +23,10 @@ export class Event extends BaseEntity {
 	calendar: Calendar;
 
 	@ManyToMany(() => User, user => user.events, { onDelete: 'CASCADE' })
+	@JoinTable({
+		name: 'event_users',
+		joinColumn: { name: 'eventId', referencedColumnName: 'id' },
+		inverseJoinColumn: { name: 'userId', referencedColumnName: 'id' },
+	})
 	users: User[];
 }

@@ -193,9 +193,9 @@ export const EventController = {
 			}
 
 			// Проверяем, является ли текущий пользователь владельцем календаря, к которому принадлежит событие
-			if (event.calendar.owner.id !== userId) {
-				return res.status(403).json({ message: 'Only the calendar owner can invite users to events' });
-			}
+			// if (event.calendar.owner.id !== userId) {
+			// 	return res.status(403).json({ message: 'Only the calendar owner can invite users to events' });
+			// }
 
 			const inviteLink = `${process.env.BACK_URL}/api/events/join/${event.id}`;
 			return res.json({ inviteLink });

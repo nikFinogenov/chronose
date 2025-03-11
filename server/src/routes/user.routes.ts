@@ -20,7 +20,7 @@ router.patch('/:id', UserController.updateUser.bind(UserController));
 router.delete('/:id', UserController.deleteUser.bind(UserController));
 
 // Get all calendars owned by a user
-router.get('/:id/owned-calendars', UserController.getOwnedCalendars.bind(UserController));
+//router.get('/:id/owned-calendars', UserController.getOwnedCalendars.bind(UserController));
 
 // Get all shared calendars for a user
 router.get('/:id/shared-calendars', UserController.getSharedCalendars.bind(UserController));

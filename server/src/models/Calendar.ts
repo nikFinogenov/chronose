@@ -14,9 +14,6 @@ export class Calendar extends BaseEntity {
 	@Column({ nullable: true })
 	description: string;
 
-	@ManyToOne(() => User, user => user.ownedCalendars, { nullable: false, onDelete: 'CASCADE' })
-	owner: User;
-
 	@OneToMany(() => Event, event => event.calendar, { cascade: true, onDelete: 'CASCADE' })
 	events: Event[];
 

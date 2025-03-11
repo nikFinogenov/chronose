@@ -27,7 +27,7 @@ export const CalendarController = {
 				return res.status(404).json({ message: 'Calendar not found' });
 			}
 
-			return res.status(200).json({ owner: calendar.owner });
+			// return res.status(200).json({ owner: calendar.owner });
 		} catch (error) {
 			console.error(error);
 			return res.status(500).json({ message: 'Error fetching owner' });
@@ -66,7 +66,6 @@ export const CalendarController = {
 			const newCalendar = Calendar.create({
 				name,
 				description,
-				owner,
 			});
 
 			await newCalendar.save();
@@ -269,9 +268,9 @@ export const CalendarController = {
 			}
 
 			// Проверяем, является ли пользователь владельцем
-			if (calendar.owner.id !== userId) {
-				return res.status(403).json({ message: 'Only the calendar owner can generate an invite link' });
-			}
+			// if (calendar.owner.id !== userId) {
+			// 	return res.status(403).json({ message: 'Only the calendar owner can generate an invite link' });
+			// }
 
 			const inviteLink = `${process.env.BACK_URL}/api/calendars/join/${calendar.inviteToken}`;
 			return res.json({ inviteLink });
