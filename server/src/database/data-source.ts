@@ -3,6 +3,8 @@ import { DataSource } from 'typeorm';
 import { User } from '../models/User';
 import { Event } from '../models/Event';
 import { Calendar } from '../models/Calendar';
+// import { EventUser } from '../models/EventUser'; // Убедитесь, что сущность импортирована
+// import { CalendarUser } from '../models/CalendarUser';
 import { Client } from 'pg';
 import { UserSubscriber } from '../utils/userSubscriver';
 import { faker, tr } from '@faker-js/faker';
@@ -121,7 +123,6 @@ export const seedDatabase = async () => {
 				const calendar = Calendar.create({
 					name: `Calendar ${i + 1}`,
 					description: faker.lorem.sentence(),
-					owner: users[userID],
 					users: [users[userID], users[(userID + 1) % users.length]],
 				});
 				await calendar.save();
@@ -273,7 +274,6 @@ const createCalendarAndEvents = async (country: string, groupedEvents: Record<st
 	const countryCalendar = await Calendar.create({
 		name: `Holidays in ${country}`,
 		description: `Holidays and events for ${country}`,
-		owner: admin,
 		users: [admin]
 	});
 	await countryCalendar.save(); // Сохраняем календарь
