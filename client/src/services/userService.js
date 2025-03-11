@@ -13,6 +13,16 @@ export const getUserCalendars = async (id) => {
         throw error;
     }
 };
+export const getinvitedUserCalendars = async (id) => {
+    try {
+        // console.log(id);
+        const response = await api.get(`${API_URL}/users/${encodeURIComponent(id)}/shared-calendars`);
+        return response.data;
+    } catch (error) {
+        // console.log(error);
+        throw error;
+    }
+};
 
 export const createUser = async (fullName, email, password) => {
     try {

@@ -58,6 +58,7 @@ const Week = observer(() => {
     return (
         <div className="flex h-max p-4">
             <Sidebar />
+            <div className="w-full">
             <div className="flex-1">
                 <FullCalendar
                     key={new Date(dateStore.currentDate)}
@@ -116,6 +117,7 @@ const Week = observer(() => {
                         </div>
                     </div>
                 )}
+            </div>
             </div>
         </div>
     );

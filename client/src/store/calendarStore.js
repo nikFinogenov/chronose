@@ -1,9 +1,10 @@
 import { makeAutoObservable } from "mobx";
-import { getUserCalendars } from "../services/userService";
+import { getUserCalendars, getinvitedUserCalendars } from "../services/userService";
 import { createCalendar } from "../services/calendarService"
 
 class CalendarStore {
     calendars = [];
+    invitedCalendars = [];
 
     constructor() {
         makeAutoObservable(this);
@@ -24,6 +25,21 @@ class CalendarStore {
         }
     }
 
+    async loadInvitedCalendars(userId) {
+        if (!userId) {
+            this.invitedCalendars = [];
+            return;
+        }
+
+        try {
+            const response = await getinvitedUserCalendars(userId);
+            this.setInvitedCalendars(response);
+        } catch (error) {
+            console.error("Failed to load user calendars:", error);
+            this.invitedCalendars = [];
+        }
+    }
+
     async newCalendar(name, desc, userId) {
         try {
             const response = await createCalendar(name, desc, userId);
@@ -41,6 +57,10 @@ class CalendarStore {
     }
     setCalendars(calendarData) {
         this.calendars = calendarData;
+    }
+
+    setInvitedCalendars(calendarData) {
+        this.invitedCalendars = calendarData;
     }
 }
 

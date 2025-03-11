@@ -124,6 +124,7 @@ export class UserController {
         }
     }
 
+
     // Get all shared calendars for a user
     static async getSharedCalendars(req: Request, res: Response): Promise<Response> {
         const { id } = req.params;

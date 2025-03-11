@@ -1,6 +1,7 @@
 import { EventSubscriber, EntitySubscriberInterface, InsertEvent } from "typeorm";
 import { User } from "../models/User";
 import { Calendar } from "../models/Calendar";
+import { seedLocalEventsForCountry } from "../database/data-source";
 
 @EventSubscriber()
 export class UserSubscriber implements EntitySubscriberInterface<User> {
@@ -19,9 +20,32 @@ export class UserSubscriber implements EntitySubscriberInterface<User> {
             description: "My personal calendar^^",
             owner: user
         });
-        calendar.users = [user]; 
+        calendar.users = [user];
 
         await event.manager.save(calendar); // Сохраняем в рамках той же транзакции
         console.log(`✅ Personal calendar created for user: ${user.id}`);
+
+        if (user.country) {
+            await seedLocalEventsForCountry(user.country);
+
+            const localCalendar = await event.manager.findOne(Calendar, {
+                where: {name: `Holidays in ${user.country}`},
+                relations: ['users'],
+            })
+            // localCalendar.
+            if (localCalendar.users.some(u => u.id === user.id)) {
+				return;
+			}
+
+			localCalendar.users.push(user);
+			// await localCalendar.save();
+            await event.manager.save(localCalendar);
+        }
+
+
+        // const localCalendar = await Calendar.findOne({
+        //     where: { id: calendarId },
+        //     relations: ['owner'],
+        // });
     }
 }

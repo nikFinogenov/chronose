@@ -1,5 +1,5 @@
 import express from 'express';
-import { AppDataSource, createDatabaseIfNotExists, createAdmin, seedDatabase, seedLocalEvents, createLocalDump, restoreLocalDump, localEventsBackup } from './src/database/data-source';
+import { AppDataSource, createDatabaseIfNotExists, createAdmin, seedDatabase, seedLocalEvents, seedLocalEventsForCountry, createLocalDump, restoreLocalDump, localEventsBackup } from './src/database/data-source';
 import { createUserAndDatabase } from "./src/database/db.create";
 import userRoutes from './src/routes/user.routes';
 import eventRoutes from './src/routes/event.routes';
@@ -46,7 +46,6 @@ createUserAndDatabase()
 
 
 				// await localEventsBackup();
-
 
 				// await seedLocalEvents();
 				await seedDatabase();

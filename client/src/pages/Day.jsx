@@ -76,51 +76,53 @@ const Day = observer(() => {
     return (
         <div className="flex h-max p-4">
             <Sidebar />
-            <div className="flex-1 w-full">
-                <FullCalendar
-                    key={new Date(dateStore.currentDate)}
-                    plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                    initialDate={new Date(dateStore.currentDate)}
-                    initialView="timeGridDay"
-                    selectable={true}
-                    editable={true}
-                    events={events}
-                    nowIndicator={true}
-                    select={handleSelect}
-                    eventChange={handleEventChange}
-                    height="auto"
-                    slotLabelFormat={{
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: false,
-                    }}
-                    allDaySlot={false}
-                    // allDayText="GMT+01"
-                    slotLabelContent={(arg) => (
-                        <div className="relative">
-                            {arg.text}
-                            {arg.time.hour === 0 && arg.time.minute === 0 && (
-                                <div className="absolute -top-5 left-0 text-sm font-semibold text-gray-500">
-                                    GMT+01
-                                </div>
-                            )}
-                        </div>
-                    )}
-                    headerToolbar={{
-                        left: "title",
-                        center: "",
-                        right: "",
-                    }}
-                />
-
-                {showModal && (
-                    <EventModal
-                        newEvent={newEvent}
-                        setNewEvent={setNewEvent}
-                        handleSave={handleSave}
-                        setShowModal={setShowModal}
+            <div className="w-full">
+                <div className="flex-1">
+                    <FullCalendar
+                        key={new Date(dateStore.currentDate)}
+                        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                        initialDate={new Date(dateStore.currentDate)}
+                        initialView="timeGridDay"
+                        selectable={true}
+                        editable={true}
+                        events={events}
+                        nowIndicator={true}
+                        select={handleSelect}
+                        eventChange={handleEventChange}
+                        height="auto"
+                        slotLabelFormat={{
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false,
+                        }}
+                        allDaySlot={false}
+                        // allDayText="GMT+01"
+                        slotLabelContent={(arg) => (
+                            <div className="relative">
+                                {arg.text}
+                                {arg.time.hour === 0 && arg.time.minute === 0 && (
+                                    <div className="absolute -top-5 left-0 text-sm font-semibold text-gray-500">
+                                        GMT+01
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        headerToolbar={{
+                            left: "title",
+                            center: "",
+                            right: "",
+                        }}
                     />
-                )}
+
+                    {showModal && (
+                        <EventModal
+                            newEvent={newEvent}
+                            setNewEvent={setNewEvent}
+                            handleSave={handleSave}
+                            setShowModal={setShowModal}
+                        />
+                    )}
+                </div>
             </div>
         </div>
     );

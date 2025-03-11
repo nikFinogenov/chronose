@@ -295,6 +295,38 @@ const createCalendarAndEvents = async (country: string, groupedEvents: Record<st
 	}
 };
 
+export const seedLocalEventsForCountry = async (country) => {
+    try {
+        console.log(`Seeding local events for ${country}...`);
+
+        const existingCalendar = await Calendar.findOne({ where: { name: `Holidays in ${country}` } });
+        if (existingCalendar) {
+            console.log(`Calendar for ${country} already exists. Skipping.`);
+            return;
+        }
+
+        const calendarId = await getCalendarId(country);
+        if (!calendarId) {
+            console.log(`No calendar found for location: ${country}`);
+            return;
+        }
+
+        const events = await getEventsByCalendarId(calendarId);
+        if (!events || events.length === 0) {
+            console.log(`No events found for calendar ID: ${calendarId}`);
+            return;
+        }
+
+        const groupedEvents = processEvents(events);
+        await createCalendarAndEvents(country, groupedEvents);
+        
+        console.log(`Calendar successfully created for location: ${country}`);
+    } catch (error) {
+        console.error(`Error seeding local events for ${country}:`, error.message || error);
+    }
+};
+
+
 export const updateOwnerIdInDump = (adminId) => {
     let dumpContent = fs.readFileSync("my_dump.sql", "utf8");
 
