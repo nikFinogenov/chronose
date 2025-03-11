@@ -16,7 +16,7 @@ interface ConfirmNewPasswordBody {
 export const AuthController = {
 	// Register a new user
 	async register(req: Request, res: Response): Promise<Response> {
-		const { fullName, email, password, country }: { fullName: string; email: string; password: string; country: string; } = req.body;
+		const { fullName, email, password, country, login }: { fullName: string; email: string; password: string; country: string; login: string } = req.body;
 
 		const userRepository = AppDataSource.getRepository(User);
 
@@ -28,11 +28,11 @@ export const AuthController = {
 
 			// const hashedPassword = await bcrypt.hash(password, 10);
 			const newUser = userRepository.create({
-				// login,
+				login,
 				fullName,
 				email,
 				password,
-				country
+				country,
 			});
 
 			// console.log(newUser);
@@ -52,38 +52,38 @@ export const AuthController = {
 	async me(req: Request, res: Response): Promise<Response> {
 		try {
 			const { token } = req.body; // Получаем токен из запроса
-	
+
 			if (!token) {
 				return res.status(401).json({ error: 'Unauthorized' });
 			}
-	
+
 			// Декодируем токен
 			const decoded: any = jwt.verify(token, process.env.SECRET_KEY!);
-	
+
 			const userRepository = AppDataSource.getRepository(User);
 			const user = await userRepository.findOne({
 				where: { id: decoded.id },
 				// select: ['id', 'login', 'fullName', 'profilePicture', 'email', 'role', 'rating', 'emailConfirmed']
-				select: ['id', 'fullName', 'email', 'country', 'isEmailConfirmed']
+				select: ['id', 'fullName', 'email', 'country', 'isEmailConfirmed'],
 			});
-	
+
 			if (!user) {
 				return res.status(404).json({ error: 'User not found' });
 			}
-	
+
 			return res.status(200).json({ user });
 		} catch (error) {
 			console.error('Error retrieving user:', error);
-	
+
 			if (error.name === 'TokenExpiredError') {
 				return res.status(401).json({ error: 'Token has expired' });
 			} else if (error.name === 'JsonWebTokenError') {
 				return res.status(401).json({ error: 'Invalid token' });
 			}
-	
+
 			return res.status(500).json({ error: 'Could not retrieve user information' });
 		}
-	},	
+	},
 
 	// Confirm email
 	async confirmEmail(req: Request, res: Response): Promise<Response> {
@@ -109,27 +109,42 @@ export const AuthController = {
 
 	// Login user
 	async login(req: Request, res: Response): Promise<Response> {
-		const { email, password }: { email: string; password: string } = req.body;
-		// console.log(email);
+		const { email, login, password }: { email?: string; login?: string; password: string } = req.body;
+
+		if (!password || (!email && !login)) {
+			return res.status(400).json({ message: 'Email or login and password are required' });
+		}
 
 		const userRepository = AppDataSource.getRepository(User);
 
 		try {
-			const user = await userRepository.findOne({ where: { email } });
+			const user = await userRepository.findOne({
+				where: email ? { email } : { login },
+			});
+
 			if (!user) {
 				return res.status(400).json({ message: 'Invalid credentials' });
 			}
-			console.log(password);
-			console.log(user.password);
+			
 			const isPasswordValid = await bcrypt.compare(password, user.password);
-			// console.log(password, user.password);
 			if (!isPasswordValid) {
 				return res.status(400).json({ message: 'Invalid credentials' });
 			}
 
-			const token = jwt.sign({ id: user.id, email: user.email, country: user.country, isEmailConfirmed: user.isEmailConfirmed }, process.env.SECRET_KEY!, { expiresIn: '1h' });
+			const token = jwt.sign(
+				{
+					id: user.id,
+					email: user.email,
+					country: user.country,
+					isEmailConfirmed: user.isEmailConfirmed,
+				},
+				process.env.SECRET_KEY!,
+				{ expiresIn: '1h' }
+			);
+
 			return res.status(200).json({ message: 'Login successful', token });
 		} catch (error) {
+			console.error(error);
 			return res.status(500).json({ message: 'Login failed' });
 		}
 	},

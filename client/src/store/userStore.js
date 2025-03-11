@@ -15,7 +15,7 @@ class UserStore {
     }
 
     // Метод для регистрации пользователя
-    async register(fullName, email, password) {
+    async register(fullName, email, password, login) {
         this.loading = true; // Устанавливаем состояние загрузки
         this.error = null; // Сбрасываем ошибку
 
@@ -26,7 +26,7 @@ class UserStore {
             //     fullName,
             //     password
             // });
-            const response = await createUser(fullName, email, password);
+            const response = await createUser(fullName, email, password, login);
 
             // Если регистрация успешна, сохраняем пользователя
             runInAction(() => {
@@ -46,7 +46,7 @@ class UserStore {
         }
     }
 
-    async login(email, password) {
+    async login(email, password, login) {
         this.loading = true; // Устанавливаем состояние загрузки
         this.error = null; // Сбрасываем ошибку
 
@@ -57,7 +57,7 @@ class UserStore {
             //     fullName,
             //     password
             // });
-            const response = await getUser(email, password);
+            const response = await getUser(email, password, login);
 
             // Если регистрация успешна, сохраняем пользователя
             runInAction(() => {
