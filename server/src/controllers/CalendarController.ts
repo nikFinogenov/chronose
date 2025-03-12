@@ -68,7 +68,9 @@ export const CalendarController = {
 				description,
 			});
 
+			newCalendar.users.push(owner);
 			await newCalendar.save();
+			// await owner.calendars.push(newCalendar);
 
 			return res.status(201).json(newCalendar);
 		} catch (error) {

@@ -18,11 +18,14 @@ export class UserSubscriber implements EntitySubscriberInterface<User> {
         const calendar = event.manager.create(Calendar, {
             name: user.fullName,
             description: "My personal calendar^^",
-            owner: user
+            // owner: user
         });
         calendar.users = [user];
 
         await event.manager.save(calendar); // Сохраняем в рамках той же транзакции
+        // await calendar.updateUserRole(user, "owner");
+        await this.updateUserRoleInCalendar(event.manager, calendar, user, "owner");
+
         console.log(`✅ Personal calendar created for user: ${user.id}`);
 
         if (user.country) {
@@ -47,5 +50,12 @@ export class UserSubscriber implements EntitySubscriberInterface<User> {
         //     where: { id: calendarId },
         //     relations: ['owner'],
         // });
+    }
+    private async updateUserRoleInCalendar(manager, calendar: Calendar, user: User, role: "owner" | "editor" | "viewer"): Promise<void> {
+        await manager.query(`
+            UPDATE calendar_users
+            SET rights = $1
+            WHERE "calendarId" = $2 AND "userId" = $3
+        `, [role, calendar.id, user.id]);
     }
 }

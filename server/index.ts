@@ -6,6 +6,8 @@ import eventRoutes from './src/routes/event.routes';
 import calendarRoutes from './src/routes/calendar.routes';
 import authRoutes from './src/routes/auth.routes'
 import cors from 'cors';
+import fs from "fs";
+import path from "path";
 
 export const app = express();
 const PORT = process.env.PORT;
@@ -34,20 +36,45 @@ app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/calendars', calendarRoutes);
 app.use('/api/auth', authRoutes);
+const checkAndRunKostilSQL = async () => {
+	try {
+		const result = await AppDataSource.query(`
+			SELECT column_name 
+			FROM information_schema.columns 
+			WHERE table_name = 'calendar_users' AND column_name = 'rights'
+		`);
 
+		if (result.length > 0) {
+			console.log("✅ 'kostil.sql' already applied. Skipping.");
+			return;
+		}
+
+		console.log("⚙️ Running kostil.sql...");
+		const sqlFilePath = path.join(__dirname, "src/database/kostil.sql");
+		const sql = fs.readFileSync(sqlFilePath, "utf-8");
+
+		await AppDataSource.query(sql);
+		console.log("✅ kostil.sql executed successfully.");
+	} catch (error) {
+		console.error("❌ Error applying kostil.sql:", error);
+	}
+};
 
 // Create the database if it doesn't exist, then initialize the data source and start the server
 createUserAndDatabase()
 	.then(() => {
 		AppDataSource.initialize()
 			.then(async () => {
+				await checkAndRunKostilSQL();
+
+
 				// console.log('Data Source has been initialized!');
 				await createAdmin();
 
 
 				// await localEventsBackup();
 
-				// await seedLocalEvents();
+				await seedLocalEvents();
 				await seedDatabase();
 
 

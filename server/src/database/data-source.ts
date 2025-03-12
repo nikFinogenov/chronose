@@ -25,7 +25,7 @@ export const AppDataSource = new DataSource({
 	username: process.env.DB_USER,
 	password: process.env.DB_PASSWORD,
 	database: process.env.DB_NAME,
-	synchronize: true,
+	synchronize: false,
 	logging: false,
 	entities: [Event, Calendar, User],
 	migrations: [],
@@ -70,7 +70,7 @@ export const createAdmin = async () => {
 		}
 
 		const adminUser = User.create({
-			// login: 'admin',
+			login: 'admin',
 			fullName: 'Admin',
 			email: 'admin@example.com',
 			password: 'admin',
@@ -101,7 +101,7 @@ export const seedDatabase = async () => {
 			console.log('Creating users...');
 			for (let i = userCount; i < FAKER_USERS; i++) {
 				const user = User.create({
-					// login: faker.internet.username(),
+					login: faker.internet.username(),
 					fullName: faker.person.fullName(),
 					email: faker.internet.email(),
 					password: faker.internet.password(),
@@ -277,6 +277,8 @@ const createCalendarAndEvents = async (country: string, groupedEvents: Record<st
 		users: [admin]
 	});
 	await countryCalendar.save(); // Сохраняем календарь
+	await countryCalendar.updateUserRole(admin, "owner");
+	// countryCalendar
 
 	for (const [eventTitle, eventData] of Object.entries(groupedEvents)) {
 		const { description, dates } = eventData;

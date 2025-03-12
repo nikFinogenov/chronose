@@ -48,7 +48,8 @@ function Register () {
                 }
             } catch (error) {
                 // console.log(error);
-                setServerError(error.message);
+                // setServerError(error.message);
+                setServerError(error.response?.data?.message || 'Registration failed');
             } finally {
                 setLoading(false);
             }
