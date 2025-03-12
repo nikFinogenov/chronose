@@ -88,7 +88,7 @@ class UserStore {
 		try {
 			// await api.post('/api/logout');
 			runInAction(() => {
-				this.user = null; // Сбрасываем пользователя
+				this.user = null // Сбрасываем пользователя
 				localStorage.clear();
 				calendarStore.clearCalendars();
 			});

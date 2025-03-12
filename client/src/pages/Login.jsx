@@ -26,7 +26,9 @@ function Login() {
 
 		const email = emailValue.includes('@') ? emailValue : '';
 		const login = email ? '' : emailValue;
-
+	
+		// const email = emailValue;
+		// const login = emailValue;
 		try {
 			const message = await userStore.login(email, passwordValue, login); // Передаем три отдельных аргумента
 			if (message) {

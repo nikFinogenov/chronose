@@ -2,20 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { userStore } from '../store/userStore';
 import { observer } from 'mobx-react-lite';
 import { FiLock, FiLogOut, FiTrash2, FiEdit2, FiCheck, FiX } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
 const Settings = observer(() => {
 	const [isEditing, setIsEditing] = useState(false);
 	const [newFullName, setNewFullName] = useState('');
-	const [loading, setLoading] = useState(true); // Loading state
+	const [loading, setLoading] = useState(true);
+	const navigate = useNavigate();
 
-	// When `userStore.user` updates, update `newFullName`
 	useEffect(() => {
-        console.log(userStore.user);
 		const fetchUserData = async () => {
 			if (userStore.user) {
 				setNewFullName(userStore.user.fullName);
 			}
-			setLoading(false); // Set loading to false once user data is fetched
+			setLoading(false);
 		};
 
 		fetchUserData();
@@ -23,7 +23,6 @@ const Settings = observer(() => {
 
 	useEffect(() => {
 		if (isEditing) {
-			// Focus the input when editing
 			document.getElementById('username-input')?.focus();
 		}
 	}, [isEditing]);
@@ -57,7 +56,7 @@ const Settings = observer(() => {
 	};
 
 	if (loading) {
-		return <div>Loading...</div>; // Show loading state if user data is not available
+		return <div>Loading...</div>;
 	}
 
 	return (
@@ -65,13 +64,12 @@ const Settings = observer(() => {
 			<div className='w-full max-w-lg p-6 bg-white rounded-lg shadow-lg'>
 				<h2 className='mb-4 text-2xl font-bold text-center text-purple-700'>Account Settings</h2>
 
-				{/* Profile Section */}
 				<div className='mb-6'>
 					<h3 className='mb-2 text-lg font-semibold text-gray-800'>Profile</h3>
 					<div className='relative flex items-center p-3 bg-gray-100 border border-gray-300 rounded'>
 						{isEditing ? (
 							<input
-								id='username-input' // Add an ID for the input
+								id='username-input'
 								type='text'
 								value={newFullName}
 								onChange={e => setNewFullName(e.target.value)}
@@ -82,7 +80,6 @@ const Settings = observer(() => {
 							<span className='text-lg'>{newFullName}</span>
 						)}
 
-						{/* Buttons aligned to the right */}
 						<div className='absolute flex gap-2 right-2'>
 							{isEditing ? (
 								<>
@@ -102,7 +99,6 @@ const Settings = observer(() => {
 					</div>
 				</div>
 
-				{/* Security Section */}
 				<div className='mb-6'>
 					<h3 className='mb-2 text-lg font-semibold text-gray-800'>Security</h3>
 					<button
@@ -114,7 +110,6 @@ const Settings = observer(() => {
 					</button>
 				</div>
 
-				{/* Account Actions */}
 				<div className='mb-6'>
 					<h3 className='mb-2 text-lg font-semibold text-gray-800'>Account</h3>
 					<button

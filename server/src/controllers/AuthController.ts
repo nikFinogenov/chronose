@@ -21,9 +21,10 @@ export const AuthController = {
 		const userRepository = AppDataSource.getRepository(User);
 
 		try {
-			const existingUser = await userRepository.findOne({ where: { email } });
-			if (existingUser) {
-				return res.status(400).json({ message: 'Email already in use' });
+			const existingUserEmail = await userRepository.findOne({ where: { email } });
+			const existingUserLogin = await userRepository.findOne({ where: { login } });
+			if (existingUserEmail || existingUserLogin) {
+				return res.status(400).json({ message: 'Email or login already in use' });
 			}
 
 			// const hashedPassword = await bcrypt.hash(password, 10);
