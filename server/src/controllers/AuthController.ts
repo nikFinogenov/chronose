@@ -139,10 +139,13 @@ export const AuthController = {
 					isEmailConfirmed: user.isEmailConfirmed,
 				},
 				process.env.SECRET_KEY!,
-				{ expiresIn: '1h' }
+				{ expiresIn: '7d' }
 			);
 
-			return res.status(200).json({ message: 'Login successful', token });
+			const userData = user;
+
+
+			return res.status(200).json({ message: 'Login successful', userData, token });
 		} catch (error) {
 			console.error(error);
 			return res.status(500).json({ message: 'Login failed' });

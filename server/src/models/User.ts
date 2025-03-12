@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToMany, BaseEntity } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToMany, BaseEntity, BeforeInsert } from 'typeorm';
 import { Calendar } from './Calendar';
 import { Event } from './Event';
+import * as bcrypt from 'bcrypt';
 
 @Entity()
 export class User extends BaseEntity {
@@ -13,7 +14,7 @@ export class User extends BaseEntity {
 	@Column({ unique: true })
 	email: string;
 
-	@Column({ unique: true})
+	@Column({ unique: true })
 	login: string;
 
 	@Column({ nullable: true })
@@ -30,4 +31,9 @@ export class User extends BaseEntity {
 
 	@ManyToMany(() => Event, event => event.users)
 	events: Event[];
+
+	@BeforeInsert()
+	async hashPassword() {
+		this.password = await bcrypt.hash(this.password, 10);
+	}
 }

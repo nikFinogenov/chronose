@@ -11,6 +11,7 @@ import Day from './pages/Day';
 import Year from './pages/Year';
 import Week from './pages/Week';
 import Loading from './components/Loading';
+import Settings from './pages/UserSettings';
 import { AxiosInterceptor } from './services/index';
 import { fetchCurrentUser } from './services/userService'; // Импорт функции
 import { userStore } from './store/userStore';
@@ -42,13 +43,13 @@ function AppContent() {
   }, []);
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen"><Loading /></div>;
+    return <div className="flex items-center justify-center h-screen"><Loading /></div>;
   }
 
   return (
     <div className="flex flex-col h-screen">
       <Header /> {/* Передаем пользователя в Header */}
-      <main className="flex-grow flex flex-col">
+      <main className="flex flex-col flex-grow">
         <Routes>
           <Route path="/" element={<Main />} />
           <Route path="/login" element={<Login />} />
@@ -57,6 +58,7 @@ function AppContent() {
           <Route path="/day" element={<Day />} />
           <Route path="/year" element={<Year />} />
           <Route path="/week" element={<Week />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Error />} />
         </Routes>
       </main>
