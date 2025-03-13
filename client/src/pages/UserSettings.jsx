@@ -38,7 +38,7 @@ const Settings = observer(() => {
 		}
 
 		try {
-			await userStore.updateUsername(newFullName);
+			await userStore.updateUser({ fullName: newFullName });
 			setIsEditing(false);
 		} catch (error) {
 			alert('Failed to update username');
@@ -64,20 +64,28 @@ const Settings = observer(() => {
 			<div className='w-full max-w-lg p-6 bg-white rounded-lg shadow-lg'>
 				<h2 className='mb-4 text-2xl font-bold text-center text-purple-700'>Account Settings</h2>
 
+				{/* Profile Section */}
 				<div className='mb-6'>
 					<h3 className='mb-2 text-lg font-semibold text-gray-800'>Profile</h3>
-					<div className='relative flex items-center p-3 bg-gray-100 border border-gray-300 rounded'>
+
+					{/* Full Name */}
+					<div className='relative flex items-center p-3 mb-3 bg-gray-100 border border-gray-300 rounded'>
 						{isEditing ? (
-							<input
-								id='username-input'
-								type='text'
-								value={newFullName}
-								onChange={e => setNewFullName(e.target.value)}
-								className='flex-1 p-1 text-lg bg-transparent border-none outline-none'
-								onKeyDown={e => e.key === 'Enter' && handleSaveUsername()}
-							/>
+							<div>
+								<input
+									id='username-input'
+									type='text'
+									value={newFullName}
+									onChange={e => setNewFullName(e.target.value)}
+									className='flex-1 p-1 text-lg bg-transparent border-none outline-none'
+									onKeyDown={e => e.key === 'Enter' && handleSaveUsername()}
+								/>
+							</div>
 						) : (
-							<span className='text-lg'>{newFullName}</span>
+							<div>
+								<span className='text-sm text-gray-600'>User name</span>
+								<p className='text-lg font-medium'>{newFullName || 'Loading...'}</p>
+							</div>
 						)}
 
 						<div className='absolute flex gap-2 right-2'>
@@ -97,8 +105,21 @@ const Settings = observer(() => {
 							)}
 						</div>
 					</div>
+
+					{/* Login (Read-Only) */}
+					<div className='p-3 mb-3 bg-gray-100 border border-gray-300 rounded'>
+						<span className='text-sm text-gray-600'>Login</span>
+						<p className='text-lg font-medium'>{userStore.user?.login || 'Loading...'}</p>
+					</div>
+
+					{/* Email (Read-Only) */}
+					<div className='p-3 bg-gray-100 border border-gray-300 rounded'>
+						<span className='text-sm text-gray-600'>Email</span>
+						<p className='text-lg font-medium'>{userStore.user?.email || 'Loading...'}</p>
+					</div>
 				</div>
 
+				{/* Security Section */}
 				<div className='mb-6'>
 					<h3 className='mb-2 text-lg font-semibold text-gray-800'>Security</h3>
 					<button
@@ -110,10 +131,14 @@ const Settings = observer(() => {
 					</button>
 				</div>
 
+				{/* Account Actions */}
 				<div className='mb-6'>
 					<h3 className='mb-2 text-lg font-semibold text-gray-800'>Account</h3>
 					<button
-						onClick={userStore.logout}
+						onClick={() => {
+							userStore.logout();
+							navigate('/');
+						}}
 						className='flex items-center justify-center w-full gap-2 p-3 font-medium text-white transition bg-red-500 rounded hover:bg-red-600'
 					>
 						<FiLogOut size={18} />

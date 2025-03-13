@@ -38,7 +38,7 @@ export class UserController {
     // Get a list of all users
     static async getUsers(req: Request, res: Response): Promise<Response> {
         try {
-            const users = await User.find({ relations: ['ownedCalendars', 'calendars'] });
+            const users = await User.find({ relations: ['calendars'] });
             return res.status(200).json(users);
         } catch (error) {
             console.error(error);
@@ -51,7 +51,7 @@ export class UserController {
         const { id } = req.params;
 
         try {
-            const user = await User.findOne({ where: { id: id }, relations: ['ownedCalendars', 'calendars'] });
+            const user = await User.findOne({ where: { id: id }, relations: ['calendars'] });
             if (!user) {
                 return res.status(404).json({ message: 'User not found.' });
             }
@@ -66,7 +66,7 @@ export class UserController {
     // Update a user's information
     static async updateUser(req: Request, res: Response): Promise<Response> {
         const { id } = req.params;
-        const { fullName, email, password, isEmailConfirmed } = req.body;
+        const { fullName, email, password, login, isEmailConfirmed } = req.body;
 
         try {
             const user = await User.findOneBy({ id: id });
@@ -76,7 +76,8 @@ export class UserController {
 
             if (fullName) user.fullName = fullName;
             if (email) user.email = email;
-            if (password) user.password = await bcrypt.hash(password, 10);
+            if (login) user.login = login;
+            if (password) user.password = password;
             if (isEmailConfirmed !== undefined) user.isEmailConfirmed = isEmailConfirmed;
 
             await user.save();

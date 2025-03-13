@@ -1,7 +1,7 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 // import axios from "axios"; // Предполагается, что вы используете axios для запросов
 import { api } from '../services';
-import { createUser, getUser, fetchCurrentUser} from '../services/userService';
+import { createUser, getUser, fetchCurrentUser, updateUser } from '../services/userService';
 import { jwtDecode } from 'jwt-decode';
 import { calendarStore } from './calendarStore';
 
@@ -65,8 +65,8 @@ class UserStore {
 				localStorage.setItem('token', response.token);
 				// const decoded = jwtDecode(response.token); // Предполагается, что сервер возвращает объект пользователя
 				// this.user = decoded;
-                // console.log(response.userData);
-                this.user = response.userData;
+				// console.log(response.userData);
+				this.user = response.userData;
 				// console.log(this.user);
 			});
 
@@ -88,12 +88,25 @@ class UserStore {
 		try {
 			// await api.post('/api/logout');
 			runInAction(() => {
-				this.user = null // Сбрасываем пользователя
+				this.user = null; // Сбрасываем пользователя
 				localStorage.clear();
 				calendarStore.clearCalendars();
 			});
 		} catch (error) {
 			console.error('Logout failed', error);
+		}
+	}
+
+	async updateUser(updatedData) {
+		if (!this.user) return;
+
+		try {
+			const response = await updateUser(this.user.id, updatedData);
+			runInAction(() => {
+				this.user = response;
+			});
+		} catch (error) {
+			console.error('Failed to update user:', error);
 		}
 	}
 
