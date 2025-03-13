@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Calendar } from '../models/Calendar';
 import { User } from '../models/User';
+import { AppDataSource } from '../database/data-source';
 import { Event } from '../models/Event';
 import bcrypt from 'bcrypt';
 
@@ -107,22 +108,56 @@ export class UserController {
     }
 
     // Get all calendars owned by a user
-    // static async getOwnedCalendars(req: Request, res: Response): Promise<Response> {
-    //     const { id } = req.params;
-    //     // console.log(id);
+    static async getOwnedCalendars(req: Request, res: Response): Promise<Response> {
+        const { id } = req.params;
+        // console.log(id);
 
-    //     try {
-    //         const user = await User.findOne({ where: { id: id }, relations: ['ownedCalendars'] });
-    //         if (!user) {
-    //             return res.status(404).json({ message: 'User not found.' });
-    //         }
+        try {
+            const user = await User.findOne({ where: { id: id } });
+            if (!user) {
+                return res.status(404).json({ message: 'User  not found.' });
+            }
 
-    //         return res.status(200).json(user.ownedCalendars);
-    //     } catch (error) {
-    //         console.error(error);
-    //         return res.status(500).json({ message: 'Internal server error.' });
-    //     }
-    // }
+            // Filter owned calendars based on the user's rights
+            // const ownedCalendars = await AppDataSource
+            // .getRepository('calendar_users')
+            // .createQueryBuilder("cu")
+            // .select('cu.rights', 'rights')
+            // .where("user.id = :userId", { userId: id })
+            // .andWhere("cu.rights = :rights", { rights: "owner" }) // Assuming you have a way to access rights
+            // .getMany();
+
+            const ownedCalendars = await AppDataSource
+                .getRepository(Calendar)
+                .createQueryBuilder("calendar")
+                .innerJoin("calendar_users", "cu", "cu.calendarId = calendar.id")
+                .where("cu.userId = :userId", { userId: id })
+                .andWhere("cu.rights = :rights", { rights: "owner" })
+                .getMany();
+
+            // console.log(ownedCalendars);
+            // const result = await Calendar.find({
+            //     where: {}
+            // })
+
+
+
+            // const ownedCalendars = await AppDataSource
+            // .getRepository('calendar_users')
+            // .createQueryBuilder('cu')
+            // .select('cu.rights', 'rights')
+            // .where('cu.userId = :userId', { userId })
+            // .andWhere('cu.calendarId = :calendarId', { calendarId })
+            // .getRawOne();
+
+
+            return res.status(200).json(ownedCalendars);
+
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Internal server error.' });
+        }
+    }
 
 
     // Get all shared calendars for a user
@@ -130,12 +165,21 @@ export class UserController {
         const { id } = req.params;
 
         try {
-            const user = await User.findOne({ where: { id: id }, relations: ['calendars'] });
+            const user = await User.findOne({ where: { id: id } });
             if (!user) {
                 return res.status(404).json({ message: 'User not found.' });
             }
+            const nonOwnedCalendars = await AppDataSource
+                .getRepository(Calendar)
+                .createQueryBuilder("calendar")
+                .innerJoin("calendar_users", "cu", "cu.calendarId = calendar.id")
+                .where("cu.userId = :userId", { userId: id })
+                .andWhere("cu.rights != :rights", { rights: "owner" }) // Exclude owners
+                .getMany();
 
-            return res.status(200).json(user.calendars);
+
+
+            return res.status(200).json(nonOwnedCalendars);
         } catch (error) {
             console.error(error);
             return res.status(500).json({ message: 'Internal server error.' });
