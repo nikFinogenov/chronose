@@ -94,7 +94,7 @@ export const EventController = {
 
 	async updateEvent(req: Request, res: Response): Promise<Response> {
 		const { eventId } = req.params;
-		const { title, description, startDate, endDate, color } = req.body;
+		const { title, description, start, end, color } = req.body;
 
 		try {
 			const event = await Event.findOne({ where: { id: eventId } });
@@ -105,8 +105,8 @@ export const EventController = {
 
 			if (title) event.title = title;
 			if (description) event.description = description;
-			if (startDate) event.startDate = new Date(startDate);
-			if (endDate) event.endDate = new Date(endDate);
+			if (start) event.startDate = new Date(start);
+			if (end) event.endDate = new Date(end);
 			if (color) event.color = color;
 
 			await event.save();

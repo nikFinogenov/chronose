@@ -99,7 +99,7 @@ const Day = observer(() => {
         }
     };
 
-    const handleEventChange = (changeInfo) => {
+    const handleEventChange = async (changeInfo) => {
         setEvents((prevEvents) =>
             prevEvents.map((event) =>
                 event.id === changeInfo.event.id
@@ -107,6 +107,12 @@ const Day = observer(() => {
                     : event
             )
         );
+
+        try {
+            const response = await api.patch(`/events/${changeInfo.event.id}`, changeInfo.event);
+        } catch (error) {
+            console.log("Error updating event data:", error);
+        }
     };
 
     return (
