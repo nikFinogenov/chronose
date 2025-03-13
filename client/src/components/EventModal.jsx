@@ -1,7 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { calendarStore } from "../store/calendarStore";
+import { api } from "../services";
 
 const EventModal = ({ newEvent, setNewEvent, handleSave, setShowModal }) => {
     const [participantsInput, setParticipantsInput] = useState("");
+    const [selectedCalendar, setSelectedCalendar] = useState(null);
+
+    useEffect(() => {
+        if (calendarStore.calendars.length === 1) {
+            setSelectedCalendar(calendarStore.calendars[0].id);
+        }
+    }, []);
+
+    const handleCalendarChange = (e) => {
+        const calendarId = parseInt(e.target.value, 10);
+        setSelectedCalendar(calendarId);
+    };
 
     const isValidEmail = (email) => {
         const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -41,13 +55,12 @@ const EventModal = ({ newEvent, setNewEvent, handleSave, setShowModal }) => {
         // Send the event data to the backend
         setShowModal(false);
         handleSave();
-        // const response = await sendEventData(newEvent);
-        // if (response.success) {
-        //     handleSave();  // Save the event locally if backend is successful
-        //     setShowModal(false);  // Close the modal
-        // } else {
-        //     alert("Failed to save the event. Please try again.");
-        // }
+
+        try {
+            const response = await api.post(`/events/calendar/${selectedCalendar}`, newEvent);
+        } catch(error) {
+            console.log("Error sending event data:", error);
+        }
     };
 
     // Function to send event data to backend
@@ -71,6 +84,25 @@ const EventModal = ({ newEvent, setNewEvent, handleSave, setShowModal }) => {
         <div className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50 z-50">
             <div className="bg-white p-6 rounded-lg shadow-lg w-96">
                 <h2 className="text-lg font-bold mb-4">Create New Event</h2>
+
+                {/* Calendar Selection */}
+                {calendarStore.calendars.length > 1 && (
+                    <div className="mb-3">
+                        <label className="block text-sm font-medium text-gray-700">Select Calendar:</label>
+                        <select
+                            className="border p-2 w-full"
+                            value={selectedCalendar || ""}
+                            onChange={handleCalendarChange}
+                        >
+                            <option value="" disabled>Select a calendar</option>
+                            {calendarStore.calendars.map((calendar) => (
+                                <option key={calendar.id} value={calendar.id}>
+                                    {calendar.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
 
                 {/* Event Title */}
                 <input

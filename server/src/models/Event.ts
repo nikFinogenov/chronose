@@ -19,6 +19,9 @@ export class Event extends BaseEntity {
 	@Column()
 	endDate: Date;
 
+	@Column({ default: "#34ebc6" })
+	color: string
+
 	@ManyToOne(() => Calendar, calendar => calendar.events, { nullable: false, onDelete: 'CASCADE' })
 	calendar: Calendar;
 

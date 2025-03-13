@@ -64,7 +64,9 @@ export const EventController = {
 
 	async createEvent(req: Request, res: Response): Promise<Response> {
 		const { calendarId } = req.params;
-		const { title, description, startDate, endDate } = req.body;
+		const { title, description, start, end, color } = req.body;
+
+		console.log(req.body);
 
 		try {
 			const calendar = await Calendar.findOne({ where: { id: calendarId } });
@@ -76,8 +78,9 @@ export const EventController = {
 			const event = new Event();
 			event.title = title;
 			event.description = description;
-			event.startDate = new Date(startDate);
-			event.endDate = new Date(endDate);
+			event.startDate = new Date(start);
+			event.endDate = new Date(end);
+			event.color = color;
 			event.calendar = calendar;
 
 			await event.save();
@@ -91,7 +94,7 @@ export const EventController = {
 
 	async updateEvent(req: Request, res: Response): Promise<Response> {
 		const { eventId } = req.params;
-		const { title, description, startDate, endDate } = req.body;
+		const { title, description, startDate, endDate, color } = req.body;
 
 		try {
 			const event = await Event.findOne({ where: { id: eventId } });
@@ -104,6 +107,7 @@ export const EventController = {
 			if (description) event.description = description;
 			if (startDate) event.startDate = new Date(startDate);
 			if (endDate) event.endDate = new Date(endDate);
+			if (color) event.color = color;
 
 			await event.save();
 

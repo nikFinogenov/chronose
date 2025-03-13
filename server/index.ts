@@ -65,19 +65,19 @@ createUserAndDatabase()
 	.then(() => {
 		AppDataSource.initialize()
 			.then(async () => {
+				
 				await checkAndRunKostilSQL();
-
-
+				
 				// console.log('Data Source has been initialized!');
 				await createAdmin();
-
-
+				
+				
 				// await localEventsBackup();
-
+				
 				await seedLocalEvents();
 				await seedDatabase();
-
-
+				
+				
 				// createLocalEventDump();
 				// restoreLocalEventDump();
 
