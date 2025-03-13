@@ -21,9 +21,10 @@ export const AuthController = {
 		const userRepository = AppDataSource.getRepository(User);
 
 		try {
-			const existingUser = await userRepository.findOne({ where: { email } });
-			if (existingUser) {
-				return res.status(400).json({ message: 'Email already in use' });
+			const existingUserEmail = await userRepository.findOne({ where: { email } });
+			const existingUserLogin = await userRepository.findOne({ where: { login } });
+			if (existingUserEmail || existingUserLogin) {
+				return res.status(400).json({ message: 'Email or login already in use' });
 			}
 
 			// const hashedPassword = await bcrypt.hash(password, 10);
@@ -64,7 +65,7 @@ export const AuthController = {
 			const user = await userRepository.findOne({
 				where: { id: decoded.id },
 				// select: ['id', 'login', 'fullName', 'profilePicture', 'email', 'role', 'rating', 'emailConfirmed']
-				select: ['id', 'fullName', 'email', 'country', 'isEmailConfirmed'],
+				select: ['id', 'fullName', 'email', 'login', 'country', 'isEmailConfirmed'],
 			});
 
 			if (!user) {
@@ -140,10 +141,13 @@ export const AuthController = {
 					isEmailConfirmed: user.isEmailConfirmed,
 				},
 				process.env.SECRET_KEY!,
-				{ expiresIn: '1h' }
+				{ expiresIn: '7d' }
 			);
 
-			return res.status(200).json({ message: 'Login successful', token });
+			const userData = user;
+
+
+			return res.status(200).json({ message: 'Login successful', userData, token });
 		} catch (error) {
 			console.error(error);
 			return res.status(500).json({ message: 'Login failed' });

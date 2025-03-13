@@ -50,6 +50,16 @@ export const getUser = async (email, password, login) => {
     }
 };
 
+export const updateUser = async (userId, updatedData) => {
+    try {
+        const response = await api.patch(`${API_URL}/users/${encodeURIComponent(userId)}`, updatedData);
+        return response.data;
+    } catch (error) {
+        console.error('Failed to update user:', error);
+        throw error;
+    }
+};
+
 export const fetchCurrentUser = async () => {
     const token = localStorage.getItem('token');
     if (!token) return null;

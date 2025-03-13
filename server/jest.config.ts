@@ -6,3 +6,8 @@ const config: Config = {
 };
 
 export default config;
+
+						onClick={() => {
+							userStore.logout();
+							navigate('/');
+						}}
