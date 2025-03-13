@@ -14,7 +14,7 @@ const Header = observer(() => {
 	const getActiveViewFromPath = useCallback(() => {
 		const path = location.pathname.replace("/", ""); // Remove leading "/"
 		const validViews = ["day", "week", "month", "year"];
-		return validViews.includes(path) ? path.charAt(0).toUpperCase() + path.slice(1) : "Month";
+		return validViews.includes(path) ? path.charAt(0).toUpperCase() + path.slice(1) : "Year";
 	}, [location.pathname]); // Dependency added
 
 	const [activeView, setActiveView] = useState(getActiveViewFromPath);

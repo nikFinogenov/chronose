@@ -71,7 +71,6 @@ const Week = observer(() => {
                     select={handleSelect}
                     eventChange={handleEventChange}
                     height="auto"
-                    width="auto"
                     slotLabelFormat={{
                         hour: "2-digit",
                         minute: "2-digit",
