@@ -1,3 +1,4 @@
+import { configDotenv } from 'dotenv';
 import nodemailer from 'nodemailer';
 
 // Create a reusable transporter object using the default SMTP transport
@@ -10,7 +11,7 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendConfirmationEmail = async (email: string, token: string) => {
-	const confirmationUrl = `http://localhost:8000/api/auth/confirm-email/${token}`;
+	const confirmationUrl = `${process.env.FRONT_URL}/confirm-email/${token}`;
 
 	// Setup email data
 	const mailOptions = {
@@ -37,7 +38,7 @@ export const sendConfirmationEmail = async (email: string, token: string) => {
 
 // Utility function to send the password reset email
 export const sendResetPasswordEmail = async (email: string, token: string) => {
-	const resetUrl = `http://localhost:8000/api/auth/password-reset/${token}`;
+	const resetUrl = `${process.env.FRONT_URL}/password-reset/${token}`;
 
 	// Setup email data
 	const mailOptions = {

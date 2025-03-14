@@ -84,7 +84,7 @@ const Header = observer(() => {
 				<button className='header-btn' onClick={() => dateStore.next(activeView.toLowerCase())}>
 					<IoChevronForward size={18} />
 				</button>
-				<button className='header-btn' onClick={() => userStore.updateUser({fullName: "gaysex"})}>
+				<button className='header-btn' onClick={() => console.log("pidr")}>
 					Sex
 				</button>
 

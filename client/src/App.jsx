@@ -12,6 +12,7 @@ import Year from './pages/Year';
 import Week from './pages/Week';
 import Loading from './components/Loading';
 import Settings from './pages/UserSettings';
+import ResetPassword from './pages/PasswordReset';
 import { AxiosInterceptor } from './services/index';
 import { fetchCurrentUser } from './services/userService'; // Импорт функции
 import { userStore } from './store/userStore';
@@ -47,23 +48,24 @@ function AppContent() {
   }
 
   return (
-    <div className="flex flex-col h-screen">
-      <Header /> {/* Передаем пользователя в Header */}
-      <main className="flex flex-col flex-grow">
-        <Routes>
-          <Route path="/" element={<Main />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/month" element={<Month />} />
-          <Route path="/day" element={<Day />} />
-          <Route path="/year" element={<Year />} />
-          <Route path="/week" element={<Week />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="*" element={<Error />} />
-        </Routes>
-      </main>
-      <Footer />
-    </div>
+		<div className='flex flex-col h-screen'>
+			<Header /> {/* Передаем пользователя в Header */}
+			<main className='flex flex-col flex-grow'>
+				<Routes>
+					<Route path='/' element={<Main />} />
+					<Route path='/login' element={<Login />} />
+					<Route path='/register' element={<Register />} />
+					<Route path='/month' element={<Month />} />
+					<Route path='/day' element={<Day />} />
+					<Route path='/year' element={<Year />} />
+					<Route path='/week' element={<Week />} />
+					<Route path='/settings' element={<Settings />} />
+					<Route path='/password-reset/:token' element={<ResetPassword />} />
+					<Route path='*' element={<Error />} />
+				</Routes>
+			</main>
+			<Footer />
+		</div>
   );
 }
 

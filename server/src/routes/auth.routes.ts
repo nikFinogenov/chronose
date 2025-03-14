@@ -19,10 +19,9 @@ router.post('/login', AuthController.login.bind(AuthController));
 // Logout route with middleware
 router.post('/logout', authMiddleware, AuthController.logout.bind(AuthController));
 
+router.post('/password-reset', AuthController.sendResetLink.bind(AuthController));
+
 // Confirm new password route
 router.post('/password-reset/:token', AuthController.confirmNewPassword.bind(AuthController));
-
-// Password reset request route
-router.post('/password-reset', AuthController.sendResetLink.bind(AuthController));
 
 export default router;
