@@ -61,4 +61,31 @@ export const sendResetPasswordEmail = async (email: string, token: string) => {
 		console.error('Error sending reset password email:', error);
 		throw new Error('Failed to send reset password email');
 	}
+
+	
+};
+
+export const sendInviteEmail = async (email: string, inviteUrl: string, type: 'event' | 'calendar') => {
+	const subject = type === 'event' ? 'Event Invitation' : 'Calendar Invitation';
+	const message = `
+        <h2>You have been invited!</h2>
+        <p>Click the link below to join:</p>
+        <a href="${inviteUrl}">${inviteUrl}</a>
+        <p>If you did not expect this invitation, you can ignore this email.</p>
+    `;
+
+	const mailOptions = {
+		from: process.env.EMAIL_USER,
+		to: email,
+		subject,
+		html: message,
+	};
+
+	try {
+		await transporter.sendMail(mailOptions);
+		console.log(`Invitation email sent to ${email}`);
+	} catch (error) {
+		console.error('Error sending invitation email:', error);
+		throw new Error('Failed to send invitation email');
+	}
 };
