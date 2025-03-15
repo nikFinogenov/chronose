@@ -111,3 +111,12 @@ export const fetchCurrentUser = async () => {
 		throw error; // Rethrow other errors
 	}
 };
+
+export const confirmEmail = async token => {
+	try {
+		const response = await api.get(`${API_URL}/auth/confirm-email/${token}`);
+		return response.data;
+	} catch (error) {
+		throw error;
+	}
+};

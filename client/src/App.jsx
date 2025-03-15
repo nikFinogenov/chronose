@@ -13,6 +13,7 @@ import Week from './pages/Week';
 import Loading from './components/Loading';
 import Settings from './pages/UserSettings';
 import ResetPassword from './pages/PasswordReset';
+import EmailConfirmation from './pages/EmailConfirmation';
 import { AxiosInterceptor } from './services/index';
 import { fetchCurrentUser } from './services/userService'; // Импорт функции
 import { userStore } from './store/userStore';
@@ -61,6 +62,7 @@ function AppContent() {
 					<Route path='/week' element={<Week />} />
 					<Route path='/settings' element={<Settings />} />
 					<Route path='/password-reset/:token' element={<ResetPassword />} />
+					<Route path='/confirm-email/:token' element={<EmailConfirmation />} />
 					<Route path='*' element={<Error />} />
 				</Routes>
 			</main>

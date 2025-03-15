@@ -6,6 +6,8 @@ import { userStore } from '../store/userStore';
 import Notification from '../components/Notification'; // Импортируем уведомления
 
 const Settings = observer(() => {
+	const [email] = useState(userStore.user?.email || '');
+	const [login] = useState(userStore.user?.login || '');
 	const [isEditingName, setIsEditingName] = useState(false);
 	const [newFullName, setNewFullName] = useState(userStore.user?.fullName || '');
 	const navigate = useNavigate();
@@ -18,6 +20,7 @@ const Settings = observer(() => {
 
 		try {
 			await userStore.updateUser({ fullName: newFullName });
+			userStore.user = { ...userStore.user, fullName: newFullName };
 			userStore.setNotification('Name updated successfully!', 'success');
 			setIsEditingName(false);
 		} catch (error) {
@@ -74,13 +77,13 @@ const Settings = observer(() => {
 					{/* Login */}
 					<div className='p-3 mb-3 bg-gray-100 border border-gray-300 rounded'>
 						<span className='text-sm text-gray-600'>Login</span>
-						<p className='text-lg font-medium'>{userStore.user?.login || 'Loading...'}</p>
+						<p className='text-lg font-medium'>{login || 'Loading...'}</p>
 					</div>
 
 					{/* Email */}
 					<div className='p-3 mb-3 bg-gray-100 border border-gray-300 rounded'>
 						<span className='text-sm text-gray-600'>Email</span>
-						<p className='text-lg font-medium'>{userStore.user?.email || 'Loading...'}</p>
+						<p className='text-lg font-medium'>{email || 'Loading...'}</p>
 					</div>
 				</div>
 
@@ -109,7 +112,7 @@ const Settings = observer(() => {
 						Log Out
 					</button>
 					<button
-						onClick={() => console.log("pidors")}
+						onClick={() => console.log('pidors')}
 						className='flex items-center justify-center w-full gap-2 p-3 mt-4 font-medium text-white transition bg-red-700 rounded hover:bg-red-800'
 					>
 						<FiTrash2 size={18} />
