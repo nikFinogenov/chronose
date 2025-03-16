@@ -7,12 +7,14 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { dateStore } from "../store/dateStore";
 import EventModal from "../components/EventModal";
+import EventDetails from "../components/EventDetails";
 import { calendarStore } from "../store/calendarStore";
 import { api } from "../services";
 
 const Day = observer(() => {
     const [events, setEvents] = useState([]);
     const [showModal, setShowModal] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState(null);
     const [newEvent, setNewEvent] = useState({
         title: "",
         start: null,
@@ -20,8 +22,18 @@ const Day = observer(() => {
         description: "",
         location: "",
         participants: [],
-        color: "#000000",
+        color: "#34ebc6",
     });
+
+    const handleCloseEventDetails = () => {
+        setSelectedEvent(null);
+    };
+
+    const handleEditEvent = (event) => {
+        setNewEvent(event);
+        setShowModal(true);
+        setSelectedEvent(null);
+    };
 
     // Fetch events for all calendars
     useEffect(() => {
@@ -65,7 +77,7 @@ const Day = observer(() => {
             description: "",
             location: "",
             participants: [],
-            color: "#000000",
+            color: "#34ebc6",
         });
         setShowModal(true);
     };
@@ -99,7 +111,31 @@ const Day = observer(() => {
         }
     };
 
-    const handleEventChange = (changeInfo) => {
+    const handleDeleteEvent = async (eventId) => {
+        try {
+            await api.delete(`/events/${eventId}`);
+            setEvents((prevEvents) => prevEvents.filter((event) => event.id !== eventId));
+            setSelectedEvent(null);
+        } catch (error) {
+            console.error("Error deleting event:", error);
+        }
+    };
+
+    const handleEventClick = (clickInfo) => {
+        setSelectedEvent({
+            id: clickInfo.event.id,
+            title: clickInfo.event.title,
+            start: clickInfo.event.start,
+            end: clickInfo.event.end,
+            description: clickInfo.event.extendedProps.description || "",
+            location: clickInfo.event.extendedProps.location || "",
+            participants: clickInfo.event.extendedProps.participants || [],
+            color: clickInfo.event.backgroundColor || "#000000",
+            calendarId: clickInfo.event.extendedProps.calendarId || "Unknown",
+        });
+    };
+
+    const handleEventChange = async (changeInfo) => {
         setEvents((prevEvents) =>
             prevEvents.map((event) =>
                 event.id === changeInfo.event.id
@@ -107,6 +143,12 @@ const Day = observer(() => {
                     : event
             )
         );
+
+        try {
+            const response = await api.patch(`/events/${changeInfo.event.id}`, changeInfo.event);
+        } catch (error) {
+            console.log("Error updating event data:", error);
+        }
     };
 
     return (
@@ -114,6 +156,7 @@ const Day = observer(() => {
             <Sidebar />
             <div className="flex-1 w-full">
                 <FullCalendar
+                    className="calendar-container"
                     key={new Date(dateStore.currentDate)}
                     plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                     initialDate={new Date(dateStore.currentDate)}
@@ -124,7 +167,8 @@ const Day = observer(() => {
                     nowIndicator={true}
                     select={handleSelect}
                     eventChange={handleEventChange}
-                    height="auto"
+                    eventClick={handleEventClick}
+                    height="100%"
                     slotLabelFormat={{
                         hour: "2-digit",
                         minute: "2-digit",
@@ -151,10 +195,19 @@ const Day = observer(() => {
 
                 {showModal && (
                     <EventModal
-                        newEvent={newEvent}
+                        event={newEvent}
                         setNewEvent={setNewEvent}
                         handleSave={handleSave}
                         setShowModal={setShowModal}
+                    />
+                )}
+
+                {selectedEvent && (
+                    <EventDetails
+                        event={selectedEvent}
+                        onClose={handleCloseEventDetails}
+                        onEdit={handleEditEvent}
+                        onDelete={handleDeleteEvent}
                     />
                 )}
             </div>

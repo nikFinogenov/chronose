@@ -45,7 +45,7 @@ const Header = observer(() => {
 	}, [isMenuOpen]);
 
 	return (
-		<div className='flex items-center justify-between w-full p-4 text-black bg-purple-200 shadow-md gradient'>
+		<div className='flex items-center justify-between w-full p-2 text-black bg-purple-200 shadow-md gradient'>
 			<h1 className='hidden ml-4 text-2xl font-bold sm:block text-gradient'>
 				<Link to='/'>CloOk</Link>
 			</h1>

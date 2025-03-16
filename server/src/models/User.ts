@@ -1,7 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToMany, BaseEntity, BeforeInsert } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToMany, BaseEntity, BeforeInsert, BeforeUpdate } from 'typeorm';
 import { Calendar } from './Calendar';
-import { Event } from './Event';
+// import { Permission } from "./Permission_huy";
 import bcrypt from 'bcrypt';
+import { Permission } from './Permission';
 
 @Entity()
 export class User extends BaseEntity {
@@ -26,12 +27,13 @@ export class User extends BaseEntity {
 	@Column({ default: false })
 	isEmailConfirmed: boolean;
 
-	@ManyToMany(() => Calendar, calendar => calendar.users)
-	calendars: Calendar[];
+	// @ManyToMany(() => Calendar, calendar => calendar.users)
+	// calendars: Calendar[];
 
-	@ManyToMany(() => Event, event => event.users)
-	events: Event[];
+    @OneToMany(() => Permission, (permission) => permission.user)
+    permissions: Permission[];
 
+	// @BeforeUpdate()
 	@BeforeInsert()
 	async hashPassword() {
 		this.password = await bcrypt.hash(this.password, 10);

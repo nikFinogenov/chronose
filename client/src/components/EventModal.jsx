@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { calendarStore } from "../store/calendarStore";
 import { api } from "../services";
 
-const EventModal = ({ newEvent, setNewEvent, handleSave, setShowModal }) => {
+const EventModal = ({ event, setNewEvent, handleSave, setShowModal }) => {
     const [participantsInput, setParticipantsInput] = useState("");
     const [selectedCalendar, setSelectedCalendar] = useState(null);
 
@@ -33,8 +33,8 @@ const EventModal = ({ newEvent, setNewEvent, handleSave, setShowModal }) => {
         if (e.key === "Enter") {
             const autoCompletedEmail = handleEmailAutoComplete(participantsInput.trim());
             setNewEvent({
-                ...newEvent,
-                participants: [...newEvent.participants, autoCompletedEmail],
+                ...event,
+                participants: [...event.participants, autoCompletedEmail],
             });
             setParticipantsInput("");  // Clear input field
         }
@@ -42,42 +42,27 @@ const EventModal = ({ newEvent, setNewEvent, handleSave, setShowModal }) => {
 
     const handleDeleteParticipant = (email) => {
         setNewEvent({
-            ...newEvent,
-            participants: newEvent.participants.filter((participant) => participant !== email),
+            ...event,
+            participants: event.participants.filter((participant) => participant !== email),
         });
     };
 
     const handleColorChange = (e) => {
-        setNewEvent({ ...newEvent, color: e.target.value });
+        setNewEvent({ ...event, color: e.target.value });
     };
 
     const handleSubmit = async () => {
+
+        if (!event.title || event.title === "") return;
         // Send the event data to the backend
         setShowModal(false);
         handleSave();
 
         try {
-            const response = await api.post(`/events/calendar/${selectedCalendar}`, newEvent);
-        } catch(error) {
+            const response = await api.post(`/events/calendar/${selectedCalendar}`, event);
+        } catch (error) {
             console.log("Error sending event data:", error);
         }
-    };
-
-    // Function to send event data to backend
-    const sendEventData = async (eventData) => {
-        // try {
-        //     const response = await fetch("/api/events", {
-        //         method: "POST",
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //         },
-        //         body: JSON.stringify(eventData),
-        //     });
-        //     return await response.json();
-        // } catch (error) {
-        //     console.error("Error sending event data:", error);
-        //     return { success: false };
-        // }
     };
 
     return (
@@ -108,35 +93,69 @@ const EventModal = ({ newEvent, setNewEvent, handleSave, setShowModal }) => {
                 <input
                     type="text"
                     placeholder="Event Title"
-                    className="border p-2 w-full mb-3"
-                    value={newEvent.title}
+                    className="border p-1.5 w-full mb-3"
+                    value={event.title}
                     onChange={(e) =>
-                        setNewEvent({ ...newEvent, title: e.target.value })
+                        setNewEvent({ ...event, title: e.target.value })
                     }
                 />
+
+                {/* Event Type Selection */}
+                <div className="mb-3">
+                    <label className="block text-sm font-medium text-gray-700">Event Type:</label>
+                    <select
+                        className="border p-1.5 w-full"
+                        value={event.type || "event"}
+                        onChange={(e) => setNewEvent({ ...event, type: e.target.value })}
+                    >
+                        <option value="event">Event</option>
+                        <option value="task">Task</option>
+                        <option value="reminder">Reminder</option>
+                    </select>
+                </div>
+
 
                 {/* Event Description */}
                 <textarea
                     placeholder="Event Description"
-                    className="border p-2 w-full mb-3"
-                    value={newEvent.description || ""}
+                    className="border p-1.5 w-full mb-3"
+                    value={event.description || ""}
                     onChange={(e) =>
-                        setNewEvent({ ...newEvent, description: e.target.value })
+                        setNewEvent({ ...event, description: e.target.value })
                     }
                 />
+
+                {/* Start Date */}
+                <label className="block text-sm font-medium text-gray-700">Start Date & Time:</label>
+                <input
+                    type="datetime-local"
+                    className="border p-1.5 w-full mb-3"
+                    value={event.start ? new Date(event.start).toISOString().slice(0, 16) : ""}
+                    onChange={(e) => setNewEvent({ ...event, start: new Date(e.target.value) })}
+                />
+
+                {/* End Date */}
+                <label className="block text-sm font-medium text-gray-700">End Date & Time:</label>
+                <input
+                    type="datetime-local"
+                    className="border p-1.5 w-full mb-3"
+                    value={event.end ? new Date(event.end).toISOString().slice(0, 16) : ""}
+                    onChange={(e) => setNewEvent({ ...event, end: new Date(e.target.value) })}
+                />
+
 
                 {/* Participants */}
                 <div className="mb-3">
                     <input
                         type="text"
                         placeholder="Add participant email"
-                        className="border p-2 w-full mb-2"
+                        className="border p-1.5 w-full mb-2"
                         value={participantsInput}
                         onChange={(e) => setParticipantsInput(e.target.value)}
                         onKeyDown={handleAddParticipant}
                     />
                     <div>
-                        {newEvent.participants.map((email, index) => (
+                        {event.participants.map((email, index) => (
                             <div key={index} className="flex items-center space-x-2 mb-2">
                                 <span className="inline-block bg-gray-200 text-gray-700 rounded-full px-2 py-1 text-sm">
                                     {email}
@@ -157,22 +176,22 @@ const EventModal = ({ newEvent, setNewEvent, handleSave, setShowModal }) => {
                     <input
                         type="color"
                         id="colorPicker"
-                        className="w-12 h-12"
-                        value={newEvent.color}
+                        className="w-7 h-7"
+                        value={event.color}
                         onChange={handleColorChange}
                     />
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex justify-end space-x-4">
+                <div className="flex justify-end space-x-5">
                     <button
-                        className="px-4 py-2 bg-gray-300 rounded"
+                        className="px-4 py-1 bg-gray-300 rounded"
                         onClick={() => setShowModal(false)}
                     >
                         Cancel
                     </button>
                     <button
-                        className="px-4 py-2 bg-blue-500 text-white rounded"
+                        className="px-4 py-1 bg-blue-500 text-white rounded"
                         onClick={handleSubmit}
                     >
                         Save

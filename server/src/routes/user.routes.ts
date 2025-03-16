@@ -7,22 +7,22 @@ const router = Router();
 // Create a new user
 router.post('/', UserController.createUser.bind(UserController));
 
-// Get all users
+// // Get all users
 router.get('/', UserController.getUsers.bind(UserController));
 
-// Get a specific user by ID
+// // Get a specific user by ID
 router.get('/:id', UserController.getUserById.bind(UserController));
 
-// Update a user's information
+// // Update a user's information
 router.patch('/:id', UserController.updateUser.bind(UserController));
 
-// Delete a user
+// // Delete a user
 router.delete('/:id', UserController.deleteUser.bind(UserController));
 
-// Get all calendars owned by a user
+// // Get all calendars owned by a user
 router.get('/:id/owned-calendars', UserController.getOwnedCalendars.bind(UserController));
 
-// Get all shared calendars for a user
+// // Get all shared calendars for a user
 router.get('/:id/shared-calendars', UserController.getSharedCalendars.bind(UserController));
 
 export default router;
