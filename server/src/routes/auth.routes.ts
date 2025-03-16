@@ -5,24 +5,24 @@ import { authMiddleware } from '../middlewares/Auth';
 const router = Router();
 
 
-// Register route
+// // Register route
 router.post('/register', AuthController.register.bind(AuthController));
 
-// Confirm email route
+// // Confirm email route
 router.get('/confirm-email/:token', AuthController.confirmEmail.bind(AuthController));
 
 router.post('/me', AuthController.me.bind(AuthController));
 
-// Login route
+// // Login route
 router.post('/login', AuthController.login.bind(AuthController));
 
-// Logout route with middleware
+// // Logout route with middleware
 router.post('/logout', authMiddleware, AuthController.logout.bind(AuthController));
 
-// Confirm new password route
+// // Confirm new password route
 router.post('/password-reset/:token', AuthController.confirmNewPassword.bind(AuthController));
 
-// Password reset request route
+// // Password reset request route
 router.post('/password-reset', AuthController.sendResetLink.bind(AuthController));
 
 export default router;

@@ -14,21 +14,26 @@ interface ConfirmNewPasswordBody {
 }
 
 export const AuthController = {
-	// Register a new user
+	// 	// Register a new user
 	async register(req: Request, res: Response): Promise<Response> {
 		const { fullName, email, password, country, login }: { fullName: string; email: string; password: string; country: string; login: string } = req.body;
 
-		const userRepository = AppDataSource.getRepository(User);
+		// const userRepository = AppDataSource.getRepository(User);
 
 		try {
-			const existingUserEmail = await userRepository.findOne({ where: { email } });
-			const existingUserLogin = await userRepository.findOne({ where: { login } });
-			if (existingUserEmail || existingUserLogin) {
+			const existingUser = await User.findOne({
+				where: [
+					{ email: email },
+					{ login: login }
+				]
+			});
+			// const existingUserLogin = await User.findOne({ where: { login } });
+			if (existingUser) {
 				return res.status(400).json({ message: 'Email or login already in use' });
 			}
 
 			// const hashedPassword = await bcrypt.hash(password, 10);
-			const newUser = userRepository.create({
+			const newUser = User.create({
 				login,
 				fullName,
 				email,
@@ -38,7 +43,7 @@ export const AuthController = {
 
 			// console.log(newUser);
 
-			await userRepository.save(newUser);
+			await newUser.save();
 
 			const token = jwt.sign({ email: newUser.email }, process.env.SECRET_KEY!, { expiresIn: '1d' });
 			await sendConfirmationEmail(newUser.email, token);
@@ -61,8 +66,8 @@ export const AuthController = {
 			// Декодируем токен
 			const decoded: any = jwt.verify(token, process.env.SECRET_KEY!);
 
-			const userRepository = AppDataSource.getRepository(User);
-			const user = await userRepository.findOne({
+			// const userRepository = AppDataSource.getRepository(User);
+			const user = await User.findOne({
 				where: { id: decoded.id },
 				// select: ['id', 'login', 'fullName', 'profilePicture', 'email', 'role', 'rating', 'emailConfirmed']
 				select: ['id', 'fullName', 'email', 'login', 'country', 'isEmailConfirmed'],
@@ -86,21 +91,21 @@ export const AuthController = {
 		}
 	},
 
-	// Confirm email
+	// 	// Confirm email
 	async confirmEmail(req: Request, res: Response): Promise<Response> {
 		const { token } = req.params;
 
 		try {
 			const decoded: any = jwt.verify(token, process.env.SECRET_KEY!);
-			const userRepository = AppDataSource.getRepository(User);
+			// const userRepository = AppDataSource.getRepository(User);
 
-			const user = await userRepository.findOne({ where: { email: decoded.email } });
+			const user = await User.findOne({ where: { email: decoded.email } });
 			if (!user) {
 				return res.status(404).json({ message: 'User not found' });
 			}
 
 			user.isEmailConfirmed = true;
-			await userRepository.save(user);
+			await user.save();
 
 			return res.status(200).json({ message: 'Email successfully confirmed' });
 		} catch (error) {
@@ -108,7 +113,7 @@ export const AuthController = {
 		}
 	},
 
-	// Login user
+	// 	// Login user
 	async login(req: Request, res: Response): Promise<Response> {
 		const { email, login, password }: { email?: string; login?: string; password: string } = req.body;
 
@@ -116,19 +121,19 @@ export const AuthController = {
 			return res.status(400).json({ message: 'Email or login and password are required' });
 		}
 
-		const userRepository = AppDataSource.getRepository(User);
+		// const userRepository = AppDataSource.getRepository(User);
 
 		try {
-			const user = await userRepository.findOne({
+			const user = await User.findOne({
 				where: email ? { email } : { login },
 			});
 
 			if (!user) {
 				return res.status(400).json({ message: 'Invalid credentials' });
 			}
-			
+
 			const isPasswordValid = await bcrypt.compare(password, user.password);
-			console.log(password, user.password);
+			// console.log(password, user.password);
 			if (!isPasswordValid) {
 				return res.status(400).json({ message: 'Invalid credentials' });
 			}
@@ -136,9 +141,9 @@ export const AuthController = {
 			const token = jwt.sign(
 				{
 					id: user.id,
-					email: user.email,
-					country: user.country,
-					isEmailConfirmed: user.isEmailConfirmed,
+					// email: user.email,
+					// country: user.country,
+					// isEmailConfirmed: user.isEmailConfirmed,
 				},
 				process.env.SECRET_KEY!,
 				{ expiresIn: '7d' }
@@ -158,14 +163,14 @@ export const AuthController = {
 		return res.status(200).json({ message: 'Came out, good chel' });
 	},
 
-	// Send reset link
+	// 	// Send reset link
 	async sendResetLink(req: Request, res: Response): Promise<Response> {
 		const { email }: { email: string } = req.body;
 
-		const userRepository = AppDataSource.getRepository(User);
+		// const userRepository = AppDataSource.getRepository(User);
 
 		try {
-			const user = await userRepository.findOne({ where: { email } });
+			const user = await User.findOne({ where: { email } });
 			if (!user) {
 				return res.status(404).json({ message: 'User not found' });
 			}
@@ -180,17 +185,17 @@ export const AuthController = {
 		}
 	},
 
-	// Confirm new password
+	// 	// Confirm new password
 	async confirmNewPassword(req: Request<ConfirmNewPasswordParams, any, ConfirmNewPasswordBody>, res: Response): Promise<Response> {
 		const { token } = req.params;
 		let { newPassword }: { newPassword: string } = req.body;
 
 		try {
-			console.log(token);
+			// console.log(token);
 			const decoded: any = jwt.verify(token, process.env.SECRET_KEY!);
-			console.log(decoded);
-			const userRepository = AppDataSource.getRepository(User);
-			const user = await userRepository.findOne({ where: { email: decoded.email } });
+			// console.log(decoded);
+			// const userRepository = AppDataSource.getRepository(User);
+			const user = await User.findOne({ where: { email: decoded.email } });
 
 			if (!user) {
 				return res.status(404).json({ message: 'User not found' });
@@ -207,7 +212,7 @@ export const AuthController = {
 			const salt = await bcrypt.genSalt(10);
 			user.password = await bcrypt.hash(newPassword, salt);
 
-			await userRepository.save(user);
+			await user.save();
 
 			return res.status(200).json({ message: 'Password successfully updated' });
 		} catch (error) {

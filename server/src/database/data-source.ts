@@ -12,6 +12,8 @@ import fs from 'fs';
 import csv from 'csv-parser';
 import axios from 'axios';
 import { exec, execSync } from "child_process"
+// import { Permission } from '../models/Permission_huy';
+import { Permission } from '../models/Permission';
 require('dotenv').config();
 
 const FAKER_USERS = 5;
@@ -25,9 +27,9 @@ export const AppDataSource = new DataSource({
 	username: process.env.DB_USER,
 	password: process.env.DB_PASSWORD,
 	database: process.env.DB_NAME,
-	synchronize: false,
+	synchronize: true,
 	logging: false,
-	entities: [Event, Calendar, User],
+	entities: [Event, Calendar, User, Permission],
 	migrations: [],
 	subscribers: [UserSubscriber],
 });
@@ -123,9 +125,15 @@ export const seedDatabase = async () => {
 				const calendar = Calendar.create({
 					name: `Calendar ${i + 1}`,
 					description: faker.lorem.sentence(),
-					users: [users[userID], users[(userID + 1) % users.length]],
+					// users: [users[userID], users[(userID + 1) % users.length]],
 				});
 				await calendar.save();
+				const ownerPermission = Permission.create({
+					user: users[userID],
+					calendar: calendar,
+					role: "owner"
+				});
+				await ownerPermission.save();
 				calendars.push(calendar);
 			}
 			console.log(`Created ${calendars.length} calendars.`);
@@ -274,10 +282,16 @@ const createCalendarAndEvents = async (country: string, groupedEvents: Record<st
 	const countryCalendar = await Calendar.create({
 		name: `Holidays in ${country}`,
 		description: `Holidays and events for ${country}`,
-		users: [admin]
+		// users: [admin]
 	});
 	await countryCalendar.save(); // Сохраняем календарь
-	await countryCalendar.updateUserRole(admin, "owner");
+	const ownerPermission = Permission.create({
+		user: admin,
+		calendar: countryCalendar,
+		role: "owner"
+	});
+	await ownerPermission.save();
+	// await countryCalendar.updateUserRole(admin, "owner");
 	// countryCalendar
 
 	for (const [eventTitle, eventData] of Object.entries(groupedEvents)) {

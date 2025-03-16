@@ -18,6 +18,7 @@ class CalendarStore {
 
         try {
             const response = await getUserCalendars(userId);
+            console.log(response);
             this.setCalendars(response);
         } catch (error) {
             console.error("Failed to load user calendars:", error);
@@ -33,6 +34,7 @@ class CalendarStore {
 
         try {
             const response = await getinvitedUserCalendars(userId);
+            console.log(response);
             this.setInvitedCalendars(response);
         } catch (error) {
             console.error("Failed to load user calendars:", error);

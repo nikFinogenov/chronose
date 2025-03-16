@@ -4,7 +4,7 @@ import { authMiddleware } from '../middlewares/Auth';
 
 const router = Router();
 
-// Calendars
+// // Calendars
 router.get('/', CalendarController.getAllCalendars.bind(CalendarController));
 
 router.get('/owner/:calendarId', CalendarController.getOwnerByCalendarId.bind(CalendarController));
@@ -17,14 +17,14 @@ router.patch('/:calendarId', CalendarController.updateCalendar.bind(CalendarCont
 
 router.delete('/:calendarId', CalendarController.deleteCalendar.bind(CalendarController));
 
-// Users in Calendar
+// // Users in Calendar
 router.get('/:calendarId/users', CalendarController.getUsersInCalendar.bind(CalendarController));
 
 router.post('/:calendarId/users', CalendarController.addUserToCalendar.bind(CalendarController));
 
-router.delete('/:calendarId/users/:userId', CalendarController.removeUserFromCalendar.bind(CalendarController));
+router.delete('/:calendarId/users', CalendarController.removeUserFromCalendar.bind(CalendarController));
 
-// Events in Calendar
+// // Events in Calendar
 router.get('/:calendarId/events', CalendarController.getEventsInCalendar.bind(CalendarController));
 
 router.post('/:calendarId/events', CalendarController.createEventInCalendar.bind(CalendarController));

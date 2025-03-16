@@ -66,7 +66,7 @@ createUserAndDatabase()
 		AppDataSource.initialize()
 			.then(async () => {
 				
-				await checkAndRunKostilSQL();
+				// await checkAndRunKostilSQL();
 				
 				// console.log('Data Source has been initialized!');
 				await createAdmin();
