@@ -34,35 +34,6 @@ const MicroMonth = observer(({ month = null }) => {
         setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 1));
     };
 
-    const handleDayClick = (day, currentMonth, monthNum) => {
-        if (currentMonth && !month) {
-            setSelectedDay({
-                day,
-                month: monthNum,
-                year: selectedMonth.getFullYear(),
-            });
-            dateStore.updateDate(selectedMonth.getFullYear(), selectedMonth.getMonth(), day);
-        } else if (!currentMonth) {
-            if (monthNum > selectedMonth.getMonth()) {
-                setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 1));
-                setSelectedDay({
-                    day,
-                    month: monthNum,
-                    year: selectedMonth.getFullYear(),
-                });
-                dateStore.updateDate(selectedMonth.getFullYear(), monthNum, day);
-            } else {
-                setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1, 1));
-                setSelectedDay({
-                    day,
-                    month: monthNum,
-                    year: selectedMonth.getFullYear(),
-                });
-                dateStore.updateDate(selectedMonth.getFullYear(), monthNum, day);
-            }
-        }
-    };
-
     const mnth = month
         ? new Date(new Date(dateStore.currentDate).getFullYear(), Number(month) - 1, 1)
         : selectedMonth;
@@ -141,7 +112,7 @@ const MicroMonth = observer(({ month = null }) => {
                         selectedDay.year === mnth.getFullYear(); // Ensure the year matches
 
                     // Only render selected day for current month, not next or previous month
-                    if (!currentMonth && isSelected) return null;
+                    // if (!currentMonth && isSelected) return null;
 
                     return (
                         <div
@@ -149,9 +120,11 @@ const MicroMonth = observer(({ month = null }) => {
                             className={`flex justify-center items-center w-8 h-8 text-sm rounded-full 
                               ${currentMonth ? "text-black" : "text-gray-400"}  
                               ${isToday ? "border border-indigo-600 bg-indigo-400 font-bold text-white" 
-                              : isSelected ? "bg-indigo-200" : "hover:bg-gray-200"} 
+                              : isSelected && currentMonth ? "bg-indigo-200" : "hover:bg-gray-200"} 
                               cursor-pointer`}
-                            onClick={() => handleDayClick(day, currentMonth, monthNum)}
+                            // onClick={() => handleDayClick(day, monthNum, mnth.getFullYear())}
+                            onClick={() => {dateStore.updateDate(mnth.getFullYear(), monthNum, day)}}
+                            // onClick={() => {dateStore.updateDate(mnth.getFullYear(), monthNum, day)}}
                         >
                             {day}
                         </div>
