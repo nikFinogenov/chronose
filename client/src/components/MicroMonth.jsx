@@ -10,15 +10,19 @@ const MicroMonth = observer(({ month = null }) => {
         month: selectedMonth.getMonth(),
         year: selectedMonth.getFullYear(),
     });
+    
     today.setHours(0, 0, 0, 0);
 
     useEffect(() => {
-        if (dateStore.isTodayPressed) {
-            setSelectedMonth(new Date());
-            setSelectedDay(null);
-            dateStore.updateIsToday();
-        }
-    }, [dateStore.isTodayPressed]); // eslint-disable-line
+        // Update the selected date when the dateStore.currentDate changes
+        const currentDate = new Date(dateStore.currentDate);
+        setSelectedMonth(currentDate);
+        setSelectedDay({
+            day: currentDate.getDate(),
+            month: currentDate.getMonth(),
+            year: currentDate.getFullYear(),
+        });
+    }, [dateStore.currentDate]); // eslint-disable-line
 
     if (!selectedMonth) return null; // Prevent rendering before state is initialized
 
@@ -32,8 +36,30 @@ const MicroMonth = observer(({ month = null }) => {
 
     const handleDayClick = (day, currentMonth, monthNum) => {
         if (currentMonth && !month) {
-            setSelectedDay({ day, month: monthNum });
+            setSelectedDay({
+                day,
+                month: monthNum,
+                year: selectedMonth.getFullYear(),
+            });
             dateStore.updateDate(selectedMonth.getFullYear(), selectedMonth.getMonth(), day);
+        } else if (!currentMonth) {
+            if (monthNum > selectedMonth.getMonth()) {
+                setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 1));
+                setSelectedDay({
+                    day,
+                    month: monthNum,
+                    year: selectedMonth.getFullYear(),
+                });
+                dateStore.updateDate(selectedMonth.getFullYear(), monthNum, day);
+            } else {
+                setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1, 1));
+                setSelectedDay({
+                    day,
+                    month: monthNum,
+                    year: selectedMonth.getFullYear(),
+                });
+                dateStore.updateDate(selectedMonth.getFullYear(), monthNum, day);
+            }
         }
     };
 
@@ -109,15 +135,22 @@ const MicroMonth = observer(({ month = null }) => {
                         currentMonth;
 
                     const isSelected =
-                        selectedDay && selectedDay.day === day && selectedDay.month === monthNum;
+                        selectedDay &&
+                        selectedDay.day === day &&
+                        selectedDay.month === monthNum &&
+                        selectedDay.year === mnth.getFullYear(); // Ensure the year matches
+
+                    // Only render selected day for current month, not next or previous month
+                    if (!currentMonth && isSelected) return null;
 
                     return (
                         <div
                             key={index}
-                            className={`flex justify-center items-center w-8 h-8 text-sm
+                            className={`flex justify-center items-center w-8 h-8 text-sm rounded-full 
                               ${currentMonth ? "text-black" : "text-gray-400"}  
-                              ${isToday ? "border border-indigo-600 bg-indigo-400 rounded-full font-bold text-white" 
-                              : isSelected ? "bg-indigo-200 rounded-full" : ""}`}
+                              ${isToday ? "border border-indigo-600 bg-indigo-400 font-bold text-white" 
+                              : isSelected ? "bg-indigo-200" : "hover:bg-gray-200"} 
+                              cursor-pointer`}
                             onClick={() => handleDayClick(day, currentMonth, monthNum)}
                         >
                             {day}
