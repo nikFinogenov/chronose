@@ -75,7 +75,10 @@ const Header = observer(() => {
 					)}
 				</div>
 
-				<button className='header-btn' onClick={() => dateStore.today()}>
+				<button className='header-btn' onClick={() => {
+					dateStore.today();
+					dateStore.updateIsToday();
+				}}>
 					Today
 				</button>
 				<button className='header-btn' onClick={() => dateStore.prev(activeView.toLowerCase())}>

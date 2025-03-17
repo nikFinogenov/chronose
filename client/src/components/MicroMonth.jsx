@@ -1,11 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { observer } from "mobx-react-lite";
 import { dateStore } from "../store/dateStore";
 
-function MicroMonth({ month = null }) {
-    const [selectedMonth, setSelectedMonth] = useState(new Date(dateStore.currentDate));
-    const selectectedMonthForParameter = new Date(new Date(dateStore.currentDate).getFullYear(), Number(month) - 1, 1);
+const MicroMonth = observer(({ month = null }) => {
     const today = new Date();
+    const [selectedMonth, setSelectedMonth] = useState(new Date(dateStore.currentDate));
+    const [selectedDay, setSelectedDay] = useState({
+        day: selectedMonth.getDate(),
+        month: selectedMonth.getMonth(),
+        year: selectedMonth.getFullYear(),
+    });
     today.setHours(0, 0, 0, 0);
+
+    useEffect(() => {
+        if (dateStore.isTodayPressed) {
+            setSelectedMonth(new Date());
+            setSelectedDay(null);
+            dateStore.updateIsToday();
+        }
+    }, [dateStore.isTodayPressed]); // eslint-disable-line
 
     if (!selectedMonth) return null; // Prevent rendering before state is initialized
 
@@ -16,7 +29,17 @@ function MicroMonth({ month = null }) {
     const handleNextMonth = () => {
         setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 1));
     };
-    const mnth = month ? selectectedMonthForParameter : selectedMonth;
+
+    const handleDayClick = (day, currentMonth, monthNum) => {
+        if (currentMonth && !month) {
+            setSelectedDay({ day, month: monthNum });
+            dateStore.updateDate(selectedMonth.getFullYear(), selectedMonth.getMonth(), day);
+        }
+    };
+
+    const mnth = month
+        ? new Date(new Date(dateStore.currentDate).getFullYear(), Number(month) - 1, 1)
+        : selectedMonth;
 
     const monthName = mnth.toLocaleString("default", { month: "long", year: "numeric" });
 
@@ -85,22 +108,25 @@ function MicroMonth({ month = null }) {
                         today.getTime() === new Date(mnth.getFullYear(), monthNum, day).getTime() &&
                         currentMonth;
 
+                    const isSelected =
+                        selectedDay && selectedDay.day === day && selectedDay.month === monthNum;
+
                     return (
                         <div
                             key={index}
                             className={`flex justify-center items-center w-8 h-8 text-sm
-          ${currentMonth ? "text-black" : "text-gray-400"}  
-          ${isToday ? "border border-indigo-600 rounded-full font-bold" : ""}
-        `}
+                              ${currentMonth ? "text-black" : "text-gray-400"}  
+                              ${isToday ? "border border-indigo-600 bg-indigo-400 rounded-full font-bold text-white" 
+                              : isSelected ? "bg-indigo-200 rounded-full" : ""}`}
+                            onClick={() => handleDayClick(day, currentMonth, monthNum)}
                         >
                             {day}
                         </div>
                     );
                 })}
             </div>
-
         </div>
     );
-}
-// ${today.getTime() === dateToCompare.getTime() ? "border border-blue-500" : ""}
+});
+
 export default MicroMonth;

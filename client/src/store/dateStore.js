@@ -2,6 +2,7 @@ import { makeAutoObservable } from "mobx";
 
 class DateStore {
     currentDate = new Date().toISOString();
+    isTodayPressed = false;
 
     constructor() {
         makeAutoObservable(this);
@@ -56,8 +57,11 @@ class DateStore {
     today() {
         this.currentDate = new Date().toISOString();
     }
-    updateDate() {
-        this.currentDate = new Date().toISOString();
+    updateDate(year, month, day) {
+        this.currentDate = new Date(year, month, day);
+    }
+    updateIsToday() {
+        this.isTodayPressed = !this.isTodayPressed;
     }
 }
 

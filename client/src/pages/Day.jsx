@@ -67,7 +67,8 @@ const Day = observer(() => {
         };
 
         fetchEvents();
-    }, [calendarStore.calendars]); // Runs when calendars change
+    // }, [calendarStore.calendars]); // Runs when calendars change
+    }, []); // Runs when calendars change
 
     const handleSelect = (selectionInfo) => {
         setNewEvent({
@@ -145,7 +146,7 @@ const Day = observer(() => {
         );
 
         try {
-            const response = await api.patch(`/events/${changeInfo.event.id}`, changeInfo.event);
+            await api.patch(`/events/${changeInfo.event.id}`, changeInfo.event);
         } catch (error) {
             console.log("Error updating event data:", error);
         }
@@ -154,62 +155,64 @@ const Day = observer(() => {
     return (
         <div className="flex h-max p-4">
             <Sidebar />
-            <div className="flex-1 w-full">
-                <FullCalendar
-                    className="calendar-container"
-                    key={new Date(dateStore.currentDate)}
-                    plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                    initialDate={new Date(dateStore.currentDate)}
-                    initialView="timeGridDay"
-                    selectable={true}
-                    editable={true}
-                    events={events}
-                    nowIndicator={true}
-                    select={handleSelect}
-                    eventChange={handleEventChange}
-                    eventClick={handleEventClick}
-                    height="100%"
-                    slotLabelFormat={{
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: false,
-                    }}
-                    allDaySlot={false}
-                    // allDayText="GMT+01"
-                    slotLabelContent={(arg) => (
-                        <div className="relative">
-                            {arg.text}
-                            {arg.time.hour === 0 && arg.time.minute === 0 && (
-                                <div className="absolute -top-5 left-0 text-sm font-semibold text-gray-500">
-                                    GMT+01
-                                </div>
-                            )}
-                        </div>
+            <div className="w-full">
+                <div className="flex-1">
+                    <FullCalendar
+                        // className="calendar-container"
+                        key={new Date(dateStore.currentDate)}
+                        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                        initialDate={new Date(dateStore.currentDate)}
+                        initialView="timeGridDay"
+                        selectable={true}
+                        editable={true}
+                        events={events}
+                        nowIndicator={true}
+                        select={handleSelect}
+                        eventChange={handleEventChange}
+                        eventClick={handleEventClick}
+                        height="auto"
+                        slotLabelFormat={{
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false,
+                        }}
+                        allDaySlot={false}
+                        // allDayText="GMT+01"
+                        slotLabelContent={(arg) => (
+                            <div className="relative">
+                                {arg.text}
+                                {arg.time.hour === 0 && arg.time.minute === 0 && (
+                                    <div className="absolute -top-5 left-0 text-sm font-semibold text-gray-500">
+                                        GMT+01
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        headerToolbar={{
+                            left: "title",
+                            center: "",
+                            right: "",
+                        }}
+                    />
+
+                    {showModal && (
+                        <EventModal
+                            event={newEvent}
+                            setNewEvent={setNewEvent}
+                            handleSave={handleSave}
+                            setShowModal={setShowModal}
+                        />
                     )}
-                    headerToolbar={{
-                        left: "title",
-                        center: "",
-                        right: "",
-                    }}
-                />
 
-                {showModal && (
-                    <EventModal
-                        event={newEvent}
-                        setNewEvent={setNewEvent}
-                        handleSave={handleSave}
-                        setShowModal={setShowModal}
-                    />
-                )}
-
-                {selectedEvent && (
-                    <EventDetails
-                        event={selectedEvent}
-                        onClose={handleCloseEventDetails}
-                        onEdit={handleEditEvent}
-                        onDelete={handleDeleteEvent}
-                    />
-                )}
+                    {selectedEvent && (
+                        <EventDetails
+                            event={selectedEvent}
+                            onClose={handleCloseEventDetails}
+                            onEdit={handleEditEvent}
+                            onDelete={handleDeleteEvent}
+                        />
+                    )}
+                </div>
             </div>
         </div>
     );
