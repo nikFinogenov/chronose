@@ -33,6 +33,28 @@ const MicroMonth = observer(({ month = null }) => {
     const handleNextMonth = () => {
         setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 1));
     };
+    const getOrdinalSuffix = (day) => {
+        const j = day % 10;
+        const k = day % 100;
+        if (j === 1 && k !== 11) {
+            return day + "st";
+        }
+        if (j === 2 && k !== 12) {
+            return day + "nd";
+        }
+        if (j === 3 && k !== 13) {
+            return day + "rd";
+        }
+        return day + "th";
+    };
+    
+    const getFormattedDate = (year, monthNum, day) => {
+        const date = new Date(year, monthNum, day);
+        const options = { weekday: 'long', month: 'long', day: 'numeric' };
+        const formattedDate = date.toLocaleDateString('en-GB', options); // "Friday, 23rd of April"
+        const dayWithOrdinal = getOrdinalSuffix(day);
+        return `${formattedDate.replace(day, dayWithOrdinal).replace(' ', ', ')}`;
+    };
 
     const mnth = month
         ? new Date(new Date(dateStore.currentDate).getFullYear(), Number(month) - 1, 1)
@@ -117,14 +139,13 @@ const MicroMonth = observer(({ month = null }) => {
                     return (
                         <div
                             key={index}
-                            className={`flex justify-center items-center w-8 h-8 text-sm rounded-full 
+                            className={`flex justify-center items-center w-8 h-8 text-sm rounded-full cursor-pointer
                               ${currentMonth ? "text-black" : "text-gray-400"}  
                               ${isToday ? "border border-indigo-600 bg-indigo-400 font-bold text-white" 
                               : isSelected && currentMonth ? "bg-indigo-200" : "hover:bg-gray-200"} 
-                              cursor-pointer`}
-                            // onClick={() => handleDayClick(day, monthNum, mnth.getFullYear())}
+                            ${month ? "tooltip tooltip-top" : ""}}`}
                             onClick={() => {dateStore.updateDate(mnth.getFullYear(), monthNum, day)}}
-                            // onClick={() => {dateStore.updateDate(mnth.getFullYear(), monthNum, day)}}
+                            data-tip={getFormattedDate(mnth.getFullYear(), monthNum, day)}
                         >
                             {day}
                         </div>

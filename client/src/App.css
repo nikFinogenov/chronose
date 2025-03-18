@@ -158,3 +158,14 @@ table {
 	width: 100% !important;
 	height: 100% !important;
 }
+/* .tooltip::before,
+.tooltip::after {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+}
+.tooltip:focus::before,
+.tooltip:focus::after {
+    visibility: visible;
+    opacity: 1;
+} */
