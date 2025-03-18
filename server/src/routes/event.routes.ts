@@ -13,7 +13,7 @@ router.patch('/:eventId', authMiddleware, EventController.updateEvent.bind(Event
 router.delete('/:eventId', authMiddleware, EventController.deleteEvent.bind(EventController));
 
 // // Пригласительная ссылка в событие
-router.get('/invite/:eventId', authMiddleware, EventController.getInviteLink.bind(EventController));
+router.get('/invite/:eventId', authMiddleware, EventController.inviteUserToEvent.bind(EventController));
 router.post('/join/:eventId', authMiddleware, EventController.joinEvent.bind(EventController));
 
 export default router;

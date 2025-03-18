@@ -65,10 +65,12 @@ export const sendResetPasswordEmail = async (email: string, token: string) => {
 	
 };
 
-export const sendInviteEmail = async (email: string, inviteUrl: string, type: 'event' | 'calendar') => {
+export const sendInviteEmail = async (email: string, inviteUrl: string, rights: 'owner' | 'editor' | 'viewer', type: 'event' | 'calendar') => {
 	const subject = type === 'event' ? 'Event Invitation' : 'Calendar Invitation';
+	const roleText = `You have been invited as a <strong>${rights}</strong>.`;
 	const message = `
         <h2>You have been invited!</h2>
+        <p>${roleText}</p>
         <p>Click the link below to join:</p>
         <a href="${inviteUrl}">${inviteUrl}</a>
         <p>If you did not expect this invitation, you can ignore this email.</p>
