@@ -1,13 +1,15 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 // import axios from "axios"; // Предполагается, что вы используете axios для запросов
 import { api } from '../services';
-import { createUser, getUser, updateUser } from '../services/userService';
+import { createUser, getUser, fetchCurrentUser, updateUser, requestPasswordReset } from '../services/userService';
+import { jwtDecode } from 'jwt-decode';
 import { calendarStore } from './calendarStore';
 
 class UserStore {
 	user = null; // Хранит информацию о текущем пользователе
 	loading = false; // Состояние загрузки
 	error = null; // Ошибка, если она возникла
+	notification = null;
 
 	constructor() {
 		makeAutoObservable(this);
@@ -82,20 +84,20 @@ class UserStore {
 		}
 	}
 
-    // Метод для выхода из системы
-    async logout() {
-        try {
-            // await api.post('/api/logout');
-            runInAction(() => {
-                // console.log(this.user);
-                this.user = null; // Сбрасываем пользователя
-                localStorage.clear();
-                calendarStore.clearCalendars();
-            });
-        } catch (error) {
-            console.error("Logout failed", error);
-        }
-    }
+	// Метод для выхода из системы
+	async logout() {
+		try {
+			// await api.post('/api/logout');
+			runInAction(() => {
+				// console.log(this.user);
+				this.user = null; // Сбрасываем пользователя
+				localStorage.clear();
+				calendarStore.clearCalendars();
+			});
+		} catch (error) {
+			console.error('Logout failed', error);
+		}
+	}
 
 	async updateUser(updatedData) {
 		if (!this.user) return;
@@ -108,6 +110,30 @@ class UserStore {
 		} catch (error) {
 			console.error('Failed to update user:', error);
 		}
+	}
+
+	async requestPasswordReset() {
+		if (!this.user?.email) {
+			this.setNotification('Email not found. Please try again.', 'error');
+			return;
+		}
+
+		try {
+			console.log(this.user.email);
+			const response = await requestPasswordReset(this.user.email);
+			this.setNotification(response.message || 'Password reset link sent! Check your email.', 'success');
+		} catch (error) {
+			this.setNotification(error.response?.data?.message || 'Failed to send reset link.', 'error');
+		}
+	}
+
+	setNotification(message, type = 'info') {
+		this.notification = { message, type };
+		setTimeout(() => {
+			runInAction(() => {
+				this.notification = null; // Очищаем через 5 секунд
+			});
+		}, 5000);
 	}
 
 	// Метод для получения информации о пользователе

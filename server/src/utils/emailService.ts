@@ -1,3 +1,4 @@
+import { configDotenv } from 'dotenv';
 import nodemailer from 'nodemailer';
 
 // Create a reusable transporter object using the default SMTP transport
@@ -10,7 +11,7 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendConfirmationEmail = async (email: string, token: string) => {
-	const confirmationUrl = `http://localhost:8000/api/auth/confirm-email/${token}`;
+	const confirmationUrl = `${process.env.FRONT_URL}/confirm-email/${token}`;
 
 	// Setup email data
 	const mailOptions = {
@@ -37,7 +38,7 @@ export const sendConfirmationEmail = async (email: string, token: string) => {
 
 // Utility function to send the password reset email
 export const sendResetPasswordEmail = async (email: string, token: string) => {
-	const resetUrl = `http://localhost:8000/api/auth/password-reset/${token}`;
+	const resetUrl = `${process.env.FRONT_URL}/password-reset/${token}`;
 
 	// Setup email data
 	const mailOptions = {
@@ -59,5 +60,34 @@ export const sendResetPasswordEmail = async (email: string, token: string) => {
 	} catch (error) {
 		console.error('Error sending reset password email:', error);
 		throw new Error('Failed to send reset password email');
+	}
+
+	
+};
+
+export const sendInviteEmail = async (email: string, inviteUrl: string, rights: 'owner' | 'editor' | 'viewer', type: 'event' | 'calendar') => {
+	const subject = type === 'event' ? 'Event Invitation' : 'Calendar Invitation';
+	const roleText = `You have been invited as a <strong>${rights}</strong>.`;
+	const message = `
+        <h2>You have been invited!</h2>
+        <p>${roleText}</p>
+        <p>Click the link below to join:</p>
+        <a href="${inviteUrl}">${inviteUrl}</a>
+        <p>If you did not expect this invitation, you can ignore this email.</p>
+    `;
+
+	const mailOptions = {
+		from: process.env.EMAIL_USER,
+		to: email,
+		subject,
+		html: message,
+	};
+
+	try {
+		await transporter.sendMail(mailOptions);
+		console.log(`Invitation email sent to ${email}`);
+	} catch (error) {
+		console.error('Error sending invitation email:', error);
+		throw new Error('Failed to send invitation email');
 	}
 };

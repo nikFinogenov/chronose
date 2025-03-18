@@ -3,6 +3,8 @@ import { Calendar } from '../models/Calendar';
 import { User } from '../models/User';
 import { Event } from '../models/Event';
 import { Permission } from '../models/Permission';
+import { sendInviteEmail } from '../utils/emailService';
+import { sign, verify } from 'jsonwebtoken';
 // import { Permission } from '../models/Permission_huy';
 
 export const CalendarController = {
@@ -23,7 +25,7 @@ export const CalendarController = {
 			const userPermission = await Permission.findOne({
 				where: {
 					calendar: { id: calendarId },
-					role: 'owner'
+					role: 'owner',
 				},
 				relations: ['user'], // Make sure to load the 'user' relation
 			});
@@ -82,7 +84,7 @@ export const CalendarController = {
 			const ownerPermission = Permission.create({
 				user: owner,
 				calendar: newCalendar,
-				role: "owner"
+				role: 'owner',
 			});
 
 			// Save the owner permission
@@ -144,7 +146,7 @@ export const CalendarController = {
 
 		try {
 			const calendar = await Calendar.findOne({
-				where: { id: calendarId }
+				where: { id: calendarId },
 			});
 
 			if (!calendar) {
@@ -153,10 +155,10 @@ export const CalendarController = {
 
 			const permissions = await Permission.find({
 				where: {
-					calendar: calendar
+					calendar: calendar,
 				},
 				relations: ['user'],
-			})
+			});
 			const users = permissions.map(permission => ({
 				id: permission.user.id,
 				fullName: permission.user.fullName,
@@ -182,7 +184,7 @@ export const CalendarController = {
 
 		try {
 			const calendar = await Calendar.findOne({
-				where: { id: calendarId }
+				where: { id: calendarId },
 			});
 
 			if (!calendar) {
@@ -200,17 +202,17 @@ export const CalendarController = {
 			const permission = await Permission.find({
 				where: {
 					user: user,
-					calendar: calendar
-				}
-			})
+					calendar: calendar,
+				},
+			});
 			if (permission.length > 0) {
 				return res.status(400).json({ message: 'User is already in the calendar' });
 			}
 
 			const newPermission = await Permission.create({
 				user: user,
-				calendar: calendar
-			})
+				calendar: calendar,
+			});
 			await newPermission.save();
 			// await calendar.save();
 
@@ -231,7 +233,7 @@ export const CalendarController = {
 
 		try {
 			const calendar = await Calendar.findOne({
-				where: { id: calendarId }
+				where: { id: calendarId },
 			});
 
 			if (!calendar) {
@@ -249,8 +251,8 @@ export const CalendarController = {
 			const permission = await Permission.findOne({
 				where: {
 					user: user,
-					calendar: calendar
-				}
+					calendar: calendar,
+				},
 			});
 
 			if (!permission) {
@@ -265,7 +267,6 @@ export const CalendarController = {
 			return res.status(500).json({ message: 'Error removing user from calendar' });
 		}
 	},
-
 
 	async getEventsInCalendar(req: Request, res: Response): Promise<Response> {
 		const { calendarId } = req.params;
@@ -314,78 +315,78 @@ export const CalendarController = {
 		}
 	},
 
-	async getInviteLink(req: Request, res: Response) {
+	async inviteUser(req: Request, res: Response): Promise<Response> {
 		const { calendarId } = req.params;
-		const userId = req.user.id; // предполагается, что ID пользователя есть в req.user
+		const { email, role } = req.body; // Роль передается в теле запроса
+		const userId = req.user.id; // Авторизованный пользователь
 
 		try {
-			const calendar = await Calendar.findOne({
-				where: { id: calendarId }
-			});
-
+			const calendar = await Calendar.findOne({ where: { id: calendarId } });
 			if (!calendar) {
 				return res.status(404).json({ message: 'Calendar not found' });
 			}
 
-			const permission = await Permission.findOne({
-				where: {
-					calendar: calendar,
-					user: { id: String(userId) },
-					role: "owner"
-				}
-			})
-			// Проверяем, является ли пользователь владельцем
-			if (!permission) {
-				return res.status(403).json({ message: 'Only the calendar owner can generate an invite link' });
+			// Проверяем, является ли отправитель владельцем календаря
+			const ownerPermission = await Permission.findOne({
+				where: { calendar, user: { id: String(userId) }, role: 'owner' },
+			});
+
+			if (!ownerPermission) {
+				return res.status(403).json({ message: 'Only the calendar owner can invite users' });
 			}
 
-			const inviteLink = `${process.env.BACK_URL}/api/calendars/join/${calendar.inviteToken}`;
-			return res.json({ inviteLink });
+			// Генерируем токен приглашения с email и ролью
+			const inviteToken = sign({ email, calendarId, role }, process.env.SECRET_KEY!, { expiresIn: '7d' });
+			const inviteUrl = `${process.env.FRONT_URL}/calendars/join/${inviteToken}`;
+
+			// Отправляем письмо с приглашением (добавлен 4-й аргумент 'calendar')
+			await sendInviteEmail(email, inviteUrl, role, 'calendar');
+
+			return res.json({ message: 'Invitation sent successfully' });
 		} catch (error) {
 			console.error(error);
-			return res.status(500).json({ message: 'Error generating invite link' });
+			return res.status(500).json({ message: 'Error sending invitation' });
 		}
 	},
 
-		async joinCalendar(req: Request, res: Response) {
-			const { inviteToken } = req.params;
-			const userId = req.body.userId;
+	async joinCalendar(req: Request, res: Response): Promise<Response> {
+		const { inviteToken } = req.params;
+		const userId = req.user.id; // Авторизованный пользователь
 
-			try {
-				const calendar = await Calendar.findOne({
-					where: { inviteToken }
-				});
-
-				if (!calendar) {
-					return res.status(404).json({ message: 'Invalid or expired invite link' });
-				}
-
-				const user = await User.findOne({ where: { id: userId } });
-
-				if (!user) {
-					return res.status(404).json({ message: 'User not found' });
-				}
-
-				const permission = await Permission.find({
-					where: {
-						user: user,
-						calendar: calendar
-					}
-				})
-				if (permission.length > 0) {
-					return res.status(400).json({ message: 'User is already in the calendar' });
-				}
-	
-				const newPermission = await Permission.create({
-					user: user,
-					calendar: calendar
-				})
-				await newPermission.save();
-
-				return res.json({ message: 'Joined the calendar successfully', calendar });
-			} catch (error) {
-				console.error(error);
-				return res.status(500).json({ message: 'Error joining calendar' });
+		try {
+			// Расшифровываем токен
+			const decoded: any = verify(inviteToken, process.env.SECRET_KEY!);
+			if (!decoded) {
+				return res.status(400).json({ message: 'Invalid or expired invite token' });
 			}
-		},
+
+			const { email, calendarId, role } = decoded;
+
+			// Ищем пользователя по ID
+			const user = await User.findOne({ where: { id: String(userId) } });
+			if (!user) {
+				return res.status(404).json({ message: 'User not found' });
+			}
+
+			// Проверяем, что email совпадает
+			if (user.email !== email) {
+				return res.status(403).json({ message: 'This invite is not for you' });
+			}
+
+			// Проверяем, что пользователь еще не добавлен в календарь
+			const existingPermission = await Permission.findOne({ where: { user, calendar: { id: calendarId } } });
+			if (existingPermission) {
+				return res.status(400).json({ message: 'User is already in the calendar' });
+			}
+
+			// Добавляем пользователя с указанной ролью
+			const newPermission = Permission.create({ user, calendar: { id: calendarId }, role });
+			await newPermission.save();
+
+			return res.json({ message: 'Successfully joined the calendar' });
+		} catch (error) {
+			console.error(error);
+			return res.status(500).json({ message: 'Error joining calendar' });
+		}
+	},
 };

@@ -29,7 +29,7 @@ router.get('/:calendarId/events', CalendarController.getEventsInCalendar.bind(Ca
 
 router.post('/:calendarId/events', CalendarController.createEventInCalendar.bind(CalendarController));
 
-router.get('/invite/:calendarId', authMiddleware, CalendarController.getInviteLink.bind(CalendarController)); 
+router.post('/invite/:calendarId', authMiddleware, CalendarController.inviteUser.bind(CalendarController)); 
 
 router.post('/join/:inviteToken', authMiddleware, CalendarController.joinCalendar.bind(CalendarController));
 
