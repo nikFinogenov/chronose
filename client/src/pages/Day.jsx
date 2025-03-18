@@ -9,12 +9,16 @@ import { dateStore } from "../store/dateStore";
 import EventModal from "../components/EventModal";
 import EventDetails from "../components/EventDetails";
 import { calendarStore } from "../store/calendarStore";
+import { userStore } from "../store/userStore";
 import { api } from "../services";
+import Swal from "sweetalert2";
+import { eventStore } from "../store/eventStore";
 
 const Day = observer(() => {
     const [events, setEvents] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
+    const [updating, setUpdating] = useState(false);
     const [newEvent, setNewEvent] = useState({
         title: "",
         start: null,
@@ -30,37 +34,23 @@ const Day = observer(() => {
     };
 
     const handleEditEvent = (event) => {
+        setUpdating(true);
         setNewEvent(event);
         setShowModal(true);
         setSelectedEvent(null);
     };
 
-    // Fetch events for all calendars
+    // Fetch events
     useEffect(() => {
         const fetchEvents = async () => {
-            if (!calendarStore.calendars.length) return;
-
             try {
-                const allEvents = [];
+                let newEvents = [];
                 for (const calendar of calendarStore.calendars) {
-                    const response = await api.get(`/events/calendar/${calendar.id}`);
-                    if (response.data && Array.isArray(response.data)) {
-                        allEvents.push(
-                            ...response.data.map((event) => ({
-                                id: event.id,
-                                title: event.title,
-                                start: new Date(event.startDate),
-                                end: new Date(event.endDate),
-                                description: event.description,
-                                location: event.location,
-                                participants: event.participants || [],
-                                color: event.color || "#000000",
-                                calendarId: calendar.id, // Track which calendar the event belongs to
-                            }))
-                        );
-                    }
+                    if (!calendar.isActive) continue;
+                    const response = await eventStore.loadEventsForCalendar(calendar.id);
+                    newEvents = [...newEvents, ...response]; // Collect events
                 }
-                setEvents(allEvents);
+                setEvents(newEvents); // Only update state once
             } catch (error) {
                 console.error("Error fetching events:", error);
             }
@@ -70,6 +60,31 @@ const Day = observer(() => {
     }, [calendarStore.calendars]); // Runs when calendars change
 
     const handleSelect = (selectionInfo) => {
+        if (!localStorage.getItem('token')) {
+            if (!calendarStore.calendars.length) {
+                Swal.fire({
+                    title: 'Sorry...',
+                    text: 'Login to create events',
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                })
+
+                return;
+            }
+
+            return;
+        }
+
+        if (userStore.user && !userStore.user.isEmailConfirmed) {
+            Swal.fire({
+                text: 'Confirm your email first',
+                icon: 'warning',
+                confirmButtonText: 'Ok'
+            })
+
+            return;
+        }
+
         setNewEvent({
             title: "",
             start: selectionInfo.start,
@@ -84,20 +99,43 @@ const Day = observer(() => {
 
     const handleSave = () => {
         if (newEvent.title) {
-            setEvents((prevEvents) => [
-                ...prevEvents,
-                {
-                    id: String(Date.now()),
-                    title: newEvent.title,
-                    start: newEvent.start,
-                    end: newEvent.end,
-                    description: newEvent.description,
-                    location: newEvent.location,
-                    participants: newEvent.participants,
-                    color: newEvent.color,
-                    editable: true,
-                },
-            ]);
+            setEvents((prevEvents) => {
+                const existingEventIndex = prevEvents.findIndex(event => event.id === newEvent.id);
+
+                if (existingEventIndex !== -1) {
+                    // Update the existing event
+                    const updatedEvents = [...prevEvents];
+                    updatedEvents[existingEventIndex] = {
+                        ...prevEvents[existingEventIndex], // Keep existing properties
+                        title: newEvent.title,
+                        start: newEvent.start,
+                        end: newEvent.end,
+                        description: newEvent.description,
+                        location: newEvent.location,
+                        participants: newEvent.participants,
+                        color: newEvent.color,
+                    };
+                    return updatedEvents;
+                } else {
+                    // Add a new event if it doesn't exist
+                    return [
+                        ...prevEvents,
+                        {
+                            id: String(Date.now()),
+                            title: newEvent.title,
+                            start: newEvent.start,
+                            end: newEvent.end,
+                            description: newEvent.description,
+                            location: newEvent.location,
+                            participants: newEvent.participants,
+                            color: newEvent.color,
+                            editable: true,
+                        },
+                    ];
+                }
+            });
+
+            setUpdating(false);
             setShowModal(false);
             setNewEvent({
                 title: "",
@@ -110,6 +148,7 @@ const Day = observer(() => {
             });
         }
     };
+
 
     const handleDeleteEvent = async (eventId) => {
         try {
@@ -168,7 +207,7 @@ const Day = observer(() => {
                     select={handleSelect}
                     eventChange={handleEventChange}
                     eventClick={handleEventClick}
-                    height="100%"
+                    height="auto"
                     slotLabelFormat={{
                         hour: "2-digit",
                         minute: "2-digit",
@@ -199,6 +238,7 @@ const Day = observer(() => {
                         setNewEvent={setNewEvent}
                         handleSave={handleSave}
                         setShowModal={setShowModal}
+                        updating={updating}
                     />
                 )}
 

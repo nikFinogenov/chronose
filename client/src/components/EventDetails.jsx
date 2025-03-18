@@ -1,6 +1,7 @@
 import React from "react";
 import { FaTimes, FaEdit, FaTrash, FaClock, FaCalendarAlt } from "react-icons/fa";
 import { calendarStore } from "../store/calendarStore";
+import { eventStore } from "../store/eventStore";
 
 const EventDetails = ({ event, onClose, onEdit, onDelete }) => {
     const calendar = calendarStore.calendars.find((cal) => cal.id === event.calendarId);

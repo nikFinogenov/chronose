@@ -1,6 +1,6 @@
 import { makeAutoObservable } from "mobx";
 import { getUserCalendars, getinvitedUserCalendars } from "../services/userService";
-import { createCalendar } from "../services/calendarService"
+import { createCalendar, update, updateCalendar } from "../services/calendarService"
 
 class CalendarStore {
     calendars = [];
@@ -18,7 +18,6 @@ class CalendarStore {
 
         try {
             const response = await getUserCalendars(userId);
-            console.log(response);
             this.setCalendars(response);
         } catch (error) {
             console.error("Failed to load user calendars:", error);
@@ -34,7 +33,6 @@ class CalendarStore {
 
         try {
             const response = await getinvitedUserCalendars(userId);
-            console.log(response);
             this.setInvitedCalendars(response);
         } catch (error) {
             console.error("Failed to load user calendars:", error);
@@ -54,6 +52,18 @@ class CalendarStore {
             console.error("Failed to create calendar:", error);
         }
     }
+
+    async updateCalendar(updatedCalendar) {
+        try {
+            const response = await update(updatedCalendar);
+            this.calendars = this.calendars.map(calendar =>
+                calendar.id === updatedCalendar.id ? { ...calendar, ...updatedCalendar } : calendar
+            );
+        } catch (error) {
+            console.error("Failed to update calendar:", error);
+        }
+    }
+
     clearCalendars() {
         this.calendars = [];
     }

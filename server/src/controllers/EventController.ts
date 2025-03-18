@@ -65,7 +65,7 @@ export const EventController = {
 
     async createEvent(req: Request, res: Response): Promise<Response> {
         const { calendarId } = req.params;
-        const { title, description, startDate, endDate, color } = req.body;
+        const { title, description, start, end, color } = req.body;
 
         // console.log(req.body);
 
@@ -79,8 +79,8 @@ export const EventController = {
             const event = new Event();
             event.title = title;
             event.description = description;
-            event.startDate = new Date(startDate);
-            event.endDate = new Date(endDate);
+            event.startDate = new Date(start);
+            event.endDate = new Date(end);
             event.color = color;
             event.calendar = calendar;
 
