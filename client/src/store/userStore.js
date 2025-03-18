@@ -1,8 +1,7 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 // import axios from "axios"; // Предполагается, что вы используете axios для запросов
 import { api } from '../services';
-import { createUser, getUser, fetchCurrentUser, updateUser } from '../services/userService';
-import { jwtDecode } from 'jwt-decode';
+import { createUser, getUser, updateUser } from '../services/userService';
 import { calendarStore } from './calendarStore';
 
 class UserStore {

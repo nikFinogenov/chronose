@@ -1,3 +1,4 @@
+// import { responsiveFontSizes } from '@mui/material';
 import { api } from './index'
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -29,3 +30,13 @@ export const createCalendar = async (name, description, ownerId) => {
         throw error;
     }
 };
+
+export const update = async (calendar) => {
+    try {
+        const response = await api.patch(`/calendars/${calendar.id}`, calendar);
+        
+        return response;
+    } catch(error) {
+        throw error;
+    }
+}

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { userStore } from "../store/userStore"; // Импортируйте userStore
+import Swal from "sweetalert2";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -19,6 +20,12 @@ const AxiosInterceptor = () => {
         // console.log(!userStore.user.isEmailConfirmed);
         // Проверяем, подтвержден ли email пользователя
         if (userStore.user && !userStore.user.isEmailConfirmed) {
+            Swal.fire({
+                text: 'Confirm your email first',
+                icon: 'warning',
+                confirmButtonText: 'Ok'
+            })
+
             // console.log(userStore.user);
             const controller = new AbortController();
             config.signal = controller.signal;

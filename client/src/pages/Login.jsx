@@ -7,7 +7,6 @@ import { userStore } from '../store/userStore';
 
 function Login() {
 	const [emailValue, setEmailValue] = useState('');
-	const [login, setLogin] = useState('');
 	const [passwordValue, setPasswordValue] = useState('');
 	const [serverError, setServerError] = useState('');
 	const [loading, setLoading] = useState(false);

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { calendarStore } from "../store/calendarStore";
-import { api } from "../services";
+import { eventStore } from "../store/eventStore";
+// import { api } from "../services";
 
-const EventModal = ({ event, setNewEvent, handleSave, setShowModal }) => {
+const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = false }) => {
     const [participantsInput, setParticipantsInput] = useState("");
-    const [selectedCalendar, setSelectedCalendar] = useState(null);
+    const [selectedCalendar, setSelectedCalendar] = useState(event.calendarId || null);
 
     useEffect(() => {
         if (calendarStore.calendars.length === 1) {
@@ -13,13 +14,9 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal }) => {
     }, []);
 
     const handleCalendarChange = (e) => {
-        const calendarId = parseInt(e.target.value, 10);
+        const calendarId = e.target.value; // Keep as string if IDs are strings
+        console.log("Selected Calendar ID:", calendarId); // Debugging log
         setSelectedCalendar(calendarId);
-    };
-
-    const isValidEmail = (email) => {
-        const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        return regex.test(email);
     };
 
     const handleEmailAutoComplete = (email) => {
@@ -52,17 +49,18 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal }) => {
     };
 
     const handleSubmit = async () => {
-
+        // TODO
         if (!event.title || event.title === "") return;
-        // Send the event data to the backend
-        setShowModal(false);
-        handleSave();
+        let response;
 
-        try {
-            const response = await api.post(`/events/calendar/${selectedCalendar}`, event);
-        } catch (error) {
-            console.log("Error sending event data:", error);
+        if (updating) eventStore.updateEvent(event, selectedCalendar);
+        else {
+            response = await eventStore.createEvent(event, selectedCalendar);
         }
+        
+
+        setShowModal(false);
+        handleSave(response);
     };
 
     return (
@@ -71,22 +69,24 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal }) => {
                 <h2 className="text-lg font-bold mb-4">Create New Event</h2>
 
                 {/* Calendar Selection */}
-                {calendarStore.calendars.length > 1 && (
-                    <div className="mb-3">
-                        <label className="block text-sm font-medium text-gray-700">Select Calendar:</label>
-                        <select
-                            className="border p-2 w-full"
-                            value={selectedCalendar || ""}
-                            onChange={handleCalendarChange}
-                        >
-                            <option value="" disabled>Select a calendar</option>
-                            {calendarStore.calendars.map((calendar) => (
-                                <option key={calendar.id} value={calendar.id}>
-                                    {calendar.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                {!updating && (
+                    calendarStore.calendars.length > 1 && (
+                        <div className="mb-3">
+                            <label className="block text-sm font-medium text-gray-700">Select Calendar:</label>
+                            <select
+                                className="border p-2 w-full"
+                                value={selectedCalendar || ""}
+                                onChange={handleCalendarChange}
+                            >
+                                <option value="" disabled>Select a calendar</option>
+                                {calendarStore.calendars.map((calendar) => (
+                                    <option key={calendar.id} value={calendar.id}>
+                                        {calendar.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )
                 )}
 
                 {/* Event Title */}
@@ -99,6 +99,7 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal }) => {
                         setNewEvent({ ...event, title: e.target.value })
                     }
                 />
+
 
                 {/* Event Type Selection */}
                 <div className="mb-3">
@@ -181,6 +182,7 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal }) => {
                         onChange={handleColorChange}
                     />
                 </div>
+
 
                 {/* Action Buttons */}
                 <div className="flex justify-end space-x-5">

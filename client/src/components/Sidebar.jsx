@@ -29,6 +29,11 @@ const Sidebar = observer(() => {
         }
     };
 
+    const handleIsActiveChange = (calendar, value) => {
+        const updatedCalendar = { ...calendar, isActive: value };
+        calendarStore.updateCalendar(updatedCalendar);
+    }
+
     return (
         <div className="p-4 border-r border-gray-300 bg-base-100 min-h-screen">
             <p className="hidden">{userStore.user?.id ? "" : ""}</p>
@@ -54,7 +59,7 @@ const Sidebar = observer(() => {
                         {calendarStore.calendars?.length > 0 ? (
                             calendarStore.calendars.map((calendar) => (
                                 <label key={calendar.id} className="flex items-center gap-2">
-                                    <input type="checkbox" className="checkbox checkbox-primary" />
+                                    <input type="checkbox" className="checkbox checkbox-primary" checked={calendar.isActive} onChange={(e) => handleIsActiveChange(calendar, e.target.checked)}/>
                                     <span>{calendar.name}</span>
                                 </label>
                             ))
@@ -71,7 +76,7 @@ const Sidebar = observer(() => {
                         {calendarStore.invitedCalendars?.length > 0 ? (
                             calendarStore.invitedCalendars.map((calendar) => (
                                 <label key={calendar.id} className="flex items-center gap-2">
-                                    <input type="checkbox" className="checkbox checkbox-primary" />
+                                    <input type="checkbox" className="checkbox checkbox-primary"/>
                                     <span>{calendar.name}</span>
                                 </label>
                             ))

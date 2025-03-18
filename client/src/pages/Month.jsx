@@ -1,5 +1,5 @@
 // components/Main.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 // import LoadingSpinner from '../components/LoadingSpinner';
 import CalendarGrid from '../components/CalendarGrid';
 import Sidebar from '../components/Sidebar';
@@ -8,7 +8,7 @@ import { dateStore } from '../store/dateStore';
 
 const Month = observer(() => {
     // const [loading, setLoading] = useState(true);
-    const [events, setEvents] = useState([]);
+    const [events, setEvents] = useState([]); // eslint-disable-line
     // setEvents(null);
     // useEffect(() => {
     // setEvents([]);
@@ -22,7 +22,8 @@ const Month = observer(() => {
             <div className="w-full">
                 <h1 className="text-3xl mb-5">{new Date(dateStore.currentDate).toLocaleString('default', { month: 'long' }) + ' ' +new Date(dateStore.currentDate).getFullYear()}</h1>
                 {/* {setEvents([])} */}
-                <CalendarGrid events={events} month={new Date(dateStore.currentDate).getMonth()} year={new Date(dateStore.currentDate).getFullYear()} />
+                {/* eslint-disable-next-line */}
+                <CalendarGrid events={events} month={new Date(dateStore.currentDate).getMonth()} year={new Date(dateStore.currentDate).getFullYear()} /> 
             </div>
         </div>
     );

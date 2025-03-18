@@ -132,7 +132,7 @@ const MicroMonth = observer(({ month = null }) => {
                         selectedDay.day === day &&
                         selectedDay.month === monthNum &&
                         selectedDay.year === mnth.getFullYear(); // Ensure the year matches
-
+                    // console.log(selectedDay.year, mnth.getFullYear())
                     // Only render selected day for current month, not next or previous month
                     // if (!currentMonth && isSelected) return null;
 

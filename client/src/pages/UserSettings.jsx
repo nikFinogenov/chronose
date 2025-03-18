@@ -19,7 +19,7 @@ const Settings = observer(() => {
 		};
 
 		fetchUserData();
-	}, [userStore.user]);
+	}, [userStore.user]); // eslint-disable-line
 
 	useEffect(() => {
 		if (isEditing) {
