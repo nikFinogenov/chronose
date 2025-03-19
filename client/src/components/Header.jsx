@@ -19,14 +19,34 @@ const Header = observer(() => {
 	const [activeView, setActiveView] = useState(getActiveViewFromPath);
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-	const handleNavigation = view => {
+	const handleNavigation = (view) => {
 		setActiveView(view);
-		navigate(`/${view.toLowerCase()}`);
+		const currentDate = new Date(dateStore.currentDate);
+		const year = currentDate.getFullYear();
+		const month = currentDate.getMonth() + 1; // JS months are 0-based
+		const day = currentDate.getDate();
+		navigate(`/${view.toLowerCase()}/${year}/${month}/${day}`);
+	};
+	const handleDateChange = (direction) => {
+		if (!activeView) return;
+
+		if (direction === "next") {
+			dateStore.next(activeView.toLowerCase());
+		} else {
+			dateStore.prev(activeView.toLowerCase());
+		}
+
+		const newDate = new Date(dateStore.currentDate);
+		const year = newDate.getFullYear();
+		const month = newDate.getMonth() + 1; // Months are 0-based
+		const day = newDate.getDate();
+
+		navigate(`/${activeView.toLowerCase()}/${year}/${month}/${day}`);
 	};
 
-	useEffect(() => {
-		setActiveView(getActiveViewFromPath());
-	}, [location.pathname, getActiveViewFromPath]);
+	// useEffect(() => {
+	// 	setActiveView(getActiveViewFromPath());
+	// }, [location.pathname, getActiveViewFromPath]);
 
 	useEffect(() => {
 		const handleClickOutside = event => {
@@ -47,7 +67,7 @@ const Header = observer(() => {
 	return (
 		<div className='flex items-center justify-between w-full p-2 text-black bg-purple-200 shadow-md gradient'>
 			<h1 className='hidden ml-4 text-2xl font-bold sm:block text-gradient'>
-				<Link to='/'>CloOk</Link>
+				<Link to='/' onClick={() => {handleNavigation('Year')}}>CloOk</Link>
 			</h1>
 
 			<div className='flex items-center'>
@@ -81,10 +101,11 @@ const Header = observer(() => {
 				}}>
 					Today
 				</button>
-				<button className='header-btn' onClick={() => dateStore.prev(activeView.toLowerCase())}>
+				<button className='header-btn' onClick={() => handleDateChange("prev")}>
 					<IoChevronBack size={18} />
 				</button>
-				<button className='header-btn' onClick={() => dateStore.next(activeView.toLowerCase())}>
+
+				<button className='header-btn' onClick={() => handleDateChange("next")}>
 					<IoChevronForward size={18} />
 				</button>
 				<button className='header-btn' onClick={() => console.log("pidr")}>

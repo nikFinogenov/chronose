@@ -58,7 +58,7 @@ class DateStore {
         this.currentDate = new Date().toISOString();
     }
     updateDate(year, month, day) {
-        this.currentDate = new Date(year, month, day);
+        this.currentDate = new Date(year, month, day).toISOString();
     }
     updateIsToday() {
         this.isTodayPressed = !this.isTodayPressed;

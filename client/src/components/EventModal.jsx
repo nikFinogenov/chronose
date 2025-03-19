@@ -51,16 +51,15 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
     const handleSubmit = async () => {
         // TODO
         if (!event.title || event.title === "") return;
-        let response;
 
         if (updating) eventStore.updateEvent(event, selectedCalendar);
         else {
-            response = await eventStore.createEvent(event, selectedCalendar);
+            await eventStore.createEvent(event, selectedCalendar);
         }
         
 
         setShowModal(false);
-        handleSave(response);
+        handleSave(selectedCalendar);
     };
 
     return (

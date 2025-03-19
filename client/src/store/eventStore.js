@@ -6,13 +6,17 @@ import { getCalendarEvents } from "../services/eventService";
 class EventStore {
     eventsByCalendar = {}; // Store events grouped by calendarId
 
+    events = [];
+
     constructor() {
-        makeAutoObservable(this, {
+        makeAutoObservable(this 
+            ,{
             loadEventsForCalendar: action,
             createEvent: action,
             updateEvent: action,
             deleteEvent: action,
-        });
+        }
+    );
     }
 
     async loadEventsForCalendar(calendarId) {
@@ -20,6 +24,7 @@ class EventStore {
 
         try {
             const response = await getCalendarEvents(calendarId);
+            // console.log(response);
 
             // Transform the data before storing it
             const transformedEvents = response.map(event => ({
@@ -29,7 +34,8 @@ class EventStore {
                 calendarId: calendarId
             }));
 
-            return transformedEvents;
+            // return transformedEvents;
+            this.setEvents(calendarId, transformedEvents);
 
             // Store the events for this specific calendar
             // this.setEvents(calendarId, transformedEvents);
@@ -48,11 +54,11 @@ class EventStore {
                     ...(this.eventsByCalendar[selectedCalendar] || []),
                     response.data.event
                 ]);
-                return response.data.event;
+                // return response.data.event;
             }
         } catch (error) {
             console.log("Failed to create event:", error);
-            return null;
+            // return null;
         }
     }
 
