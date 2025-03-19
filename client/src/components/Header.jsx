@@ -5,6 +5,8 @@ import { userStore } from '../store/userStore';
 import { observer } from 'mobx-react-lite';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { IoChevronBack, IoChevronForward, IoSettingsSharp } from 'react-icons/io5'; // Импорт иконки настроек
+import EventModal from './EventModal';
+import { eventStore } from '../store/eventStore';
 
 const Header = observer(() => {
 	const navigate = useNavigate();
@@ -18,6 +20,16 @@ const Header = observer(() => {
 
 	const [activeView, setActiveView] = useState(getActiveViewFromPath);
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const [showModal, setShowModal] = useState(false); // State for modal
+    const [newEvent, setNewEvent] = useState({
+        title: "",
+        start: null,
+        end: null,
+        description: "",
+        location: "",
+        participants: [],
+        color: "#34ebc6",
+    });
 
 	const handleNavigation = (view) => {
 		setActiveView(view);
@@ -63,6 +75,34 @@ const Header = observer(() => {
 			document.removeEventListener('click', handleClickOutside);
 		};
 	}, [isMenuOpen]);
+	const handleCreateEvent = () => {
+        setNewEvent({
+            title: "",
+            start: new Date(), // Set to current date/time
+            end: new Date(new Date().getTime() + 60 * 60 * 1000), // Set to one hour later
+            description: "",
+            location: "",
+            participants: [],
+            color: "#34ebc6",
+        });
+        setShowModal(true);
+    };
+
+    const handleSave = async (calendarId) => {
+        if (newEvent.title) {
+            await eventStore.createEvent(newEvent, calendarId);
+            setShowModal(false);
+            setNewEvent({
+                title: "",
+                start: null,
+                end: null,
+                description: "",
+                location: "",
+                participants: [],
+                color: "#000000",
+            });
+        }
+    };
 
 	return (
 		<div className='flex items-center justify-between w-full p-2 text-black bg-purple-200 shadow-md gradient'>
@@ -108,8 +148,8 @@ const Header = observer(() => {
 				<button className='header-btn' onClick={() => handleDateChange("next")}>
 					<IoChevronForward size={18} />
 				</button>
-				<button className='header-btn' onClick={() => console.log("pidr")}>
-					Sex
+				<button className='header-btn' onClick={handleCreateEvent}>
+					Create event
 				</button>
 
 				{userStore.user === null ? (
@@ -122,6 +162,15 @@ const Header = observer(() => {
 					</button>
 				)}
 			</div>
+			{showModal && (
+                <EventModal
+                    event={newEvent}
+                    setNewEvent={setNewEvent}
+                    handleSave={handleSave}
+                    setShowModal={setShowModal}
+                    updating={false} // Since this is a new event
+                />
+            )}
 		</div>
 	);
 });
