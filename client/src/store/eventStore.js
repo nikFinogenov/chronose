@@ -50,10 +50,17 @@ class EventStore {
             const response = await api.post(`/events/calendar/${selectedCalendar}`, event);
             // console.log(response.data.event);
             if (response.status === 201) {
+                const createdEvent = {
+                    ...response.data.event,
+                    start: response.data.event.startDate,
+                    end: response.data.event.endDate,
+                    calendarId: selectedCalendar,
+                };
                 this.setEvents(selectedCalendar, [
                     ...(this.eventsByCalendar[selectedCalendar] || []),
-                    response.data.event
+                    createdEvent
                 ]);
+                console.log("event created");
                 // return response.data.event;
             }
         } catch (error) {

@@ -52,10 +52,10 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
         // TODO
         if (!event.title || event.title === "") return;
 
-        if (updating) eventStore.updateEvent(event, selectedCalendar);
-        else {
-            await eventStore.createEvent(event, selectedCalendar);
-        }
+        // if (updating) eventStore.updateEvent(event, selectedCalendar);
+        // else {
+        //     await eventStore.createEvent(event, selectedCalendar);
+        // }
         
 
         setShowModal(false);

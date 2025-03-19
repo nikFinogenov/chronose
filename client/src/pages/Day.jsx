@@ -89,11 +89,11 @@ const Day = observer(() => {
 
     const handleSave = async (calendarId) => {
         if (newEvent.title) {
-            // if (updating) {
-            //     await eventStore.updateEvent(newEvent, calendarId);
-            // } else {
-            //     await eventStore.createEvent(newEvent, calendarId);
-            // }
+            if (updating) {
+                await eventStore.updateEvent(newEvent, calendarId);
+            } else {
+                await eventStore.createEvent(newEvent, calendarId);
+            }
             setShowModal(false);
             setNewEvent({
                 title: "",
