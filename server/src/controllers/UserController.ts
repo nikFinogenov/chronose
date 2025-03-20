@@ -171,6 +171,7 @@ export class UserController {
                 name: permission.calendar.name,
                 description: permission.calendar.description,
                 role: permission.role, 
+                isActive: permission.calendar.isActive
             }));
 
             return res.status(200).json(sharedCalendars);

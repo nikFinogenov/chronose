@@ -55,7 +55,10 @@ const Header = observer(() => {
 
 		navigate(`/${activeView.toLowerCase()}/${year}/${month}/${day}`);
 	};
-
+	
+	// useEffect(() => {
+	// 	handleDateChange(null)
+	// }, [dateStore.currentDate]);
 	// useEffect(() => {
 	// 	setActiveView(getActiveViewFromPath());
 	// }, [location.pathname, getActiveViewFromPath]);

@@ -1,6 +1,7 @@
 import { makeAutoObservable, action } from "mobx";
 import { api } from "../services";
 import { getCalendarEvents } from "../services/eventService";
+import { calendarStore } from "./calendarStore";
 
 
 class EventStore {
@@ -19,11 +20,11 @@ class EventStore {
     );
     }
 
-    async loadEventsForCalendar(calendarId) {
+    async loadEventsForCalendar(calendarId, start, end) {
         if (!calendarId) return;
 
         try {
-            const response = await getCalendarEvents(calendarId);
+            const response = await getCalendarEvents(calendarId, start, end);
             // console.log(response);
 
             // Transform the data before storing it
@@ -50,6 +51,7 @@ class EventStore {
             const response = await api.post(`/events/calendar/${selectedCalendar}`, event);
             // console.log(response.data.event);
             if (response.status === 201) {
+                console.log(response.data.event.startDate);
                 const createdEvent = {
                     ...response.data.event,
                     start: response.data.event.startDate,
@@ -126,6 +128,19 @@ class EventStore {
     //     // Collect all events from all calendars
     //     return Object.values(this.eventsByCalendar).flat();
     // }
+    async loadEventsForAllCalendars(currentDate) {
+        const endOfDay = new Date(currentDate);
+        endOfDay.setUTCHours(23, 59, 0, 0);
+
+        const allCalendars = [
+            ...calendarStore.calendars.filter(calendar => calendar.isActive),
+            ...calendarStore.invitedCalendars.filter(calendar => calendar.isActive)
+        ];
+
+        for (const calendar of allCalendars) {
+            await this.loadEventsForCalendar(calendar.id, currentDate, endOfDay.toISOString());
+        }
+    }
 
     clearEvents() {
         this.eventsByCalendar = {};

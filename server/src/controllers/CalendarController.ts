@@ -5,6 +5,7 @@ import { Event } from '../models/Event';
 import { Permission } from '../models/Permission';
 import { sendInviteEmail } from '../utils/emailService';
 import { sign, verify } from 'jsonwebtoken';
+import { MoreThanOrEqual, LessThanOrEqual } from "typeorm";
 // import { Permission } from '../models/Permission_huy';
 
 export const CalendarController = {
@@ -270,6 +271,7 @@ export const CalendarController = {
 
 	async getEventsInCalendar(req: Request, res: Response): Promise<Response> {
 		const { calendarId } = req.params;
+		const { start, end } = req.query;
 
 		try {
 			const calendar = await Calendar.findOne({
@@ -280,8 +282,15 @@ export const CalendarController = {
 			if (!calendar) {
 				return res.status(404).json({ message: 'Calendar not found' });
 			}
+			const events = await Event.find({
+				where: {
+					calendar: {id: calendarId},
+					startDate: start ? MoreThanOrEqual(new Date(start as string)) : undefined,
+					endDate: end ? LessThanOrEqual(new Date(end as string)) : undefined,
+				},
+			});
 
-			return res.status(200).json({ events: calendar.events });
+			return res.status(200).json({ events });
 		} catch (error) {
 			console.error(error);
 			return res.status(500).json({ message: 'Error fetching events' });

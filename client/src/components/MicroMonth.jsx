@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { dateStore } from "../store/dateStore";
+import { useNavigate } from 'react-router-dom';
 
 const MicroMonth = observer(({ month = null }) => {
     const today = new Date();
+    const navigate = useNavigate();
     const [selectedMonth, setSelectedMonth] = useState(new Date(dateStore.currentDate));
     const [selectedDay, setSelectedDay] = useState({
         day: selectedMonth.getDate(),
         month: selectedMonth.getMonth(),
         year: selectedMonth.getFullYear(),
     });
-    
+
     today.setHours(0, 0, 0, 0);
 
     useEffect(() => {
@@ -47,7 +49,7 @@ const MicroMonth = observer(({ month = null }) => {
         }
         return day + "th";
     };
-    
+
     const getFormattedDate = (year, monthNum, day) => {
         const date = new Date(year, monthNum, day);
         const options = { weekday: 'long', month: 'long', day: 'numeric' };
@@ -132,7 +134,7 @@ const MicroMonth = observer(({ month = null }) => {
                         selectedDay.day === day &&
                         selectedDay.month === monthNum &&
                         selectedDay.year === mnth.getFullYear(); // Ensure the year matches
-                    // console.log(selectedDay.year, mnth.getFullYear())
+                    // console.log(selectedDay.year, mnth.getFullYear(), dateStore.currentDate)
                     // Only render selected day for current month, not next or previous month
                     // if (!currentMonth && isSelected) return null;
 
@@ -141,10 +143,18 @@ const MicroMonth = observer(({ month = null }) => {
                             key={index}
                             className={`flex justify-center items-center w-8 h-8 text-sm rounded-full cursor-pointer
                               ${currentMonth ? "text-black" : "text-gray-400"}  
-                              ${isToday ? "border border-indigo-600 bg-indigo-400 font-bold text-white" 
-                              : isSelected && currentMonth ? "bg-indigo-200" : "hover:bg-gray-200"} 
+                              ${isToday ? "border border-indigo-600 bg-indigo-400 font-bold text-white"
+                                    : isSelected && currentMonth ? "bg-indigo-200" : "hover:bg-gray-200"} 
                             ${month ? "tooltip tooltip-top" : ""}}`}
-                            onClick={() => {dateStore.updateDate(mnth.getFullYear(), monthNum, day)}}
+                            onClick={() => {
+                                dateStore.updateDate(mnth.getFullYear(), monthNum, day);
+                                // console.log(monthNum+1);
+                                // console.log(pathSegments[0]);
+                                const firstElemtnt = window.location.pathname === '/' ? '/day' : `/${window.location.pathname.split('/')[1]}`;
+                                // console.log(firstElemtnt);
+                                navigate(`${firstElemtnt}/${mnth.getFullYear()}/${monthNum+1}/${day}`);
+                                // console.log(`/${window.location.pathname.split('/')[1]}/${mnth.getFullYear()}/${monthNum+1}/${day}`);
+                            }}
                             data-tip={getFormattedDate(mnth.getFullYear(), monthNum, day)}
                         >
                             {day}

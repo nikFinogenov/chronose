@@ -41,15 +41,32 @@ const Day = observer(() => {
     // Fetch events when the component mounts or when calendars change
     useEffect(() => {
         const fetchEvents = async () => {
+            const endOfDay = new Date(dateStore.currentDate);
+            endOfDay.setHours(23, 59, 0, 0);
+            const startOfDay = new Date(dateStore.currentDate);
+            startOfDay.setHours(0, 0, 0, 0);
+
+            console.log(dateStore.currentDate);
+            
+//             const nextDay = new Date(dateStore.currentDate);
+// nextDay.setUTCDate(nextDay.getUTCDate());
+
+// console.log(dateStore.currentDate, " ++++ ",startOfDay," ++++ " ,startOfDay.toString());
+// console.log( new Date(dateStore.currentDate).toString());
             for (const calendar of calendarStore.calendars) {
                 if (calendar.isActive) {
-                    await eventStore.loadEventsForCalendar(calendar.id);
+                    await eventStore.loadEventsForCalendar(calendar.id, startOfDay.toISOString(), endOfDay.toISOString());
+                }
+            }
+            for (const calendar of calendarStore.invitedCalendars) {
+                if (calendar.isActive) {
+                    await eventStore.loadEventsForCalendar(calendar.id, startOfDay.toISOString(), endOfDay.toISOString());
                 }
             }
         };
 
         fetchEvents();
-    }, [calendarStore.calendars]);
+    }, [dateStore.currentDate, calendarStore.calendars]); //eslint-disable-line
 
     const handleSelect = (selectionInfo) => {
         if (!localStorage.getItem('token')) {

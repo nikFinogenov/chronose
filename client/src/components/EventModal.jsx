@@ -127,21 +127,31 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
 
                 {/* Start Date */}
                 <label className="block text-sm font-medium text-gray-700">Start Date & Time:</label>
-                <input
-                    type="datetime-local"
-                    className="border p-1.5 w-full mb-3"
-                    value={event.start ? new Date(event.start).toISOString().slice(0, 16) : ""}
-                    onChange={(e) => setNewEvent({ ...event, start: new Date(e.target.value) })}
-                />
+<input
+    type="datetime-local"
+    className="border p-1.5 w-full mb-3"
+    value={event.start ? new Date(event.start).toLocaleString('sv-SE', { timeZone: 'Europe/Berlin' }).slice(0, 16) : ""}
+    onChange={(e) => {
+        const localDate = new Date(e.target.value);
+        // Convert the local date back to UTC for storage
+        const utcDate = new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
+        setNewEvent({ ...event, start: utcDate });
+    }}
+/>
 
-                {/* End Date */}
-                <label className="block text-sm font-medium text-gray-700">End Date & Time:</label>
-                <input
-                    type="datetime-local"
-                    className="border p-1.5 w-full mb-3"
-                    value={event.end ? new Date(event.end).toISOString().slice(0, 16) : ""}
-                    onChange={(e) => setNewEvent({ ...event, end: new Date(e.target.value) })}
-                />
+{/* End Date */}
+<label className="block text-sm font-medium text-gray-700">End Date & Time:</label>
+<input
+    type="datetime-local"
+    className="border p-1.5 w-full mb-3"
+    value={event.end ? new Date(event.end).toLocaleString('sv-SE', { timeZone: 'Europe/Berlin' }).slice(0, 16) : ""}
+    onChange={(e) => {
+        const localDate = new Date(e.target.value);
+        // Convert the local date back to UTC for storage
+        const utcDate = new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
+        setNewEvent({ ...event, end: utcDate });
+    }}
+/>
 
 
                 {/* Participants */}
