@@ -39,4 +39,17 @@ export const update = async (calendar) => {
     } catch(error) {
         throw error;
     }
-}
+};
+
+export const inviteUser = async (calendarId, email, role) => {
+	try {
+		const response = await api.post(`${API_URL}/calendars/invite/${encodeURIComponent(calendarId)}`, {
+			email,
+			role,
+		});
+		return response.data;
+	} catch (error) {
+		console.error('Error inviting user:', error);
+		throw error;
+	}
+};
