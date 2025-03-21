@@ -53,3 +53,13 @@ export const inviteUser = async (calendarId, email, role) => {
 		throw error;
 	}
 };
+
+export const joinCalendar = async (inviteToken) => {
+	try {
+		const response = await api.post(`calendars/join/${inviteToken}`);
+		return response.data;
+	} catch (error) {
+		console.error('Failed to join calendar:', error);
+		throw error;
+	}
+};

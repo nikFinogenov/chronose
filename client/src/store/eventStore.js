@@ -1,6 +1,7 @@
-import { makeAutoObservable, action } from "mobx";
+import { makeAutoObservable, action, runInAction } from 'mobx';
 import { api } from "../services";
 import { getCalendarEvents } from "../services/eventService";
+import { joinEvent } from '../services/eventService';
 
 
 class EventStore {
@@ -116,6 +117,19 @@ class EventStore {
 
     clearEvents() {
         this.eventsByCalendar = {};
+    }
+
+    async joinEvent(inviteToken) {
+        try {
+            const event = await joinEvent(inviteToken);
+            runInAction(() => {
+                console.log("Joined event:", event);
+            });
+            return event;
+        } catch (error) {
+            console.error("Failed to join event:", error);
+            throw error;
+        }
     }
 }
 

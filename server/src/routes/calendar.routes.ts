@@ -13,7 +13,7 @@ router.get('/:calendarId', CalendarController.getCalendarById.bind(CalendarContr
 
 router.post('/', CalendarController.createCalendar.bind(CalendarController));
 
-router.patch('/:calendarId', CalendarController.updateCalendar.bind(CalendarController));
+router.patch('/:calendarId', authMiddleware, CalendarController.updateCalendar.bind(CalendarController));
 
 router.delete('/:calendarId', CalendarController.deleteCalendar.bind(CalendarController));
 

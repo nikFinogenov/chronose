@@ -9,4 +9,14 @@ export const getCalendarEvents = async (calendarId) => {
     } catch (error) {
         console.log("Failed to fetch events:", error);
     }
-}
+};
+
+export const joinEvent = async (inviteToken) => {
+    try {
+        const response = await api.post(`events/join/${inviteToken}`);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to join event:", error);
+        throw error;
+    }
+};

@@ -1,6 +1,7 @@
 import {runInAction, makeAutoObservable } from "mobx";
 import { getUserCalendars, getinvitedUserCalendars } from "../services/userService";
 import { createCalendar, update, inviteUser } from '../services/calendarService';
+import { joinCalendar } from '../services/calendarService';
 
 class CalendarStore {
 	calendars = [];
@@ -85,6 +86,20 @@ class CalendarStore {
 
 	setInvitedCalendars(calendarData) {
 		this.invitedCalendars = calendarData;
+	}
+
+	async joinCalendar(inviteToken) {
+		try {
+			const calendar = await joinCalendar(inviteToken);
+			runInAction(() => {
+				console.log('Joined calendar:', calendar);
+				this.calendars.push(calendar);
+			});
+			return calendar;
+		} catch (error) {
+			console.error('Failed to join calendar:', error);
+			throw error;
+		}
 	}
 }
 

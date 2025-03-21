@@ -8,6 +8,12 @@ import csv from 'csv-parser';
 import { Permission } from '../models/Permission';
 import { sendInviteEmail } from '../utils/emailService';
 import { sign, verify } from 'jsonwebtoken';
+import { In } from 'typeorm';
+
+const hasEventPermission = async (userId: String, eventId: String, requiredRoles: string[]): Promise<boolean> => {
+	const permission = await Permission.findOne({ where: { user: { id: String(userId) }, event: { id: String(eventId) } } });
+	return permission ? requiredRoles.includes(permission.role) : false;
+};
 
 async function getCalendarId(location: string): Promise<string | null> {
 	return new Promise((resolve, reject) => {
@@ -65,9 +71,9 @@ export const EventController = {
 		}
 	},
 
-    async createEvent(req: Request, res: Response): Promise<Response> {
-        const { calendarId } = req.params;
-        const { title, description, start, end, color } = req.body;
+	async createEvent(req: Request, res: Response): Promise<Response> {
+		const { calendarId } = req.params;
+		const { title, description, start, end, color } = req.body;
 
 		// console.log(req.body);
 
@@ -78,13 +84,13 @@ export const EventController = {
 				return res.status(404).json({ message: 'Calendar not found' });
 			}
 
-            const event = new Event();
-            event.title = title;
-            event.description = description;
-            event.startDate = new Date(start);
-            event.endDate = new Date(end);
-            event.color = color;
-            event.calendar = calendar;
+			const event = new Event();
+			event.title = title;
+			event.description = description;
+			event.startDate = new Date(start);
+			event.endDate = new Date(end);
+			event.color = color;
+			event.calendar = calendar;
 
 			await event.save();
 
@@ -98,12 +104,18 @@ export const EventController = {
 	async updateEvent(req: Request, res: Response): Promise<Response> {
 		const { eventId } = req.params;
 		const { title, description, start, end, color } = req.body;
+		const userId = req.user.id;
 
 		try {
 			const event = await Event.findOne({ where: { id: eventId } });
 
 			if (!event) {
 				return res.status(404).json({ message: 'Event not found' });
+			}
+
+			// Проверяем права доступа
+			if (!(await hasEventPermission(String(userId), eventId, ['editor', 'manager', 'owner']))) {
+				return res.status(403).json({ message: 'Access denied' });
 			}
 
 			if (title) event.title = title;
@@ -123,12 +135,18 @@ export const EventController = {
 
 	async deleteEvent(req: Request, res: Response): Promise<Response> {
 		const { eventId } = req.params;
+		const userId = req.user.id;
 
 		try {
 			const event = await Event.findOne({ where: { id: eventId } });
 
 			if (!event) {
 				return res.status(404).json({ message: 'Event not found' });
+			}
+
+			// Проверяем права доступа
+			if (!(await hasEventPermission(String(userId), eventId, ['manager', 'owner']))) {
+				return res.status(403).json({ message: 'Access denied' });
 			}
 
 			await event.remove();
@@ -204,7 +222,7 @@ export const EventController = {
 				where: {
 					calendar: event.calendar,
 					user: { id: String(userId) },
-					role: 'owner',
+					role: In(['owner', 'manager']),
 				},
 			});
 
@@ -214,7 +232,7 @@ export const EventController = {
 
 			// Генерируем JWT-токен с информацией о приглашении
 			const inviteToken = sign({ email, eventId, role }, process.env.SECRET_KEY!, { expiresIn: '7d' });
-			const inviteUrl = `${process.env.FRONT_URL}/events/join/${inviteToken}`;
+			const inviteUrl = `${process.env.FRONT_URL}/join/${inviteToken}`;
 
 			await sendInviteEmail(email, inviteUrl, role, 'event');
 

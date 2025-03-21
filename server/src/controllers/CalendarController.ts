@@ -5,7 +5,13 @@ import { Event } from '../models/Event';
 import { Permission } from '../models/Permission';
 import { sendInviteEmail } from '../utils/emailService';
 import { sign, verify } from 'jsonwebtoken';
-// import { Permission } from '../models/Permission_huy';
+import { In } from 'typeorm';
+//import { Permission } from '../models/Permission_huy';
+
+const hasCalendarPermission = async (userId: String, calendarId: String, requiredRoles: string[]): Promise<boolean> => {
+	const permission = await Permission.findOne({ where: { user: { id: String(userId) }, calendar: { id: String(calendarId) } } });
+	return permission ? requiredRoles.includes(permission.role) : false;
+};
 
 export const CalendarController = {
 	async getAllCalendars(req: Request, res: Response): Promise<Response> {
@@ -101,12 +107,18 @@ export const CalendarController = {
 	async updateCalendar(req: Request, res: Response): Promise<Response> {
 		const { calendarId } = req.params;
 		const { name, description, isActive } = req.body;
+		const userId = req.user.id;
 
 		try {
 			const calendar = await Calendar.findOne({ where: { id: calendarId } });
 
 			if (!calendar) {
 				return res.status(404).json({ message: 'Calendar not found' });
+			}
+
+			// Проверяем права доступа
+			if (!(await hasCalendarPermission(String(userId), calendarId, ['editor', 'manager', 'owner']))) {
+				return res.status(403).json({ message: 'Access denied' });
 			}
 
 			if (name) calendar.name = name;
@@ -124,12 +136,18 @@ export const CalendarController = {
 
 	async deleteCalendar(req: Request, res: Response): Promise<Response> {
 		const { calendarId } = req.params;
+		const userId = req.user.id;
 
 		try {
 			const calendar = await Calendar.findOne({ where: { id: calendarId } });
 
 			if (!calendar) {
 				return res.status(404).json({ message: 'Calendar not found' });
+			}
+
+			// Проверяем права доступа
+			if (!(await hasCalendarPermission(String(userId), calendarId, ['manager', 'owner']))) {
+				return res.status(403).json({ message: 'Access denied' });
 			}
 
 			await calendar.remove();
@@ -328,7 +346,7 @@ export const CalendarController = {
 
 			// Проверяем, является ли отправитель владельцем календаря
 			const ownerPermission = await Permission.findOne({
-				where: { calendar, user: { id: String(userId) }, role: 'owner' },
+				where: { calendar, user: { id: String(userId) }, role: In(['owner', 'manager']) },
 			});
 
 			if (!ownerPermission) {
@@ -337,7 +355,7 @@ export const CalendarController = {
 
 			// Генерируем токен приглашения с email и ролью
 			const inviteToken = sign({ email, calendarId, role }, process.env.SECRET_KEY!, { expiresIn: '7d' });
-			const inviteUrl = `${process.env.FRONT_URL}/calendars/join/${inviteToken}`;
+			const inviteUrl = `${process.env.FRONT_URL}/join/${inviteToken}`;
 
 			// Отправляем письмо с приглашением (добавлен 4-й аргумент 'calendar')
 			await sendInviteEmail(email, inviteUrl, role, 'calendar');
