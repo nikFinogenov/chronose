@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
+import {runInAction} from 'mobx';
 import MicroMonth from './MicroMonth';
 import { dateStore } from '../store/dateStore';
 import { userStore } from '../store/userStore';
@@ -39,10 +40,16 @@ const Sidebar = observer(() => {
 		}
 	};
 
-	const handleIsActiveChange = (calendar, value) => {
-		const updatedCalendar = { ...calendar, isActive: value };
-		calendarStore.updateCalendar(updatedCalendar);
-	};
+    const handleIsActiveChange = (calendar, value) => {
+        runInAction(() => {
+            calendar.isActive = value; // Update MobX state directly
+        });
+    
+        // Update localStorage for isActive state
+        const storedVisibility = JSON.parse(localStorage.getItem('calendarVisibility')) || {};
+        storedVisibility[calendar.id] = value;
+        localStorage.setItem('calendarVisibility', JSON.stringify(storedVisibility));
+    };
 
 	const openSettingsModal = calendar => {
 		setSelectedCalendar(calendar);
