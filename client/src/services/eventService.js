@@ -20,3 +20,16 @@ export const joinEvent = async (inviteToken) => {
         throw error;
     }
 };
+
+export const inviteUser = async (eventId, email, role) => {
+    try {
+        const response = await api.post(`events/invite/${encodeURIComponent(eventId)}`, {
+			email,
+			role,
+		});
+        return response.data;
+    } catch (error) {
+        console.error('Error inviting user:', error);
+        throw error;
+    }
+};

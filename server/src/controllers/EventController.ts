@@ -10,10 +10,20 @@ import { sendInviteEmail } from '../utils/emailService';
 import { sign, verify } from 'jsonwebtoken';
 import { In } from 'typeorm';
 
-const hasEventPermission = async (userId: String, eventId: String, requiredRoles: string[]): Promise<boolean> => {
-	const permission = await Permission.findOne({ where: { user: { id: String(userId) }, event: { id: String(eventId) } } });
+const hasEventPermission = async (userId: string, eventId: string, requiredRoles: string[]): Promise<boolean> => {
+	// Находим событие и его календарь
+	const event = await Event.findOne({ where: { id: eventId }, relations: ['calendar'] });
+	if (!event || !event.calendar) return false;
+
+	// Проверяем, есть ли у пользователя права "owner" на календарь
+	const calendarOwner = await Permission.findOne({ where: { user: { id: userId }, calendar: { id: event.calendar.id }, role: In(requiredRoles) } });
+	if (calendarOwner) return true;
+
+	// Проверяем права пользователя в `Permission` для конкретного события
+	const permission = await Permission.findOne({ where: { user: { id: userId }, event: { id: eventId } } });
 	return permission ? requiredRoles.includes(permission.role) : false;
 };
+
 
 async function getCalendarId(location: string): Promise<string | null> {
 	return new Promise((resolve, reject) => {
