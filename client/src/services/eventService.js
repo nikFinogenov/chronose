@@ -33,3 +33,23 @@ export const inviteUser = async (eventId, email, role) => {
         throw error;
     }
 };
+
+export const getEventUsers = async eventId => {
+	try {
+		const response = await api.get(`events/${eventId}/users`);
+		return response.data;
+	} catch (error) {
+		console.error('Error fetching event users:', error);
+		throw error;
+	}
+};
+
+export const removeUserFromEvent = async (eventId, userId) => {
+	try {
+		await api.delete(`events/${eventId}/users/${userId}`);
+		console.log(`User ${userId} removed from event ${eventId}`);
+	} catch (error) {
+		console.error('Error removing user from event:', error);
+		throw error;
+	}
+};
