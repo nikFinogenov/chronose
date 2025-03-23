@@ -63,3 +63,23 @@ export const joinCalendar = async (inviteToken) => {
 		throw error;
 	}
 };
+
+export const getCalendarUsers = async calendarId => {
+	try {
+		const response = await api.get(`${API_URL}/calendars/${calendarId}/users`);
+		return response.data;
+	} catch (error) {
+		console.error('Error fetching calendar users:', error);
+		throw error;
+	}
+};
+
+export const removeUserFromCalendar = async (calendarId, userId) => {
+	try {
+		const response = await api.delete(`${API_URL}/calendars/${calendarId}/users/${userId}`);
+		return response.data;
+	} catch (error) {
+		console.error('Error removing user from calendar:', error);
+		throw error;
+	}
+};
