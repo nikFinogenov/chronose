@@ -241,50 +241,50 @@ export const CalendarController = {
 		}
 	},
 
-	async removeUserFromCalendar(req: Request, res: Response): Promise<Response> {
-		const { calendarId } = req.params;
-		const { email, login } = req.body;
+	// async removeUserFromCalendar(req: Request, res: Response): Promise<Response> {
+	// 	const { calendarId } = req.params;
+	// 	const { email, login } = req.body;
 
-		if (!email && !login) {
-			return res.status(400).json({ message: 'Email or login is required' });
-		}
+	// 	if (!email && !login) {
+	// 		return res.status(400).json({ message: 'Email or login is required' });
+	// 	}
 
-		try {
-			const calendar = await Calendar.findOne({
-				where: { id: calendarId },
-			});
+	// 	try {
+	// 		const calendar = await Calendar.findOne({
+	// 			where: { id: calendarId },
+	// 		});
 
-			if (!calendar) {
-				return res.status(404).json({ message: 'Calendar not found' });
-			}
+	// 		if (!calendar) {
+	// 			return res.status(404).json({ message: 'Calendar not found' });
+	// 		}
 
-			const user = await User.findOne({
-				where: email ? { email } : { login },
-			});
+	// 		const user = await User.findOne({
+	// 			where: email ? { email } : { login },
+	// 		});
 
-			if (!user) {
-				return res.status(404).json({ message: 'User not found' });
-			}
+	// 		if (!user) {
+	// 			return res.status(404).json({ message: 'User not found' });
+	// 		}
 
-			const permission = await Permission.findOne({
-				where: {
-					user: user,
-					calendar: calendar,
-				},
-			});
+	// 		const permission = await Permission.findOne({
+	// 			where: {
+	// 				user: user,
+	// 				calendar: calendar,
+	// 			},
+	// 		});
 
-			if (!permission) {
-				return res.status(404).json({ message: 'User is not in the calendar' });
-			}
+	// 		if (!permission) {
+	// 			return res.status(404).json({ message: 'User is not in the calendar' });
+	// 		}
 
-			await permission.remove();
+	// 		await permission.remove();
 
-			return res.status(200).json({ message: 'User successfully removed from the calendar' });
-		} catch (error) {
-			console.error(error);
-			return res.status(500).json({ message: 'Error removing user from calendar' });
-		}
-	},
+	// 		return res.status(200).json({ message: 'User successfully removed from the calendar' });
+	// 	} catch (error) {
+	// 		console.error(error);
+	// 		return res.status(500).json({ message: 'Error removing user from calendar' });
+	// 	}
+	// },
 
 	async getEventsInCalendar(req: Request, res: Response): Promise<Response> {
 		const { calendarId } = req.params;
@@ -405,6 +405,51 @@ export const CalendarController = {
 		} catch (error) {
 			console.error(error);
 			return res.status(500).json({ message: 'Error joining calendar' });
+		}
+	},
+
+	async getCalendarUsers(req: Request, res: Response) {
+		const { calendarId } = req.params;
+
+		try {
+			const calendar = await Calendar.findOne({ where: { id: calendarId } });
+			if (!calendar) {
+				return res.status(404).json({ message: 'Calendar not found' });
+			}
+
+			const permissions = await Permission.find({
+				where: { calendar: { id: calendarId } },
+				relations: ['user'],
+			});
+
+			const users = permissions.map(p => ({
+				id: p.user.id,
+				email: p.user.email,
+				role: p.role,
+			}));
+
+			return res.json(users);
+		} catch (error) {
+			console.error('Error fetching calendar users:', error);
+			return res.status(500).json({ message: 'Internal server error' });
+		}
+	},
+
+	async removeUserFromCalendar(req: Request, res: Response) {
+		const { calendarId, userId } = req.params;
+
+		try {
+			const permission = await Permission.findOne({ where: { calendar: { id: calendarId }, user: { id: userId } } });
+
+			if (!permission) {
+				return res.status(404).json({ message: 'User not found in calendar' });
+			}
+
+			await Permission.remove(permission);
+			return res.json({ message: 'User removed from calendar successfully' });
+		} catch (error) {
+			console.error('Error removing user from calendar:', error);
+			return res.status(500).json({ message: 'Internal server error' });
 		}
 	},
 };

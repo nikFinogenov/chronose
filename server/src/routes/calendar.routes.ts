@@ -33,4 +33,6 @@ router.post('/invite/:calendarId', authMiddleware, CalendarController.inviteUser
 
 router.post('/join/:inviteToken', authMiddleware, CalendarController.joinCalendar.bind(CalendarController));
 
+router.delete('/:calendarId/users/:userId', CalendarController.removeUserFromCalendar.bind(CalendarController));
+
 export default router;

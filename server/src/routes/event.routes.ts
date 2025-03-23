@@ -11,9 +11,11 @@ router.get('/calendar/:calendarId', EventController.getEventsByCalendar.bind(Eve
 router.post('/calendar/:calendarId', authMiddleware, EventController.createEvent.bind(EventController));
 router.patch('/:eventId', authMiddleware, EventController.updateEvent.bind(EventController));
 router.delete('/:eventId', authMiddleware, EventController.deleteEvent.bind(EventController));
+router.get('/:eventId/users', EventController.getEventUsers.bind(EventController));
 
 // // Пригласительная ссылка в событие
 router.post('/invite/:eventId', authMiddleware, EventController.inviteUserToEvent.bind(EventController));
 router.post('/join/:inviteToken', authMiddleware, EventController.joinEvent.bind(EventController));
+router.delete('/:eventId/users/:userId', EventController.removeUserFromEvent.bind(EventController));
 
 export default router;
