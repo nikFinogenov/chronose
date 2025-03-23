@@ -408,33 +408,6 @@ export const CalendarController = {
 		}
 	},
 
-	async getCalendarUsers(req: Request, res: Response) {
-		const { calendarId } = req.params;
-
-		try {
-			const calendar = await Calendar.findOne({ where: { id: calendarId } });
-			if (!calendar) {
-				return res.status(404).json({ message: 'Calendar not found' });
-			}
-
-			const permissions = await Permission.find({
-				where: { calendar: { id: calendarId } },
-				relations: ['user'],
-			});
-
-			const users = permissions.map(p => ({
-				id: p.user.id,
-				email: p.user.email,
-				role: p.role,
-			}));
-
-			return res.json(users);
-		} catch (error) {
-			console.error('Error fetching calendar users:', error);
-			return res.status(500).json({ message: 'Internal server error' });
-		}
-	},
-
 	async removeUserFromCalendar(req: Request, res: Response) {
 		const { calendarId, userId } = req.params;
 

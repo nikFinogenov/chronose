@@ -22,7 +22,7 @@ router.get('/:calendarId/users', CalendarController.getUsersInCalendar.bind(Cale
 
 router.post('/:calendarId/users', CalendarController.addUserToCalendar.bind(CalendarController));
 
-router.delete('/:calendarId/users', CalendarController.removeUserFromCalendar.bind(CalendarController));
+//router.delete('/:calendarId/users', CalendarController.removeUserFromCalendar.bind(CalendarController));
 
 // // Events in Calendar
 router.get('/:calendarId/events', CalendarController.getEventsInCalendar.bind(CalendarController));
