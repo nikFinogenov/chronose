@@ -101,7 +101,7 @@ export const CalendarController = {
 
 	async updateCalendar(req: Request, res: Response): Promise<Response> {
 		const { calendarId } = req.params;
-		const { name, description, isActive } = req.body;
+		const { name, description } = req.body;
 
 		try {
 			const calendar = await Calendar.findOne({ where: { id: calendarId } });
@@ -112,7 +112,7 @@ export const CalendarController = {
 
 			if (name) calendar.name = name;
 			if (description) calendar.description = description;
-			if (isActive != null) calendar.isActive = isActive;
+			// if (isActive != null) calendar.isActive = isActive;
 
 			await calendar.save();
 

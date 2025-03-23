@@ -10,30 +10,35 @@ class EventStore {
     events = [];
 
     constructor() {
-        makeAutoObservable(this 
-            ,{
-            loadEventsForCalendar: action,
-            createEvent: action,
-            updateEvent: action,
-            deleteEvent: action,
-        }
-    );
+        makeAutoObservable(this
+            , {
+                loadEventsForCalendar: action,
+                createEvent: action,
+                updateEvent: action,
+                deleteEvent: action,
+            }
+        );
     }
 
-    async loadEventsForCalendar(calendarId, start, end) {
+    async loadEventsForCalendar(calendarId, start, end, allDay = false) {
         if (!calendarId) return;
 
         try {
             const response = await getCalendarEvents(calendarId, start, end);
-            // console.log(response);
+
+            // if(!allDay) {
+            //     allDay = start === end ? true : false
+            // };
 
             // Transform the data before storing it
             const transformedEvents = response.map(event => ({
                 ...event,
                 start: event.startDate,
                 end: event.endDate,
-                calendarId: calendarId
+                calendarId: calendarId,
+                allDay: !allDay ? (event.startDate === event.endDate ? true : false) : false,
             }));
+            console.log(transformedEvents);
 
             // return transformedEvents;
             this.setEvents(calendarId, transformedEvents);
@@ -46,23 +51,26 @@ class EventStore {
         }
     }
 
-    async createEvent(event, selectedCalendar) {
+    async createEvent(event, selectedCalendar, repeat) {
         try {
-            const response = await api.post(`/events/calendar/${selectedCalendar}`, event);
+            let response;
+            if(repeat) response = await api.post(`/events/calendar/repeat/${selectedCalendar}`, {...event, repeatNess: repeat});
+            else response = await api.post(`/events/calendar/${selectedCalendar}`, event);
             // console.log(response.data.event);
             if (response.status === 201) {
-                console.log(response.data.event.startDate);
+                // console.log(response.data.event.startDate);
                 const createdEvent = {
                     ...response.data.event,
                     start: response.data.event.startDate,
                     end: response.data.event.endDate,
+                    allDay: response.data.event.startDate === response.data.event.endDate ? true : false,
                     calendarId: selectedCalendar,
                 };
                 this.setEvents(selectedCalendar, [
                     ...(this.eventsByCalendar[selectedCalendar] || []),
                     createdEvent
                 ]);
-                console.log("event created");
+                // console.log("event created");
                 // return response.data.event;
             }
         } catch (error) {
@@ -78,7 +86,8 @@ class EventStore {
             if (response.status === 200) {
                 this.setEvents(calendarId,
                     (this.eventsByCalendar[calendarId] || []).map(event =>
-                        event.id === eventUpdate.id ? { ...event, ...eventUpdate } : event
+                        event.id === eventUpdate.id ? { ...event, ...eventUpdate, 
+                            allDay: eventUpdate.start === eventUpdate.end } : event,
                     )
                 );
             }

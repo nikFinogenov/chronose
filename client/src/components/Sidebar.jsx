@@ -107,7 +107,13 @@ const Sidebar = observer(() => {
 							calendarStore.invitedCalendars.map(calendar => (
 								<div key={calendar.id} className='flex items-center justify-between px-2 py-1 rounded group'>
 									<label className='flex items-center flex-1 gap-2 overflow-hidden whitespace-nowrap'>
-										<input type='checkbox' className='checkbox checkbox-primary' />
+										{/* <input type='checkbox' className='checkbox checkbox-primary' /> */}
+                                        <input
+											type='checkbox'
+											className='checkbox checkbox-primary'
+											checked={calendar.isActive}
+											onChange={e => handleIsActiveChange(calendar, e.target.checked)}
+										/>
 										<span className='truncate'>{calendar.name}</span>
 									</label>
 									<button

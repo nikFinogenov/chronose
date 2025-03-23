@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { calendarStore } from "../store/calendarStore";
-import { eventStore } from "../store/eventStore";
-// import { api } from "../services";
+// import { eventStore } from "../store/eventStore";
 
 const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = false }) => {
-    const [participantsInput, setParticipantsInput] = useState("");
     const [selectedCalendar, setSelectedCalendar] = useState(event.calendarId || null);
+    const [participantsInput, setParticipantsInput] = useState("");
+    const [eventType, setEventType] = useState(event.type || "reminder");
+    const [repeatEnabled, setRepeatEnabled] = useState(false);
+    const [repeatInterval, setRepeatInterval] = useState("day");
+    const [allDay, setAllDay] = useState(false);
 
     useEffect(() => {
         if (calendarStore.calendars.length === 1) {
@@ -13,61 +16,72 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
         }
     }, []);
 
-    const handleCalendarChange = (e) => {
-        const calendarId = e.target.value; // Keep as string if IDs are strings
-        console.log("Selected Calendar ID:", calendarId); // Debugging log
-        setSelectedCalendar(calendarId);
-    };
-
+    const handleCalendarChange = (e) => setSelectedCalendar(e.target.value);
     const handleEmailAutoComplete = (email) => {
         if (!email.includes("@")) {
             return `${email}@gmail.com`;  // Automatically append @gmail.com
         }
         return email;
     };
-
-    const handleAddParticipant = (e) => {
-        if (e.key === "Enter") {
-            const autoCompletedEmail = handleEmailAutoComplete(participantsInput.trim());
-            setNewEvent({
-                ...event,
-                participants: [...event.participants, autoCompletedEmail],
-            });
-            setParticipantsInput("");  // Clear input field
+    const handleColorChange = (e) => setNewEvent({ ...event, color: e.target.value });
+    const handleEventTypeChange = (type) => {
+        setEventType(type);
+        setNewEvent({ ...event, type });
+        if (type === "arrangement") {
+            setSelectedCalendar(calendarStore.calendars[0].id); // Default calendar
         }
     };
-
+    const handleAddParticipant = (e) => {
+        if (e.key === "Enter") {
+            setNewEvent({
+                ...event,
+                participants: [...(event.participants || []), handleEmailAutoComplete(participantsInput.trim())],
+            });
+            setParticipantsInput("");
+        }
+    };
     const handleDeleteParticipant = (email) => {
         setNewEvent({
             ...event,
             participants: event.participants.filter((participant) => participant !== email),
         });
     };
-
-    const handleColorChange = (e) => {
-        setNewEvent({ ...event, color: e.target.value });
+    const formatLocalDate = (dateString) => {
+        const date = new Date(dateString);
+        return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+            .toISOString()
+            .slice(0, 16);
     };
-
-    const handleSubmit = async () => {
-        // TODO
+    const formatDate = (dateString) => {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`; // Correct format for input type="date"
+    };
+    const handleSubmit = () => {
         if (!event.title || event.title === "") return;
-
-        // if (updating) eventStore.updateEvent(event, selectedCalendar);
-        // else {
-        //     await eventStore.createEvent(event, selectedCalendar);
-        // }
-        
-
+        if (allDay) {
+            // console.log("penis drochim")
+            // setNewEvent({ ...event, end: event.start })// Ensure end = start
+            // setNewEvent({...event, end: event.start}); 
+            event.end = event.start;
+            event.allDay = true;
+        }
+        // console.log()
         setShowModal(false);
-        handleSave(selectedCalendar);
+        handleSave(selectedCalendar, repeatEnabled ? repeatInterval : null);
+        // console.log(event);
     };
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50 z-50">
             <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                <h2 className="text-lg font-bold mb-4">Create New Event</h2>
-
-                {/* Calendar Selection */}
+                <div className="flex justify-between">
+                    <h2 className="text-lg font-bold mb-4">{updating ? "Edit Event" : "Create New Event"}</h2>
+                    <input type="color" className="w-7 h-7" value={event.color} onChange={handleColorChange} />
+                </div>
                 {!updating && (
                     calendarStore.calendars.length > 1 && (
                         <div className="mb-3">
@@ -88,129 +102,113 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
                     )
                 )}
 
-                {/* Event Title */}
-                <input
-                    type="text"
-                    placeholder="Event Title"
-                    className="border p-1.5 w-full mb-3"
-                    value={event.title}
-                    onChange={(e) =>
-                        setNewEvent({ ...event, title: e.target.value })
-                    }
-                />
-
-
-                {/* Event Type Selection */}
-                <div className="mb-3">
-                    <label className="block text-sm font-medium text-gray-700">Event Type:</label>
-                    <select
-                        className="border p-1.5 w-full"
-                        value={event.type || "event"}
-                        onChange={(e) => setNewEvent({ ...event, type: e.target.value })}
-                    >
-                        <option value="event">Event</option>
-                        <option value="task">Task</option>
-                        <option value="reminder">Reminder</option>
-                    </select>
+                <div className="flex mb-4 bg-gray-200 p-1 rounded-full">
+                    {["reminder", "task", "arrangement"].map((type) => (
+                        <button
+                            key={type}
+                            className={`flex-1 py-1 rounded-full transition-all ${eventType === type ? "bg-blue-500 text-white" : "bg-transparent"}`}
+                            onClick={() => handleEventTypeChange(type)}
+                        >
+                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                        </button>
+                    ))}
                 </div>
 
+                <input type="text" placeholder="Event Title" className="border p-1.5 w-full mb-3"
+                    value={event.title} onChange={(e) => setNewEvent({ ...event, title: e.target.value })} />
 
-                {/* Event Description */}
-                <textarea
-                    placeholder="Event Description"
-                    className="border p-1.5 w-full mb-3"
-                    value={event.description || ""}
-                    onChange={(e) =>
-                        setNewEvent({ ...event, description: e.target.value })
-                    }
-                />
-
-                {/* Start Date */}
-                <label className="block text-sm font-medium text-gray-700">Start Date & Time:</label>
-<input
-    type="datetime-local"
-    className="border p-1.5 w-full mb-3"
-    value={event.start ? new Date(event.start).toLocaleString('sv-SE', { timeZone: 'Europe/Berlin' }).slice(0, 16) : ""}
-    onChange={(e) => {
-        const localDate = new Date(e.target.value);
-        // Convert the local date back to UTC for storage
-        const utcDate = new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
-        setNewEvent({ ...event, start: utcDate });
-    }}
-/>
-
-{/* End Date */}
-<label className="block text-sm font-medium text-gray-700">End Date & Time:</label>
-<input
-    type="datetime-local"
-    className="border p-1.5 w-full mb-3"
-    value={event.end ? new Date(event.end).toLocaleString('sv-SE', { timeZone: 'Europe/Berlin' }).slice(0, 16) : ""}
-    onChange={(e) => {
-        const localDate = new Date(e.target.value);
-        // Convert the local date back to UTC for storage
-        const utcDate = new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
-        setNewEvent({ ...event, end: utcDate });
-    }}
-/>
-
-
-                {/* Participants */}
-                <div className="mb-3">
-                    <input
-                        type="text"
-                        placeholder="Add participant email"
-                        className="border p-1.5 w-full mb-2"
-                        value={participantsInput}
-                        onChange={(e) => setParticipantsInput(e.target.value)}
-                        onKeyDown={handleAddParticipant}
-                    />
-                    <div>
-                        {event.participants.map((email, index) => (
-                            <div key={index} className="flex items-center space-x-2 mb-2">
-                                <span className="inline-block bg-gray-200 text-gray-700 rounded-full px-2 py-1 text-sm">
-                                    {email}
-                                </span>
-                                <button
-                                    className="text-red-500"
-                                    onClick={() => handleDeleteParticipant(email)}
-                                >
-                                    &#10005; {/* Cross icon */}
-                                </button>
-                            </div>
-                        ))}
+                {eventType !== "arrangement" && (
+                    <div className="flex items-center mb-3">
+                        <input type="checkbox" checked={allDay} onChange={() => setAllDay(!allDay)} className="mr-2" />
+                        <span>All Day</span>
                     </div>
-                </div>
+                )}
 
-                {/* Event Color */}
-                <div className="mb-4">
+                {/* {!allDay && ( */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Start:</label>
                     <input
-                        type="color"
-                        id="colorPicker"
-                        className="w-7 h-7"
-                        value={event.color}
-                        onChange={handleColorChange}
+                        type={allDay ? "date" : "datetime-local"}
+                        className="border p-1.5 w-full mb-3"
+                        value={event.start ? (allDay ? formatDate(event.start) : formatLocalDate(event.start)) : ""}
+                        onChange={(e) => setNewEvent({ ...event, start: new Date(e.target.value) })}
                     />
+                    {eventType !== "task" && !allDay && (
+                        <>
+                            <label className="block text-sm font-medium text-gray-700">End:</label>
+                            <input
+                                type="datetime-local"
+                                className="border p-1.5 w-full mb-3"
+                                value={event.end ? formatLocalDate(event.end) : ""}
+                                onChange={(e) => setNewEvent({ ...event, end: new Date(e.target.value) })}
+                            />
+                        </>
+                    )}
                 </div>
+                {/* )} */}
 
 
-                {/* Action Buttons */}
+                {(eventType === "reminder" || eventType === "task") && (
+                    <>
+                        <textarea placeholder="Click to enter description" className="border p-1.5 w-full mb-3"
+                            value={event.description || ""} onChange={(e) => setNewEvent({ ...event, description: e.target.value })} />
+                        <div className="mb-3">
+                            {
+                                !updating && (<>
+                                    <label className="flex items-center">
+                                        <input type="checkbox" checked={repeatEnabled} onChange={() => setRepeatEnabled(!repeatEnabled)} className="mr-2" />
+                                        Repeat Event
+                                    </label>
+                                    {repeatEnabled && (
+                                        <select className="border p-2 w-full mt-2" value={repeatInterval} onChange={(e) => setRepeatInterval(e.target.value)}>
+                                            <option value="day">Daily</option>
+                                            <option value="week">Weekly</option>
+                                            <option value="month">Monthly</option>
+                                            <option value="year">Yearly</option>
+                                        </select>
+                                    )}
+                                </>)
+                            }
+                            {/* <label className="flex items-center">
+                                <input type="checkbox" checked={repeatEnabled} onChange={() => setRepeatEnabled(!repeatEnabled)} className="mr-2" />
+                                Repeat Event
+                            </label>
+                            {repeatEnabled && (
+                                <select className="border p-2 w-full mt-2" value={repeatInterval} onChange={(e) => setRepeatInterval(e.target.value)}>
+                                    <option value="day">Daily</option>
+                                    <option value="week">Weekly</option>
+                                    <option value="month">Monthly</option>
+                                    <option value="year">Yearly</option>
+                                </select>
+                            )} */}
+                        </div>
+                    </>
+                )}
+
+                {eventType === "arrangement" && (
+                    <div className="mb-3">
+                        <input type="text" placeholder="Add participant email" className="border p-1.5 w-full mb-2"
+                            value={participantsInput} onChange={(e) => setParticipantsInput(e.target.value)}
+                            onKeyDown={handleAddParticipant} />
+                        <div>
+                            {event.participants?.map((email, index) => (
+                                <div key={index} className="flex items-center space-x-2 mb-2">
+                                    <span className="bg-gray-200 text-gray-700 rounded-full px-2 py-1 text-sm">{email}</span>
+                                    <button className="text-red-500" onClick={() => handleDeleteParticipant(email)}>&#10005;</button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 <div className="flex justify-end space-x-5">
-                    <button
-                        className="px-4 py-1 bg-gray-300 rounded"
-                        onClick={() => setShowModal(false)}
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        className="px-4 py-1 bg-blue-500 text-white rounded"
-                        onClick={handleSubmit}
-                    >
-                        Save
-                    </button>
+                    <button className="px-4 py-1 bg-gray-300 rounded" onClick={() => {
+                        setShowModal(false);
+                    }}>Cancel</button>
+                    <button className="px-4 py-1 bg-blue-500 text-white rounded" onClick={handleSubmit}>Save</button>
                 </div>
             </div>
         </div>
     );
 };
-
 export default EventModal;

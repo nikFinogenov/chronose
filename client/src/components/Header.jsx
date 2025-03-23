@@ -21,15 +21,16 @@ const Header = observer(() => {
 	const [activeView, setActiveView] = useState(getActiveViewFromPath);
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [showModal, setShowModal] = useState(false); // State for modal
-    const [newEvent, setNewEvent] = useState({
-        title: "",
-        start: null,
-        end: null,
-        description: "",
-        location: "",
-        participants: [],
-        color: "#34ebc6",
-    });
+	const [newEvent, setNewEvent] = useState({
+		title: "",
+		start: null,
+		end: null,
+		description: "",
+		location: "",
+		participants: [],
+		color: "#34ebc6",
+		type: "reminder"
+	});
 
 	const handleNavigation = (view) => {
 		setActiveView(view);
@@ -55,7 +56,7 @@ const Header = observer(() => {
 
 		navigate(`/${activeView.toLowerCase()}/${year}/${month}/${day}`);
 	};
-	
+
 	// useEffect(() => {
 	// 	handleDateChange(null)
 	// }, [dateStore.currentDate]);
@@ -79,38 +80,40 @@ const Header = observer(() => {
 		};
 	}, [isMenuOpen]);
 	const handleCreateEvent = () => {
-        setNewEvent({
-            title: "",
-            start: new Date(), // Set to current date/time
-            end: new Date(new Date().getTime() + 60 * 60 * 1000), // Set to one hour later
-            description: "",
-            location: "",
-            participants: [],
-            color: "#34ebc6",
-        });
-        setShowModal(true);
-    };
+		setNewEvent({
+			title: "",
+			start: new Date(), // Set to current date/time
+			end: new Date(new Date().getTime() + 60 * 60 * 1000), // Set to one hour later
+			description: "",
+			location: "",
+			participants: [],
+			color: "#34ebc6",
+			type: "reminder"
+		});
+		setShowModal(true);
+	};
 
-    const handleSave = async (calendarId) => {
-        if (newEvent.title) {
-            await eventStore.createEvent(newEvent, calendarId);
-            setShowModal(false);
-            setNewEvent({
-                title: "",
-                start: null,
-                end: null,
-                description: "",
-                location: "",
-                participants: [],
-                color: "#000000",
-            });
-        }
-    };
+	const handleSave = async (calendarId, repeat) => {
+		if (newEvent.title) {
+			await eventStore.createEvent(newEvent, calendarId, repeat);
+			setShowModal(false);
+			setNewEvent({
+				title: "",
+				start: null,
+				end: null,
+				description: "",
+				location: "",
+				participants: [],
+				color: "#000000",
+				type: "reminder"
+			});
+		}
+	};
 
 	return (
 		<div className='flex items-center justify-between w-full p-2 text-black bg-purple-200 shadow-md gradient'>
 			<h1 className='hidden ml-4 text-2xl font-bold sm:block text-gradient'>
-				<Link to='/' onClick={() => {handleNavigation('Year')}}>CloOk</Link>
+				<Link to='/' onClick={() => { handleNavigation('Year') }}>CloOk</Link>
 			</h1>
 
 			<div className='flex items-center'>
@@ -166,14 +169,14 @@ const Header = observer(() => {
 				)}
 			</div>
 			{showModal && (
-                <EventModal
-                    event={newEvent}
-                    setNewEvent={setNewEvent}
-                    handleSave={handleSave}
-                    setShowModal={setShowModal}
-                    updating={false} // Since this is a new event
-                />
-            )}
+				<EventModal
+					event={newEvent}
+					setNewEvent={setNewEvent}
+					handleSave={handleSave}
+					setShowModal={setShowModal}
+					updating={false} // Since this is a new event
+				/>
+			)}
 		</div>
 	);
 });

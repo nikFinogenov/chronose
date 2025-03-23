@@ -23,6 +23,10 @@ export class Event extends BaseEntity {
 	@Column({ default: "#34ebc6" })
 	color: string
 
+
+    @Column({ default: "reminder" })
+    type: "reminder" | "task" | "arrangement";  // или какое-то другое значение для роли
+
 	@ManyToOne(() => Calendar, calendar => calendar.events, { nullable: false, onDelete: 'CASCADE' })
 	calendar: Calendar;
 

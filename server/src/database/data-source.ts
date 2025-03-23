@@ -304,6 +304,7 @@ const createCalendarAndEvents = async (country: string, groupedEvents: Record<st
 				startDate: new Date(date),
 				endDate: new Date(date),
 				calendar: countryCalendar,
+				type: 'arrangement'
 			});
 			await event.save(); // Сохраняем событие
 			// console.log(`Created event: ${eventTitle} for ${country} on ${date}`);

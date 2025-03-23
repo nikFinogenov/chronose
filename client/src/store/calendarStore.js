@@ -50,7 +50,20 @@ class CalendarStore {
 
 		try {
 			const response = await getinvitedUserCalendars(userId);
-			this.setInvitedCalendars(response);
+            const storedVisibility = JSON.parse(localStorage.getItem('calendarVisibility')) || {};
+            this.invitedCalendars = response.map(calendar => ({
+                ...calendar,
+                isActive: storedVisibility[calendar.id] ?? true
+            }));
+    
+            // Ensure localStorage is updated with missing items
+            response.forEach(calendar => {
+                if (!(calendar.id in storedVisibility)) {
+                    storedVisibility[calendar.id] = true;
+                }
+            });
+            localStorage.setItem('calendarVisibility', JSON.stringify(storedVisibility));
+			this.setInvitedCalendars(this.invitedCalendars);
 		} catch (error) {
 			console.error('Failed to load user calendars:', error);
 			this.invitedCalendars = [];

@@ -68,7 +68,7 @@ export const EventController = {
 
     async createEvent(req: Request, res: Response): Promise<Response> {
         const { calendarId } = req.params;
-        const { title, description, start, end, color } = req.body;
+        const { title, description, start, end, color, type } = req.body;
 
         // console.log(req.body);
 
@@ -86,6 +86,7 @@ export const EventController = {
             event.endDate = new Date(end);
             event.color = color;
             event.calendar = calendar;
+            event.type = type;
 
             await event.save();
 
@@ -95,7 +96,78 @@ export const EventController = {
             return res.status(500).json({ message: 'Error creating event' });
         }
     },
-
+    async createSequenceEvent(req: Request, res: Response): Promise<Response> {
+        const { calendarId } = req.params;
+        const { title, description, start, end, color, type, repeatNess } = req.body;
+    
+        try {
+            const calendar = await Calendar.findOne({ where: { id: calendarId } });
+    
+            if (!calendar) {
+                return res.status(404).json({ message: 'Calendar not found' });
+            }
+    
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+    
+            let repeatCount = 1;
+    
+            switch (repeatNess) {
+                case 'day':
+                    repeatCount = 365;
+                    break;
+                case 'week':
+                    repeatCount = 104;
+                    break;
+                case 'month':
+                    repeatCount = 60;
+                    break;
+                case 'year':
+                    repeatCount = 10;
+                    break;
+                default:
+                    return res.status(400).json({ message: 'Invalid repeatNess value' });
+            }
+    
+            const events = [];
+    
+            for (let i = 0; i < repeatCount; i++) {
+                const event = new Event();
+                event.title = title;
+                event.description = description;
+                event.startDate = new Date(startDate);
+                event.endDate = new Date(endDate);
+                event.color = color;
+                event.calendar = calendar;
+                event.type = type;
+    
+                events.push(event);
+    
+                // Adjust the start and end dates based on repeatNess
+                if (repeatNess === 'day') {
+                    startDate.setDate(startDate.getDate() + 1);
+                    endDate.setDate(endDate.getDate() + 1);
+                } else if (repeatNess === 'week') {
+                    startDate.setDate(startDate.getDate() + 7);
+                    endDate.setDate(endDate.getDate() + 7);
+                } else if (repeatNess === 'month') {
+                    startDate.setMonth(startDate.getMonth() + 1);
+                    endDate.setMonth(endDate.getMonth() + 1);
+                } else if (repeatNess === 'year') {
+                    startDate.setFullYear(startDate.getFullYear() + 1);
+                    endDate.setFullYear(endDate.getFullYear() + 1);
+                }
+            }
+    
+            await Event.save(events);
+    
+            return res.status(201).json({ message: 'Recurring events created successfully', event: events[0] });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Error creating events' });
+        }
+    },
+    
     async updateEvent(req: Request, res: Response): Promise<Response> {
         const { eventId } = req.params;
         const { title, description, start, end, color } = req.body;
@@ -160,7 +232,7 @@ export const EventController = {
             // }
 
             // console.log(date);
-            console.log(startDate, endDate);
+            // console.log(startDate, endDate);
     
             const events = await Event.find({
                 where: [

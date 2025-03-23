@@ -25,10 +25,68 @@ const Day = observer(() => {
         location: "",
         participants: [],
         color: "#34ebc6",
+        type: "reminder"
     });
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setUpdating(false); // Reset updating when modal is closed
+        setNewEvent({
+            title: "",
+            start: null,
+            end: null,
+            description: "",
+            location: "",
+            participants: [],
+            color: "#34ebc6",
+            type: "reminder"
+        });
+    };
+    const renderEventContent = (eventInfo) => {
+        const { type } = eventInfo.event.extendedProps;
+        const { title, start, end } = eventInfo.event;
+        const eventLen = Math.abs(end - start);
+
+        const typeIcons = {
+            reminder: "⏰", // Alarm clock emoji
+            arrangement: "📅",  // Calendar emoji
+            task: "✅",      // Checkmark emoji
+        };
+
+        // Format start and end time in 24-hour format (HH:mm)
+        const formatTime = (date) => {
+            return new Intl.DateTimeFormat("en-GB", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false, // Ensures 24-hour format
+            }).format(date);
+        };
+
+        return (
+            <div className="flex flex-col">
+                {/* <div>{`${Math.abs(end - start) < 3600000 ? Math.abs(end - start) : Math.abs(end - start)}`}</div>     */}
+                <div className={`flex justify-between ${eventLen < 3600000 ? "" : "mt-2"}`} >
+                    <div className={`${eventLen <= 3600000 ? "" : "flex flex-col"}`}>
+                        <span className={`ml-2 ${eventLen < 3600000 ? "" : "text-xl"}`}>{title}</span>
+                        <span className="ml-2">{formatTime(start)} - {formatTime(end)}</span>
+                    </div>
+                    <span className={`mr-4 ${eventLen < 3600000 ? "" : "text-xl"}`} >{typeIcons[type] || "📌"}</span>
+                </div>
+            </div>
+        );
+    };
+
+
+
 
     const handleCloseEventDetails = () => {
         setSelectedEvent(null);
+    };
+    const getTimezoneOffset = () => {
+        const now = new Date();
+        const offset = -now.getTimezoneOffset() / 60; // Convert minutes to hours
+        const formattedOffset = `GMT${offset >= 0 ? `+${offset}` : offset}`;
+        return formattedOffset;
+        // setTimezoneOffset(formattedOffset);
     };
 
     const handleEditEvent = (event) => {
@@ -46,13 +104,13 @@ const Day = observer(() => {
             const startOfDay = new Date(dateStore.currentDate);
             startOfDay.setHours(0, 0, 0, 0);
 
-            console.log(dateStore.currentDate);
-            
-//             const nextDay = new Date(dateStore.currentDate);
-// nextDay.setUTCDate(nextDay.getUTCDate());
+            // console.log(dateStore.currentDate);
 
-// console.log(dateStore.currentDate, " ++++ ",startOfDay," ++++ " ,startOfDay.toString());
-// console.log( new Date(dateStore.currentDate).toString());
+            //             const nextDay = new Date(dateStore.currentDate);
+            // nextDay.setUTCDate(nextDay.getUTCDate());
+
+            // console.log(dateStore.currentDate, " ++++ ",startOfDay," ++++ " ,startOfDay.toString());
+            // console.log( new Date(dateStore.currentDate).toString());
             for (const calendar of calendarStore.calendars) {
                 if (calendar.isActive) {
                     await eventStore.loadEventsForCalendar(calendar.id, startOfDay.toISOString(), endOfDay.toISOString());
@@ -60,7 +118,7 @@ const Day = observer(() => {
             }
             for (const calendar of calendarStore.invitedCalendars) {
                 if (calendar.isActive) {
-                    await eventStore.loadEventsForCalendar(calendar.id, startOfDay.toISOString(), endOfDay.toISOString());
+                    await eventStore.loadEventsForCalendar(calendar.id, startOfDay.toISOString(), endOfDay.toISOString(), true);
                 }
             }
         };
@@ -100,16 +158,18 @@ const Day = observer(() => {
             location: "",
             participants: [],
             color: "#34ebc6",
+            type: "reminder"
         });
         setShowModal(true);
     };
 
-    const handleSave = async (calendarId) => {
+    const handleSave = async (calendarId, repeat) => {
         if (newEvent.title) {
+            console.log(newEvent);
             if (updating) {
                 await eventStore.updateEvent(newEvent, calendarId);
             } else {
-                await eventStore.createEvent(newEvent, calendarId);
+                await eventStore.createEvent(newEvent, calendarId, repeat);
             }
             setShowModal(false);
             setNewEvent({
@@ -120,6 +180,7 @@ const Day = observer(() => {
                 location: "",
                 participants: [],
                 color: "#000000",
+                type: "reminder"
             });
         }
     };
@@ -165,25 +226,32 @@ const Day = observer(() => {
                 <div className="flex-1">
                     <FullCalendar
                         key={new Date(dateStore.currentDate)}
+                        eventContent={renderEventContent}
                         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                         initialDate={new Date(dateStore.currentDate)}
                         initialView="timeGridDay"
                         selectable={true}
                         editable={true}
-                        events={calendarStore.calendars
+                        events={[
+                            ...calendarStore.calendars,
+                            ...calendarStore.invitedCalendars
+                        ]
                             .filter(calendar => calendar.isActive)
-                            .flatMap(calendar => eventStore.getEvents(calendar.id))}
+                            .flatMap(calendar => eventStore.getEvents(calendar.id))
+                        }
                         nowIndicator={true}
                         select={handleSelect}
                         eventChange={handleEventChange}
                         eventClick={handleEventClick}
+                        // eventBorderColor="#000000"
                         height="auto"
                         slotLabelFormat={{
                             hour: "2-digit",
                             minute: "2-digit",
                             hour12: false,
                         }}
-                        allDaySlot={false}
+                        allDaySlot={true}
+                        allDayText={getTimezoneOffset()}
                         headerToolbar={{
                             left: "title",
                             center: "",
@@ -196,7 +264,7 @@ const Day = observer(() => {
                             event={newEvent}
                             setNewEvent={setNewEvent}
                             handleSave={handleSave}
-                            setShowModal={setShowModal}
+                            setShowModal={handleCloseModal}
                             updating={updating}
                         />
                     )}
