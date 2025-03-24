@@ -93,9 +93,9 @@ const Header = observer(() => {
 		setShowModal(true);
 	};
 
-	const handleSave = async (calendarId, repeat) => {
+	const handleSave = async (calendarId, repeat, zoomEnabled, meetEnabled, locationEnabled) => {
 		if (newEvent.title) {
-			await eventStore.createEvent(newEvent, calendarId, repeat);
+			await eventStore.createEvent({...newEvent, repeatNess: repeat, zoom: zoomEnabled, meet: meetEnabled, location: locationEnabled}, calendarId, repeat);
 			setShowModal(false);
 			setNewEvent({
 				title: "",

@@ -9,6 +9,7 @@ import { Permission } from '../models/Permission';
 import { sendInviteEmail } from '../utils/emailService';
 import { sign, verify } from 'jsonwebtoken';
 import { MoreThanOrEqual, LessThanOrEqual, Between } from "typeorm";
+import { getGoogleAccessToken, generateGoogleMeetLink, getZoomAccessToken, generateZoomLink } from '../utils/linkCreation';
 
 async function getCalendarId(location: string): Promise<string | null> {
     return new Promise((resolve, reject) => {
@@ -68,8 +69,27 @@ export const EventController = {
 
     async createEvent(req: Request, res: Response): Promise<Response> {
         const { calendarId } = req.params;
-        const { title, description, start, end, color, type } = req.body;
+        const { title, description, start, end, color, type, zoom, meet, location } = req.body;
+        // console.log(zoom, meet, location);
+        if (meet) {
+            // try {
+            //     // const googleToken = await getGoogleAccessToken();
+            //     const zoomToken = await getZoomAccessToken();
+            //     // const meetLink = await generateGoogleMeetLink("Митинг", "2025-03-22T10:00:00Z", "2025-03-22T11:00:00Z", googleToken);
+            //     const zoomLink = await generateZoomLink("Zoom Встреча", "2025-03-22T10:00:00Z", 30, zoomToken);
+            //     console.log("Generated Meet Link:", zoomLink);
+            // } catch (error) {
+            //     console.error("Failed to generate Meet link:", error);
+            // }
+            // console.log(await generateGoogleMeetLink("testMeet", "2025-03-22T10:00:00Z", "2025-03-22T11:00:00Z"));
+            
+        }
+        if(zoom) {
 
+        }
+        if(location) {
+            
+        }
         // console.log(req.body);
 
         try {
@@ -99,19 +119,19 @@ export const EventController = {
     async createSequenceEvent(req: Request, res: Response): Promise<Response> {
         const { calendarId } = req.params;
         const { title, description, start, end, color, type, repeatNess } = req.body;
-    
+
         try {
             const calendar = await Calendar.findOne({ where: { id: calendarId } });
-    
+
             if (!calendar) {
                 return res.status(404).json({ message: 'Calendar not found' });
             }
-    
+
             const startDate = new Date(start);
             const endDate = new Date(end);
-    
+
             let repeatCount = 1;
-    
+
             switch (repeatNess) {
                 case 'day':
                     repeatCount = 365;
@@ -128,9 +148,9 @@ export const EventController = {
                 default:
                     return res.status(400).json({ message: 'Invalid repeatNess value' });
             }
-    
+
             const events = [];
-    
+
             for (let i = 0; i < repeatCount; i++) {
                 const event = new Event();
                 event.title = title;
@@ -140,9 +160,9 @@ export const EventController = {
                 event.color = color;
                 event.calendar = calendar;
                 event.type = type;
-    
+
                 events.push(event);
-    
+
                 // Adjust the start and end dates based on repeatNess
                 if (repeatNess === 'day') {
                     startDate.setDate(startDate.getDate() + 1);
@@ -158,16 +178,16 @@ export const EventController = {
                     endDate.setFullYear(endDate.getFullYear() + 1);
                 }
             }
-    
+
             await Event.save(events);
-    
+
             return res.status(201).json({ message: 'Recurring events created successfully', event: events[0] });
         } catch (error) {
             console.error(error);
             return res.status(500).json({ message: 'Error creating events' });
         }
     },
-    
+
     async updateEvent(req: Request, res: Response): Promise<Response> {
         const { eventId } = req.params;
         const { title, description, start, end, color } = req.body;
@@ -222,7 +242,7 @@ export const EventController = {
             // const newDate = new Date(date as string).toLocaleString('en-GB', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
             // let startDate = newDate ? newDate : undefined;
             // let endDate = newDate ? newDate : undefined;
-    
+
             // Manually adjust the hours to ensure no time shift happens
             // if (startDate) {
             //     startDate.setHours(0, 0, 0, 0);  // Set to 00:00:00:000
@@ -233,7 +253,7 @@ export const EventController = {
 
             // console.log(date);
             // console.log(startDate, endDate);
-    
+
             const events = await Event.find({
                 where: [
                     {

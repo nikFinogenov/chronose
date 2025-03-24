@@ -54,7 +54,7 @@ class EventStore {
     async createEvent(event, selectedCalendar, repeat) {
         try {
             let response;
-            if(repeat) response = await api.post(`/events/calendar/repeat/${selectedCalendar}`, {...event, repeatNess: repeat});
+            if(repeat) response = await api.post(`/events/calendar/repeat/${selectedCalendar}`, event);
             else response = await api.post(`/events/calendar/${selectedCalendar}`, event);
             // console.log(response.data.event);
             if (response.status === 201) {

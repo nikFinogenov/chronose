@@ -23,6 +23,8 @@
 		"csv-parser": "^3.2.0",
 		"dotenv": "^16.4.7",
 		"express": "^4.21.2",
+		"google-auth-library": "^9.15.1",
+		"googleapis": "^148.0.0",
 		"jsonwebtoken": "^9.0.2",
 		"logger": "^0.0.1",
 		"nodemailer": "^6.9.16",

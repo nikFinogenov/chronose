@@ -9,6 +9,9 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
     const [repeatEnabled, setRepeatEnabled] = useState(false);
     const [repeatInterval, setRepeatInterval] = useState("day");
     const [allDay, setAllDay] = useState(false);
+    const [zoomEnabled, setZoomEnabled] = useState(false);
+    const [meetEnabled, setMeetEnabled] = useState(false);
+    const [locationEnabled, setLocationEnabled] = useState(false);
 
     useEffect(() => {
         if (calendarStore.calendars.length === 1) {
@@ -71,7 +74,7 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
         }
         // console.log()
         setShowModal(false);
-        handleSave(selectedCalendar, repeatEnabled ? repeatInterval : null);
+        handleSave(selectedCalendar, repeatEnabled ? repeatInterval : null, zoomEnabled, meetEnabled, locationEnabled);
         // console.log(event);
     };
 
@@ -169,23 +172,11 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
                                     )}
                                 </>)
                             }
-                            {/* <label className="flex items-center">
-                                <input type="checkbox" checked={repeatEnabled} onChange={() => setRepeatEnabled(!repeatEnabled)} className="mr-2" />
-                                Repeat Event
-                            </label>
-                            {repeatEnabled && (
-                                <select className="border p-2 w-full mt-2" value={repeatInterval} onChange={(e) => setRepeatInterval(e.target.value)}>
-                                    <option value="day">Daily</option>
-                                    <option value="week">Weekly</option>
-                                    <option value="month">Monthly</option>
-                                    <option value="year">Yearly</option>
-                                </select>
-                            )} */}
                         </div>
                     </>
                 )}
 
-                {eventType === "arrangement" && (
+                {(eventType === "reminder" || eventType === "arrangement") && (
                     <div className="mb-3">
                         <input type="text" placeholder="Add participant email" className="border p-1.5 w-full mb-2"
                             value={participantsInput} onChange={(e) => setParticipantsInput(e.target.value)}
@@ -198,6 +189,22 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
                                 </div>
                             ))}
                         </div>
+                    </div>
+                )}
+                {eventType === "arrangement" && (
+                    <div className="flex justify-between" >
+                        <label>
+                            <input type="checkbox" checked={zoomEnabled} onChange={() => setZoomEnabled(!zoomEnabled)} className="mr-1" />
+                            Zoom call
+                        </label>
+                        <label>
+                            <input type="checkbox" checked={meetEnabled} onChange={() => setMeetEnabled(!meetEnabled)} className="mr-1" />
+                            Meet call
+                        </label>
+                        <label>
+                            <input type="checkbox" checked={locationEnabled} onChange={() => setLocationEnabled(!locationEnabled)} className="mr-1" />
+                            Location
+                        </label>
                     </div>
                 )}
 

@@ -163,14 +163,17 @@ const Day = observer(() => {
         setShowModal(true);
     };
 
-    const handleSave = async (calendarId, repeat) => {
+    const handleSave = async (calendarId, repeat, zoomEnabled, meetEnabled, locationEnabled) => {
         if (newEvent.title) {
             console.log(newEvent);
             if (updating) {
                 await eventStore.updateEvent(newEvent, calendarId);
             } else {
-                await eventStore.createEvent(newEvent, calendarId, repeat);
+                await eventStore.createEvent({...newEvent, repeatNess: repeat, zoom: zoomEnabled, meet: meetEnabled, location: locationEnabled}, calendarId, repeat);
             }
+            if(zoomEnabled){}
+            if(meetEnabled){}
+            if(locationEnabled){}
             setShowModal(false);
             setNewEvent({
                 title: "",
