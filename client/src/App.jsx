@@ -64,32 +64,31 @@ function AppContent() {
   }
 
   return (
-    <div className='flex flex-col h-screen'>
-      <Header /> {/* Передаем пользователя в Header */}
-      <main className='flex flex-col flex-grow'>
-        <Routes>
-          <Route path='/' element={<Year />} />
-          <Route path='/login' element={<Login />} />
-          <Route path='/register' element={<Register />} />
-          <Route path='/month' element={<Month />} />
-          <Route path='/day' element={<Day />} />
-          <Route path='/year' element={<Year />} />
-          <Route path='/week' element={<Week />} />
-          <Route path='/settings' element={<Settings />} />
-          <Route path='/password-reset/:token' element={<ResetPassword />} />
-          <Route path='/confirm-email/:token' element={<EmailConfirmation />} />
-          <Route path='*' element={<Error />} />
+		<div className='flex flex-col h-screen'>
+			<Header /> {/* Передаем пользователя в Header */}
+			<main className='flex flex-col flex-grow'>
+				<Routes>
+					<Route path='/' element={<Year />} />
+					<Route path='/login' element={<Login />} />
+					<Route path='/register' element={<Register />} />
+					<Route path='/month' element={<Month />} />
+					<Route path='/day' element={<Day />} />
+					<Route path='/year' element={<Year />} />
+					<Route path='/week' element={<Week />} />
+					<Route path='/settings' element={<Settings />} />
+					<Route path='/password-reset/:token' element={<ResetPassword />} />
+					<Route path='/confirm-email/:token' element={<EmailConfirmation />} />
+					<Route path='/join/:inviteToken' element={<InvitePage />} />
+					<Route path='*' element={<Error />} />
 
-
-          <Route path="/day/:year/:month/:day" element={<ViewWrapper Component={Day} />} />
-          <Route path="/week/:year/:month/:day" element={<ViewWrapper Component={Week} />} />
-          <Route path="/month/:year/:month/:day" element={<ViewWrapper Component={Month} />} />
-          <Route path="/year/:year/:month/:day" element={<ViewWrapper Component={Year} />} />
-
-        </Routes>
-      </main>
-      <Footer />
-    </div>
+					<Route path='/day/:year/:month/:day' element={<ViewWrapper Component={Day} />} />
+					<Route path='/week/:year/:month/:day' element={<ViewWrapper Component={Week} />} />
+					<Route path='/month/:year/:month/:day' element={<ViewWrapper Component={Month} />} />
+					<Route path='/year/:year/:month/:day' element={<ViewWrapper Component={Year} />} />
+				</Routes>
+			</main>
+			<Footer />
+		</div>
   );
 }
 
