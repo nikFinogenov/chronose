@@ -3,8 +3,8 @@ import { calendarStore } from '../store/calendarStore';
 import { eventStore } from '../store/eventStore';
 
 const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = false }) => {
-    const [participantsInput, setParticipantsInput] = useState("");
-    const [selectedCalendar, setSelectedCalendar] = useState(event.calendarId || (calendarStore.calendars.length > 0 ? calendarStore.calendars[0].id : null));
+	const [participantsInput, setParticipantsInput] = useState('');
+	const [selectedCalendar, setSelectedCalendar] = useState(event.calendarId || null);
 
 	useEffect(() => {
 		if (calendarStore.calendars.length === 1) {
@@ -53,12 +53,28 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
 		setNewEvent({ ...event, color: e.target.value });
 	};
 
-	// TODO
 	const handleSubmit = async () => {
 		if (!event.title || event.title === '') return;
+		let response;
+
+		if (updating) {
+			eventStore.updateEvent(event, selectedCalendar);
+			if (event.calendarId && event.participants.length > 0) {
+				for (const { email, role } of event.participants) {
+					try {
+						await eventStore.inviteUser(event.id, email, role);
+						console.log(`User ${email} invited as ${role} to event ${event.id}`);
+					} catch (error) {
+						console.error(`Failed to invite ${email} as ${role}:`, error);
+					}
+				}
+			}
+		} else {
+			response = await eventStore.createEvent(event, selectedCalendar);
+		}
 
 		setShowModal(false);
-		handleSave(selectedCalendar);
+		handleSave(response);
 	};
 
 	return (
@@ -155,37 +171,23 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
 					</div>
 				</div>
 
-                {/* Event Color */}
-                <div className="mb-4">
-                    <input
-                        type="color"
-                        id='color-input'
-                        className=""
-                        value={event.color}
-                        onChange={handleColorChange}
-                        style={{ backgroundColor: event.color }}
-                    />
-                </div>
+				{/* Event Color */}
+				<div className='mb-4'>
+					<input type='color' id='colorPicker' className='w-7 h-7' value={event.color} onChange={handleColorChange} />
+				</div>
 
-
-                {/* Action Buttons */}
-                <div className="flex justify-end space-x-5">
-                    <button
-                        className="px-4 py-1 bg-gray-300 rounded"
-                        onClick={() => setShowModal(false)}
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        className="px-4 py-1 bg-blue-500 text-white rounded"
-                        onClick={handleSubmit}
-                    >
-                        Save
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
+				{/* Action Buttons */}
+				<div className='flex justify-end space-x-5'>
+					<button className='px-4 py-1 bg-gray-300 rounded' onClick={() => setShowModal(false)}>
+						Cancel
+					</button>
+					<button className='px-4 py-1 text-white bg-blue-500 rounded' onClick={handleSubmit}>
+						Save
+					</button>
+				</div>
+			</div>
+		</div>
+	);
 };
 
 export default EventModal;
