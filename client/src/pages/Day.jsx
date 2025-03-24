@@ -47,12 +47,6 @@ const Day = observer(() => {
             startOfDay.setHours(0, 0, 0, 0);
 
             console.log(dateStore.currentDate);
-            
-//             const nextDay = new Date(dateStore.currentDate);
-// nextDay.setUTCDate(nextDay.getUTCDate());
-
-// console.log(dateStore.currentDate, " ++++ ",startOfDay," ++++ " ,startOfDay.toString());
-// console.log( new Date(dateStore.currentDate).toString());
             for (const calendar of calendarStore.calendars) {
                 if (calendar.isActive) {
                     await eventStore.loadEventsForCalendar(calendar.id, startOfDay.toISOString(), endOfDay.toISOString());
@@ -172,7 +166,13 @@ const Day = observer(() => {
                         editable={true}
                         events={calendarStore.calendars
                             .filter(calendar => calendar.isActive)
-                            .flatMap(calendar => eventStore.getEvents(calendar.id))}
+                            .flatMap(calendar => 
+                                eventStore.getEvents(calendar.id).map(event => ({
+                                    ...event,
+                                    borderColor: calendar.color, // Optional: Match border color
+                                    classNames: ['left-border-event', 'pading-left'], // Add custom class
+                                }))
+                            )}
                         nowIndicator={true}
                         select={handleSelect}
                         eventChange={handleEventChange}

@@ -5,7 +5,7 @@ import { eventStore } from "../store/eventStore";
 
 const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = false }) => {
     const [participantsInput, setParticipantsInput] = useState("");
-    const [selectedCalendar, setSelectedCalendar] = useState(event.calendarId || null);
+    const [selectedCalendar, setSelectedCalendar] = useState(event.calendarId || (calendarStore.calendars.length > 0 ? calendarStore.calendars[0].id : null));
 
     useEffect(() => {
         if (calendarStore.calendars.length === 1) {
@@ -49,14 +49,8 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
     };
 
     const handleSubmit = async () => {
-        // TODO
         if (!event.title || event.title === "") return;
 
-        // if (updating) eventStore.updateEvent(event, selectedCalendar);
-        // else {
-        //     await eventStore.createEvent(event, selectedCalendar);
-        // }
-        
 
         setShowModal(false);
         handleSave(selectedCalendar);
@@ -127,31 +121,31 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
 
                 {/* Start Date */}
                 <label className="block text-sm font-medium text-gray-700">Start Date & Time:</label>
-<input
-    type="datetime-local"
-    className="border p-1.5 w-full mb-3"
-    value={event.start ? new Date(event.start).toLocaleString('sv-SE', { timeZone: 'Europe/Berlin' }).slice(0, 16) : ""}
-    onChange={(e) => {
-        const localDate = new Date(e.target.value);
-        // Convert the local date back to UTC for storage
-        const utcDate = new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
-        setNewEvent({ ...event, start: utcDate });
-    }}
-/>
+                <input
+                    type="datetime-local"
+                    className="border p-1.5 w-full mb-3"
+                    value={event.start ? new Date(event.start).toLocaleString('sv-SE', { timeZone: 'Europe/Berlin' }).slice(0, 16) : ""}
+                    onChange={(e) => {
+                        const localDate = new Date(e.target.value);
+                        // Convert the local date back to UTC for storage
+                        const utcDate = new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
+                        setNewEvent({ ...event, start: utcDate });
+                    }}
+                />
 
-{/* End Date */}
-<label className="block text-sm font-medium text-gray-700">End Date & Time:</label>
-<input
-    type="datetime-local"
-    className="border p-1.5 w-full mb-3"
-    value={event.end ? new Date(event.end).toLocaleString('sv-SE', { timeZone: 'Europe/Berlin' }).slice(0, 16) : ""}
-    onChange={(e) => {
-        const localDate = new Date(e.target.value);
-        // Convert the local date back to UTC for storage
-        const utcDate = new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
-        setNewEvent({ ...event, end: utcDate });
-    }}
-/>
+                {/* End Date */}
+                <label className="block text-sm font-medium text-gray-700">End Date & Time:</label>
+                <input
+                    type="datetime-local"
+                    className="border p-1.5 w-full mb-3"
+                    value={event.end ? new Date(event.end).toLocaleString('sv-SE', { timeZone: 'Europe/Berlin' }).slice(0, 16) : ""}
+                    onChange={(e) => {
+                        const localDate = new Date(e.target.value);
+                        // Convert the local date back to UTC for storage
+                        const utcDate = new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
+                        setNewEvent({ ...event, end: utcDate });
+                    }}
+                />
 
 
                 {/* Participants */}
@@ -185,10 +179,11 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
                 <div className="mb-4">
                     <input
                         type="color"
-                        id="colorPicker"
-                        className="w-7 h-7"
+                        id='color-input'
+                        className=""
                         value={event.color}
                         onChange={handleColorChange}
+                        style={{ backgroundColor: event.color }}
                     />
                 </div>
 

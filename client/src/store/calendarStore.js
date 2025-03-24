@@ -40,9 +40,9 @@ class CalendarStore {
 		}
 	}
 
-	async newCalendar(name, desc, userId) {
+	async newCalendar(name, desc, color, userId) {
 		try {
-			const response = await createCalendar(name, desc, userId);
+			const response = await createCalendar(name, desc, color, userId);
 			if (response.status === 201) {
 				this.setCalendars([...this.calendars, response.data]); // Append new calendar
 				// this.calendars.push(response.data);

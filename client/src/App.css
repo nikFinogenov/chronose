@@ -8,11 +8,51 @@
 	font-family: "JetBrains Mono", serif !important;
 }
 
+/* Color input styles */
+#color-input {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	width: 25px;
+	height: 25px;
+	background-color: transparent;
+	border: none;
+	cursor: pointer;
+	border: 0.1px solid rgb(133, 133, 133);
+	border-radius: 50%;
+}
+
+#color-input::-webkit-color-swatch {
+	border-radius: 15px;
+	border: none;
+}
+
+#color-input::-moz-color-swatch {
+	border-radius: 15px;
+	border: 1px solid black;
+}
+/* End of color input styles */
+
 .calendar-container {
 	max-height: 600px;
 	/* You can adjust the height */
 	overflow-y: auto;
 	/* Enables vertical scrolling */
+}
+
+.left-border-event {
+	border: none;
+	border-left: 3px solid;
+	/* Adjust thickness and color */
+}
+
+.pading-left {
+	padding-left: 5px;
+}
+
+.left-border-event.fc-event {
+	border-color: transparent;
+	/* Remove default border */
 }
 
 .collapse-title {
@@ -158,6 +198,7 @@ table {
 	width: 100% !important;
 	height: 100% !important;
 }
+
 /* .tooltip::before,
 .tooltip::after {
     visibility: hidden;

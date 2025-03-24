@@ -6,14 +6,14 @@ import { userStore } from '../store/userStore';
 import { calendarStore } from '../store/calendarStore';
 import { CiSquarePlus } from 'react-icons/ci';
 import { BsThreeDotsVertical } from 'react-icons/bs';
+import CalendarModal from './CalendarModal';
 
 const Sidebar = observer(() => {
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 	const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 	const [selectedCalendar, setSelectedCalendar] = useState(null);
-	const [calendarName, setCalendarName] = useState('');
-	const [hoveredCalendar, setHoveredCalendar] = useState(null); // Для отображения троеточия по ховеру
-    const [inviteEmail, setInviteEmail] = useState('');
+	const [hoveredCalendar, setHoveredCalendar] = useState(null); // For showing three dots on hover
+	const [inviteEmail, setInviteEmail] = useState('');
 	const [inviteRole, setInviteRole] = useState('viewer');
 
 	useEffect(() => {
@@ -26,17 +26,9 @@ const Sidebar = observer(() => {
 		fetchCalendars();
 	}, []);
 
-    const isValidEmail = email => {
+	const isValidEmail = email => {
 		const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 		return emailRegex.test(email);
-	};
-    
-	const handleCreateCalendar = () => {
-		if (calendarName.trim()) {
-			calendarStore.newCalendar(calendarName, 'asd', userStore.user.id);
-			setIsCreateModalOpen(false);
-			setCalendarName('');
-		}
 	};
 
 	const handleIsActiveChange = (calendar, value) => {
@@ -68,22 +60,34 @@ const Sidebar = observer(() => {
 					<div className='space-y-2 text-sm collapse-content'>
 						{calendarStore.calendars?.length > 0 ? (
 							calendarStore.calendars.map(calendar => (
-								<div key={calendar.id} className='flex items-center justify-between px-2 py-1 rounded group'>
+								<div
+									key={calendar.id}
+									className='flex items-center justify-between px-2 py-1 rounded group'
+									onMouseEnter={() => setHoveredCalendar(calendar.id)}
+									onMouseLeave={() => setHoveredCalendar(null)}
+								>
 									<label className='flex items-center flex-1 gap-2 overflow-hidden whitespace-nowrap'>
 										<input
 											type='checkbox'
-											className='checkbox checkbox-primary'
+											className='checkbox'
+											style={{
+												accentColor: calendar.color, // Change checkbox color
+												borderColor: calendar.color, // Change checkbox border
+												'--chkbg': calendar.color,
+											}}
 											checked={calendar.isActive}
 											onChange={e => handleIsActiveChange(calendar, e.target.checked)}
 										/>
 										<span className='truncate'>{calendar.name}</span>
 									</label>
-									<button
-										onClick={() => openSettingsModal(calendar)}
-										className='p-1 text-gray-600 transition-opacity rounded-lg opacity-0 hover:text-gray-900 group-hover:opacity-100'
-									>
-										<BsThreeDotsVertical />
-									</button>
+									{hoveredCalendar === calendar.id && (
+										<button
+											onClick={() => openSettingsModal(calendar)}
+											className='p-1 text-gray-600 transition-opacity rounded-lg opacity-0 hover:text-gray-900 group-hover:opacity-100'
+										>
+											<BsThreeDotsVertical />
+										</button>
+									)}
 								</div>
 							))
 						) : (
@@ -118,31 +122,13 @@ const Sidebar = observer(() => {
 				</div>
 			</div>
 
-			{/* Модальное окно создания календаря */}
-			{isCreateModalOpen && (
-				<div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
-					<div className='p-6 bg-white rounded-lg shadow-lg w-80'>
-						<h2 className='mb-4 text-lg font-semibold'>Create New Calendar</h2>
-						<input
-							type='text'
-							value={calendarName}
-							onChange={e => setCalendarName(e.target.value)}
-							className='w-full p-2 mb-4 border rounded'
-							placeholder='Calendar name'
-						/>
-						<div className='flex justify-end space-x-2'>
-							<button onClick={() => setIsCreateModalOpen(false)} className='text-gray-600 hover:text-gray-900'>
-								Cancel
-							</button>
-							<button onClick={handleCreateCalendar} className='px-4 py-2 text-white rounded bg-primary'>
-								Create
-							</button>
-						</div>
-					</div>
-				</div>
-			)}
+			{/* Create Calendar Modal */}
+			<CalendarModal
+				isOpen={isCreateModalOpen}
+				onClose={() => setIsCreateModalOpen(false)}
+			/>
 
-			{/* Модальное окно настроек календаря */}
+			{/* Calendar Settings Modal */}
 			{isSettingsModalOpen && selectedCalendar && (
 				<div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
 					<div className='p-6 bg-white rounded-lg shadow-lg w-80'>
@@ -155,7 +141,7 @@ const Sidebar = observer(() => {
 							placeholder='Calendar name'
 						/>
 
-						{/* Поле приглашения пользователя */}
+						{/* Invite User */}
 						<h3 className='mb-2 font-semibold text-md'>Invite User</h3>
 						<input
 							type='email'
@@ -165,7 +151,7 @@ const Sidebar = observer(() => {
 							className='w-full p-2 mb-2 border rounded'
 						/>
 
-						{/* Чекбоксы для выбора роли */}
+						{/* Role selection */}
 						<div className='flex gap-2 mb-4'>
 							<label className='flex items-center'>
 								<input type='checkbox' checked={inviteRole === 'editor'} onChange={() => setInviteRole('editor')} className='mr-2 checkbox checkbox-primary' />
@@ -184,13 +170,13 @@ const Sidebar = observer(() => {
 									setInviteEmail('');
 								}
 							}}
-							disabled={!isValidEmail(inviteEmail)} // Отключаем кнопку, если email неверный
+							disabled={!isValidEmail(inviteEmail)} // Disable button if email is invalid
 							className={`w-full px-4 py-2 text-white rounded ${isValidEmail(inviteEmail) ? 'bg-primary' : 'bg-gray-500'}`}
 						>
 							Invite
 						</button>
 
-						{/* Кнопки сохранения */}
+						{/* Save buttons */}
 						<div className='flex justify-end mt-4 space-x-2'>
 							<button onClick={() => setIsSettingsModalOpen(false)} className='text-gray-600 hover:text-gray-900'>
 								Cancel

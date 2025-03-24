@@ -19,10 +19,10 @@ export const getCalendar = async (fullName, email, password) => {
     }
 };
 
-export const createCalendar = async (name, description, ownerId) => {
+export const createCalendar = async (name, description, color, ownerId) => {
     try {
         const response = await api.post(`${API_URL}/calendars`, {
-            name, description, ownerId
+            name, description, color, ownerId
         });
         // const response = await userStore.register(login, email, fullName, password);
         return response;

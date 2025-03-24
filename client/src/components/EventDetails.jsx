@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { FaTimes, FaEdit, FaTrash, FaClock, FaCalendarAlt } from "react-icons/fa";
 import { calendarStore } from "../store/calendarStore";
 // import { eventStore } from "../store/eventStore";
@@ -6,6 +6,20 @@ import { calendarStore } from "../store/calendarStore";
 const EventDetails = ({ event, onClose, onEdit, onDelete }) => {
     const calendar = calendarStore.calendars.find((cal) => cal.id === event.calendarId);
     const calendarName = calendar ? calendar.name : "Unknown Calendar";
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === "Backspace") {
+                e.preventDefault(); // Prevent default behavior (like going back in browser)
+                onDelete(event.id);
+            }
+        };
+
+        document.addEventListener("keydown", handleKeyDown);
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [event.id, onDelete]);
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50 z-50">

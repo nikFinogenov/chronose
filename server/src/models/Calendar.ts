@@ -19,6 +19,9 @@ export class Calendar extends BaseEntity {
     @Column({default: true})
     isActive: boolean
 
+    @Column({ default: "#fcba03" })
+	color: string
+
     @OneToMany(() => Event, event => event.calendar, { cascade: true, onDelete: 'CASCADE' })
     events: Event[];
 

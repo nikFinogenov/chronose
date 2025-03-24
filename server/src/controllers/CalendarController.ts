@@ -63,7 +63,7 @@ export const CalendarController = {
 	},
 
 	async createCalendar(req: Request, res: Response): Promise<Response> {
-		const { name, description, ownerId } = req.body;
+		const { name, description, color, ownerId } = req.body;
 
 		try {
 			const owner = await User.findOne({ where: { id: ownerId } });
@@ -74,6 +74,7 @@ export const CalendarController = {
 			const newCalendar = Calendar.create({
 				name,
 				description,
+				color
 			});
 
 			await newCalendar.save();
@@ -101,7 +102,7 @@ export const CalendarController = {
 
 	async updateCalendar(req: Request, res: Response): Promise<Response> {
 		const { calendarId } = req.params;
-		const { name, description, isActive } = req.body;
+		const { name, description, isActive, color } = req.body;
 
 		try {
 			const calendar = await Calendar.findOne({ where: { id: calendarId } });
@@ -113,6 +114,7 @@ export const CalendarController = {
 			if (name) calendar.name = name;
 			if (description) calendar.description = description;
 			if (isActive != null) calendar.isActive = isActive;
+			if (color != null) calendar.color = color;
 
 			await calendar.save();
 
