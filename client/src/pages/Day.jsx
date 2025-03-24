@@ -86,6 +86,8 @@ const Day = observer(() => {
             return;
         }
 
+        setUpdating(false);
+
         setNewEvent({
             title: "",
             start: selectionInfo.start,
@@ -102,9 +104,21 @@ const Day = observer(() => {
         if (newEvent.title) {
             if (updating) {
                 await eventStore.updateEvent(newEvent, calendarId);
+                if (newEvent.calendarId && newEvent.participants.length > 0) {
+                    for (const { email, role } of newEvent.participants) {
+                        try {
+                            await eventStore.inviteUser(newEvent.id, email, role);
+                            console.log(`User ${email} invited as ${role} to event ${newEvent.id}`);
+                        } catch (error) {
+                            console.error(`Failed to invite ${email} as ${role}:`, error);
+                        }
+                    }
+                }
             } else {
                 await eventStore.createEvent(newEvent, calendarId);
             }
+
+            setUpdating(false);
             setShowModal(false);
             setNewEvent({
                 title: "",
@@ -166,7 +180,7 @@ const Day = observer(() => {
                         editable={true}
                         events={calendarStore.calendars
                             .filter(calendar => calendar.isActive)
-                            .flatMap(calendar => 
+                            .flatMap(calendar =>
                                 eventStore.getEvents(calendar.id).map(event => ({
                                     ...event,
                                     borderColor: calendar.color, // Optional: Match border color

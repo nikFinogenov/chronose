@@ -13,7 +13,7 @@ router.get('/:calendarId', CalendarController.getCalendarById.bind(CalendarContr
 
 router.post('/', CalendarController.createCalendar.bind(CalendarController));
 
-router.patch('/:calendarId', CalendarController.updateCalendar.bind(CalendarController));
+router.patch('/:calendarId', authMiddleware, CalendarController.updateCalendar.bind(CalendarController));
 
 router.delete('/:calendarId', CalendarController.deleteCalendar.bind(CalendarController));
 
@@ -22,7 +22,7 @@ router.get('/:calendarId/users', CalendarController.getUsersInCalendar.bind(Cale
 
 router.post('/:calendarId/users', CalendarController.addUserToCalendar.bind(CalendarController));
 
-router.delete('/:calendarId/users', CalendarController.removeUserFromCalendar.bind(CalendarController));
+//router.delete('/:calendarId/users', CalendarController.removeUserFromCalendar.bind(CalendarController));
 
 // // Events in Calendar
 router.get('/:calendarId/events', CalendarController.getEventsInCalendar.bind(CalendarController));
@@ -32,5 +32,7 @@ router.post('/:calendarId/events', CalendarController.createEventInCalendar.bind
 router.post('/invite/:calendarId', authMiddleware, CalendarController.inviteUser.bind(CalendarController)); 
 
 router.post('/join/:inviteToken', authMiddleware, CalendarController.joinCalendar.bind(CalendarController));
+
+router.delete('/:calendarId/users/:userId', CalendarController.removeUserFromCalendar.bind(CalendarController));
 
 export default router;

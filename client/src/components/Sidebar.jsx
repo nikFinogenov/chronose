@@ -130,8 +130,8 @@ const Sidebar = observer(() => {
 
 			{/* Calendar Settings Modal */}
 			{isSettingsModalOpen && selectedCalendar && (
-				<div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
-					<div className='p-6 bg-white rounded-lg shadow-lg w-80'>
+				<div className='fixed inset-0 z-50 flex items-center justify-center px-4 bg-black bg-opacity-50'>
+					<div className='p-6 bg-white rounded-lg shadow-lg w-[90%] max-w-sm'>
 						<h2 className='mb-4 text-lg font-semibold'>Calendar Settings</h2>
 						<input
 							type='text'
@@ -151,8 +151,8 @@ const Sidebar = observer(() => {
 							className='w-full p-2 mb-2 border rounded'
 						/>
 
-						{/* Role selection */}
-						<div className='flex gap-2 mb-4'>
+						{/* Чекбоксы для выбора роли */}
+						<div className='flex flex-wrap gap-2 mb-4'>
 							<label className='flex items-center'>
 								<input type='checkbox' checked={inviteRole === 'editor'} onChange={() => setInviteRole('editor')} className='mr-2 checkbox checkbox-primary' />
 								Editor
@@ -160,6 +160,10 @@ const Sidebar = observer(() => {
 							<label className='flex items-center'>
 								<input type='checkbox' checked={inviteRole === 'viewer'} onChange={() => setInviteRole('viewer')} className='mr-2 checkbox checkbox-primary' />
 								Viewer
+							</label>
+							<label className='flex items-center'>
+								<input type='checkbox' checked={inviteRole === 'manager'} onChange={() => setInviteRole('manager')} className='mr-2 checkbox checkbox-primary' />
+								Manager
 							</label>
 						</div>
 

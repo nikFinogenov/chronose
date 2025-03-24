@@ -15,6 +15,7 @@ import Loading from './components/Loading';
 import Settings from './pages/UserSettings';
 import ResetPassword from './pages/PasswordReset';
 import EmailConfirmation from './pages/EmailConfirmation';
+import InvitePage from './pages/Invite';
 import { AxiosInterceptor } from './services/index';
 import { fetchCurrentUser } from './services/userService'; // Импорт функции
 import { userStore } from './store/userStore';

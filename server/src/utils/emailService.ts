@@ -72,7 +72,7 @@ export const sendInviteEmail = async (email: string, inviteUrl: string, rights: 
         <h2>You have been invited!</h2>
         <p>${roleText}</p>
         <p>Click the link below to join:</p>
-        <a href="${inviteUrl}">${inviteUrl}</a>
+        <a href="${inviteUrl}">InviteUrl</a>
         <p>If you did not expect this invitation, you can ignore this email.</p>
     `;
 

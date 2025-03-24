@@ -1,26 +1,22 @@
-import { makeAutoObservable, action } from "mobx";
-import { api } from "../services";
-import { getCalendarEvents } from "../services/eventService";
-import { calendarStore } from "./calendarStore";
-
+import { makeAutoObservable, action, runInAction } from 'mobx';
+import { api } from '../services';
+import { getCalendarEvents } from '../services/eventService';
+import { joinEvent, inviteUser } from '../services/eventService';
+import { calendarStore } from './calendarStore';
 
 class EventStore {
-    eventsByCalendar = {}; // Store events grouped by calendarId
+	eventsByCalendar = {}; // Store events grouped by calendarId
 
-    events = [];
+	constructor() {
+		makeAutoObservable(this, {
+			loadEventsForCalendar: action,
+			createEvent: action,
+			updateEvent: action,
+			deleteEvent: action,
+		});
+	}
 
-    constructor() {
-        makeAutoObservable(this 
-            ,{
-            loadEventsForCalendar: action,
-            createEvent: action,
-            updateEvent: action,
-            deleteEvent: action,
-        }
-    );
-    }
-
-    async loadEventsForCalendar(calendarId, start, end) {
+	async loadEventsForCalendar(calendarId, start, end) {
         if (!calendarId) return;
 
         try {
@@ -71,58 +67,58 @@ class EventStore {
         }
     }
 
-    async updateEvent(eventUpdate, calendarId) {
-        try {
-            const response = await api.patch(`/events/${eventUpdate.id}`, eventUpdate);
+	async updateEvent(eventUpdate, calendarId) {
+		try {
+			const response = await api.patch(`/events/${eventUpdate.id}`, eventUpdate);
 
-            if (response.status === 200) {
-                this.setEvents(calendarId,
-                    (this.eventsByCalendar[calendarId] || []).map(event =>
-                        event.id === eventUpdate.id ? { ...event, ...eventUpdate } : event
-                    )
-                );
-            }
-        } catch (error) {
-            console.log("Failed to update event:", error);
-        }
-    }
+			if (response.status === 200) {
+				this.setEvents(
+					calendarId,
+					(this.eventsByCalendar[calendarId] || []).map(event => (event.id === eventUpdate.id ? { ...event, ...eventUpdate } : event))
+				);
+			}
+		} catch (error) {
+			console.log('Failed to update event:', error);
+		}
+	}
 
-    async deleteEvent(eventId, calendarId) {
-        try {
-            const response = await api.delete(`/events/${eventId}`);
+	async deleteEvent(eventId, calendarId) {
+		try {
+			const response = await api.delete(`/events/${eventId}`);
 
-            if (response.status === 200) {
-                this.setEvents(calendarId,
-                    (this.eventsByCalendar[calendarId] || []).filter(event => event.id !== eventId)
-                );
-            }
-        } catch (error) {
-            console.log("Failed to delete event:", error);
-        }
-    }
+			if (response.status === 200) {
+				this.setEvents(
+					calendarId,
+					(this.eventsByCalendar[calendarId] || []).filter(event => event.id !== eventId)
+				);
+			}
+		} catch (error) {
+			console.log('Failed to delete event:', error);
+		}
+	}
 
-    setEvents(calendarId, eventsData) {
-        this.eventsByCalendar = {
-            ...this.eventsByCalendar,
-            [calendarId]: eventsData
-        };
-    }
+	setEvents(calendarId, eventsData) {
+		this.eventsByCalendar = {
+			...this.eventsByCalendar,
+			[calendarId]: eventsData,
+		};
+	}
 
-    getEventCalendarId(eventId) {
-        let calendarId = null;
+	getEventCalendarId(eventId) {
+		let calendarId = null;
 
-        Object.keys(eventStore.eventsByCalendar).forEach((key) => {
-            if (eventStore.eventsByCalendar[key].some(e => e.id === eventId)) {
-                calendarId = key;
-            }
-        });
+		Object.keys(eventStore.eventsByCalendar).forEach(key => {
+			if (eventStore.eventsByCalendar[key].some(e => e.id === eventId)) {
+				calendarId = key;
+			}
+		});
 
-        return calendarId;
-    }
+		return calendarId;
+	}
 
-    getEvents(calendarId) {
-        return this.eventsByCalendar[calendarId] || [];
-    }
+	getEvents(calendarId) {
+		return this.eventsByCalendar[calendarId] || [];
+	}
 
     // getEvents() {
     //     // Collect all events from all calendars
@@ -142,9 +138,31 @@ class EventStore {
         }
     }
 
-    clearEvents() {
-        this.eventsByCalendar = {};
-    }
+	clearEvents() {
+		this.eventsByCalendar = {};
+	}
+
+	async joinEvent(inviteToken) {
+		try {
+			const event = await joinEvent(inviteToken);
+			runInAction(() => {
+				console.log('Joined event:', event);
+			});
+			return event;
+		} catch (error) {
+			console.error('Failed to join event:', error);
+			throw error;
+		}
+	}
+
+	async inviteUser(eventId, email, role) {
+		try {
+			await inviteUser(eventId, email, role);
+			console.log(`User ${email} invited as ${role} to calendar ${eventId}`);
+		} catch (error) {
+			console.error('Failed to invite user:', error);
+		}
+	}
 }
 
 export const eventStore = new EventStore();
