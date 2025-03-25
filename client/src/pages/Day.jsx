@@ -119,14 +119,16 @@ const Day = observer(() => {
 					await eventStore.loadEventsForCalendar(calendar.id, startOfDay.toISOString(), endOfDay.toISOString());
 				}
 			}
+			await eventStore.loadInvitedEventsForCalendar(calendarStore?.calendars[0]?.id, userStore.user.id);
 			for (const calendar of calendarStore.invitedCalendars) {
 				if (calendar.isActive) {
-					await eventStore.loadEventsForCalendar(calendar.id, startOfDay.toISOString(), endOfDay.toISOString(), true);
+					await eventStore.loadEventsForCalendar(calendar.id, startOfDay.toISOString(), endOfDay.toISOString());
 				}
 			}
 		};
 
 		fetchEvents();
+		// console.log(eventStore.getEvents(calendarStore?.calendars[0]?.id));
 	}, [dateStore.currentDate, calendarStore.calendars]); //eslint-disable-line
 
 	const handleSelect = selectionInfo => {

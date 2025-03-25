@@ -120,3 +120,13 @@ export const confirmEmail = async token => {
 		throw error;
 	}
 };
+
+export const getSharedEvents = async userId => {
+	try {
+		const response = await api.get(`${API_URL}/users/${encodeURIComponent(userId)}/shared-events`);
+		return response.data;
+	} catch (error) {
+		console.error('Failed to fetch shared events:', error);
+		throw error;
+	}
+};

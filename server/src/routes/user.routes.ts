@@ -25,4 +25,6 @@ router.get('/:id/owned-calendars', UserController.getOwnedCalendars.bind(UserCon
 // // Get all shared calendars for a user
 router.get('/:id/shared-calendars', UserController.getSharedCalendars.bind(UserController));
 
+router.get('/:id/shared-events', UserController.getSharedEvents.bind(UserController));
+
 export default router;

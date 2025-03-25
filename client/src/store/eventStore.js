@@ -2,8 +2,8 @@ import { makeAutoObservable, action, runInAction } from 'mobx';
 import { api } from '../services';
 import { getCalendarEvents } from '../services/eventService';
 import { joinEvent, inviteUser } from '../services/eventService';
-import { calendarStore } from "./calendarStore";
-
+import { getSharedEvents } from '../services/userService';
+import { calendarStore } from './calendarStore';
 
 class EventStore {
 	eventsByCalendar = {}; // Store events grouped by calendarId
@@ -24,7 +24,8 @@ class EventStore {
 
 		try {
 			const response = await getCalendarEvents(calendarId, start, end);
-
+			console.log(response)
+			// console.log(response);
 			// if(!allDay) {
 			//     allDay = start === end ? true : false
 			// };
@@ -46,6 +47,32 @@ class EventStore {
 			// this.setEvents(calendarId, transformedEvents);
 		} catch (error) {
 			console.error('Failed to load events:', error);
+			this.setEvents(calendarId, []);
+		}
+	}
+	
+	async loadInvitedEventsForCalendar(calendarId, userId, allDay = false) {
+		if (!calendarId || !userId) return;
+
+		try {
+			const response = await getSharedEvents(userId);
+			console.log(response)
+			// Преобразуем события перед сохранением
+			const transformedEvents = response.map(event => ({
+				...event,
+				start: event.startDate,
+				end: event.endDate,
+				calendarId: calendarId,
+				allDay: !allDay ? (event.startDate === event.endDate ? true : false) : true,
+			}));
+
+			// console.log('Loaded invited events:', transformedEvents);
+			console.log(this.getEvents(calendarStore?.calendars[0]?.id));
+			// Объединяем старые и новые события, не создавая вложенные массивы
+			this.setEvents(calendarId, [...(this.eventsByCalendar[calendarId] || []), ...transformedEvents]);
+			console.log(this.getEvents(calendarStore?.calendars[0]?.id));
+		} catch (error) {
+			console.error('Failed to load invited events:', error);
 			this.setEvents(calendarId, []);
 		}
 	}

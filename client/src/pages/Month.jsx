@@ -212,7 +212,7 @@ const Month = observer(() => {
 					await eventStore.loadEventsForCalendar(calendar.id, startOfMonthISO, endOfMonthISO);
 				}
 			}
-
+			//TODO await eventStore.loadInvitedEventsForCalendar(calendarStore?.calendars[0]?.id, userStore.user.id);
 			// Fetch events for active invited calendars
 			for (const calendar of calendarStore.invitedCalendars) {
 				if (calendar.isActive) {

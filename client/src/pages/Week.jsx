@@ -90,6 +90,7 @@ const Week = observer(() => {
 					await eventStore.loadEventsForCalendar(calendar.id, startOfWeekISO, endOfWeekISO);
 				}
 			}
+			await eventStore.loadInvitedEventsForCalendar(calendarStore?.calendars[0]?.id, userStore.user.id);
 			for (const calendar of calendarStore.invitedCalendars) {
 				if (calendar.isActive) {
 					await eventStore.loadEventsForCalendar(calendar.id, startOfWeekISO, endOfWeekISO);
