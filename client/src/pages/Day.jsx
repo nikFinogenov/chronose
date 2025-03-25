@@ -185,16 +185,6 @@ const Day = observer(() => {
 				}
 			} else {
 				await eventStore.createEvent({ ...newEvent, repeatNess: repeat, zoom: zoomEnabled, meet: meetEnabled, location: locationEnabled }, calendarId, repeat);
-				if (newEvent.calendarId && newEvent.participants.length > 0) {
-					for (const { email, role } of newEvent.participants) {
-						try {
-							await eventStore.inviteUser(newEvent.id, email, role);
-							console.log(`User ${email} invited as ${role} to event ${newEvent.id}`);
-						} catch (error) {
-							console.error(`Failed to invite ${email} as ${role}:`, error);
-						}
-					}
-				}
 			}
 
 			setUpdating(false);
