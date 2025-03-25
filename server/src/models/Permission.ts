@@ -22,5 +22,5 @@ export class Permission extends BaseEntity {
     event: Event;
 
     @Column({ default: "viewer" })
-    role: "owner" | "editor" | "viewer";  // или какое-то другое значение для роли
+    role: "owner" | "editor" | "viewer" | "manager" | "mr.penis";  // или какое-то другое значение для роли
 }

@@ -43,8 +43,9 @@ const Day = observer(() => {
     };
     const renderEventContent = (eventInfo) => {
         const { type } = eventInfo.event.extendedProps;
-        const { title, start, end } = eventInfo.event;
+        const { title, start, end, allDay } = eventInfo.event;
         const eventLen = Math.abs(end - start);
+        // console.log(eventLen);
 
         const typeIcons = {
             reminder: "⏰", // Alarm clock emoji
@@ -64,12 +65,12 @@ const Day = observer(() => {
         return (
             <div className="flex flex-col">
                 {/* <div>{`${Math.abs(end - start) < 3600000 ? Math.abs(end - start) : Math.abs(end - start)}`}</div>     */}
-                <div className={`flex justify-between ${eventLen < 3600000 ? "" : "mt-2"}`} >
+                <div className={`flex justify-between ${eventLen < 3600000 || allDay ? "" : "mt-2"}`} >
                     <div className={`${eventLen <= 3600000 ? "" : "flex flex-col"}`}>
-                        <span className={`ml-2 ${eventLen < 3600000 ? "" : "text-xl"}`}>{title}</span>
-                        <span className="ml-2">{formatTime(start)} - {formatTime(end)}</span>
+                        <span className={`ml-2 ${eventLen < 3600000 || allDay ? "" : "text-xl"}`}>{title}</span>
+                        {!allDay && (<span className="ml-2">{formatTime(start)} - {formatTime(end)}</span>)}
                     </div>
-                    <span className={`mr-4 ${eventLen < 3600000 ? "" : "text-xl"}`} >{typeIcons[type] || "📌"}</span>
+                    <span className={`mr-4 ${eventLen < 3600000 || allDay ? "" : "text-xl"}`} >{typeIcons[type] || "📌"}</span>
                 </div>
             </div>
         );
@@ -90,6 +91,7 @@ const Day = observer(() => {
     };
 
     const handleEditEvent = (event) => {
+        console.log(event);
         setUpdating(true);
         setNewEvent(event);
         setShowModal(true);
@@ -150,6 +152,8 @@ const Day = observer(() => {
             return;
         }
 
+        setUpdating(false);
+
         setNewEvent({
             title: "",
             start: selectionInfo.start,
@@ -165,15 +169,24 @@ const Day = observer(() => {
 
     const handleSave = async (calendarId, repeat, zoomEnabled, meetEnabled, locationEnabled) => {
         if (newEvent.title) {
-            console.log(newEvent);
+            // console.log(newEvent);
             if (updating) {
                 await eventStore.updateEvent(newEvent, calendarId);
+                if (newEvent.calendarId && newEvent.participants.length > 0) {
+                    for (const { email, role } of newEvent.participants) {
+                        try {
+                            await eventStore.inviteUser(newEvent.id, email, role);
+                            console.log(`User ${email} invited as ${role} to event ${newEvent.id}`);
+                        } catch (error) {
+                            console.error(`Failed to invite ${email} as ${role}:`, error);
+                        }
+                    }
+                }
             } else {
                 await eventStore.createEvent({...newEvent, repeatNess: repeat, zoom: zoomEnabled, meet: meetEnabled, location: locationEnabled}, calendarId, repeat);
             }
-            if(zoomEnabled){}
-            if(meetEnabled){}
-            if(locationEnabled){}
+
+            setUpdating(false);
             setShowModal(false);
             setNewEvent({
                 title: "",
@@ -198,6 +211,7 @@ const Day = observer(() => {
 
     const handleEventClick = (clickInfo) => {
         const event = clickInfo.event;
+        console.log(event);
         setSelectedEvent({
             id: event.id,
             title: event.title,
@@ -208,6 +222,7 @@ const Day = observer(() => {
             participants: event.extendedProps.participants || [],
             color: event.backgroundColor || "#000000",
             calendarId: event.extendedProps.calendarId || "Unknown",
+            type: event.extendedProps.type
         });
     };
 
@@ -240,8 +255,13 @@ const Day = observer(() => {
                             ...calendarStore.invitedCalendars
                         ]
                             .filter(calendar => calendar.isActive)
-                            .flatMap(calendar => eventStore.getEvents(calendar.id))
-                        }
+                            .flatMap(calendar =>
+                                eventStore.getEvents(calendar.id).map(event => ({
+                                    ...event,
+                                    borderColor: calendar.color, // Optional: Match border color
+                                    classNames: ['left-border-event', 'pading-left'], // Add custom class
+                                }))
+                            )}
                         nowIndicator={true}
                         select={handleSelect}
                         eventChange={handleEventChange}

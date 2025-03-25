@@ -19,10 +19,10 @@ export const getCalendar = async (fullName, email, password) => {
     }
 };
 
-export const createCalendar = async (name, description, ownerId) => {
+export const createCalendar = async (name, description, color, ownerId) => {
     try {
         const response = await api.post(`${API_URL}/calendars`, {
-            name, description, ownerId
+            name, description, color, ownerId
         });
         // const response = await userStore.register(login, email, fullName, password);
         return response;
@@ -50,6 +50,36 @@ export const inviteUser = async (calendarId, email, role) => {
 		return response.data;
 	} catch (error) {
 		console.error('Error inviting user:', error);
+		throw error;
+	}
+};
+
+export const joinCalendar = async (inviteToken) => {
+	try {
+		const response = await api.post(`calendars/join/${inviteToken}`);
+		return response.data;
+	} catch (error) {
+		console.error('Failed to join calendar:', error);
+		throw error;
+	}
+};
+
+export const getCalendarUsers = async calendarId => {
+	try {
+		const response = await api.get(`${API_URL}/calendars/${calendarId}/users`);
+		return response.data;
+	} catch (error) {
+		console.error('Error fetching calendar users:', error);
+		throw error;
+	}
+};
+
+export const removeUserFromCalendar = async (calendarId, userId) => {
+	try {
+		const response = await api.delete(`${API_URL}/calendars/${calendarId}/users/${userId}`);
+		return response.data;
+	} catch (error) {
+		console.error('Error removing user from calendar:', error);
 		throw error;
 	}
 };

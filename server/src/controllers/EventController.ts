@@ -10,6 +10,22 @@ import { sendInviteEmail } from '../utils/emailService';
 import { sign, verify } from 'jsonwebtoken';
 import { MoreThanOrEqual, LessThanOrEqual, Between } from "typeorm";
 import { getGoogleAccessToken, generateGoogleMeetLink, getZoomAccessToken, generateZoomLink } from '../utils/linkCreation';
+import { In } from 'typeorm';
+
+const hasEventPermission = async (userId: string, eventId: string, requiredRoles: string[]): Promise<boolean> => {
+    // Находим событие и его календарь
+    const event = await Event.findOne({ where: { id: eventId }, relations: ['calendar'] });
+    if (!event || !event.calendar) return false;
+
+    // Проверяем, есть ли у пользователя права "owner" на календарь
+    const calendarOwner = await Permission.findOne({ where: { user: { id: userId }, calendar: { id: event.calendar.id }, role: In(requiredRoles) } });
+    if (calendarOwner) return true;
+
+    // Проверяем права пользователя в `Permission` для конкретного события
+    const permission = await Permission.findOne({ where: { user: { id: userId }, event: { id: eventId } } });
+    return permission ? requiredRoles.includes(permission.role) : false;
+};
+
 
 async function getCalendarId(location: string): Promise<string | null> {
     return new Promise((resolve, reject) => {
@@ -74,10 +90,11 @@ export const EventController = {
         if (meet) {
             // try {
             //     // const googleToken = await getGoogleAccessToken();
-            //     const zoomToken = await getZoomAccessToken();
+                // const zoomToken = await getZoomAccessToken();
+                // console.log(zoomToken);
             //     // const meetLink = await generateGoogleMeetLink("Митинг", "2025-03-22T10:00:00Z", "2025-03-22T11:00:00Z", googleToken);
-            //     const zoomLink = await generateZoomLink("Zoom Встреча", "2025-03-22T10:00:00Z", 30, zoomToken);
-            //     console.log("Generated Meet Link:", zoomLink);
+                // const zoomLink = await generateZoomLink("Zoom Встреча", "2025-03-22T10:00:00Z", 30, zoomToken);
+                // console.log("Generated Meet Link:", zoomLink);
             // } catch (error) {
             //     console.error("Failed to generate Meet link:", error);
             // }
@@ -191,12 +208,18 @@ export const EventController = {
     async updateEvent(req: Request, res: Response): Promise<Response> {
         const { eventId } = req.params;
         const { title, description, start, end, color } = req.body;
+        const userId = req.user.id;
 
         try {
             const event = await Event.findOne({ where: { id: eventId } });
 
             if (!event) {
                 return res.status(404).json({ message: 'Event not found' });
+            }
+
+            // Проверяем права доступа
+            if (!(await hasEventPermission(String(userId), eventId, ['editor', 'manager', 'owner']))) {
+                return res.status(403).json({ message: 'Access denied' });
             }
 
             if (title) event.title = title;
@@ -216,12 +239,18 @@ export const EventController = {
 
     async deleteEvent(req: Request, res: Response): Promise<Response> {
         const { eventId } = req.params;
+        const userId = req.user.id;
 
         try {
             const event = await Event.findOne({ where: { id: eventId } });
 
             if (!event) {
                 return res.status(404).json({ message: 'Event not found' });
+            }
+
+            // Проверяем права доступа
+            if (!(await hasEventPermission(String(userId), eventId, ['manager', 'owner']))) {
+                return res.status(403).json({ message: 'Access denied' });
             }
 
             await event.remove();
@@ -317,7 +346,7 @@ export const EventController = {
                 where: {
                     calendar: event.calendar,
                     user: { id: String(userId) },
-                    role: 'owner',
+                    role: In(['owner', 'manager']),
                 },
             });
 
@@ -327,7 +356,7 @@ export const EventController = {
 
             // Генерируем JWT-токен с информацией о приглашении
             const inviteToken = sign({ email, eventId, role }, process.env.SECRET_KEY!, { expiresIn: '7d' });
-            const inviteUrl = `${process.env.FRONT_URL}/events/join/${inviteToken}`;
+            const inviteUrl = `${process.env.FRONT_URL}/join/${inviteToken}`;
 
             await sendInviteEmail(email, inviteUrl, role, 'event');
 
@@ -337,6 +366,7 @@ export const EventController = {
             return res.status(500).json({ message: 'Error sending invitation' });
         }
     },
+
 
     async joinEvent(req: Request, res: Response): Promise<Response> {
         const { inviteToken } = req.params;
@@ -372,10 +402,57 @@ export const EventController = {
             const newPermission = Permission.create({ user, event: { id: eventId }, role });
             await newPermission.save();
 
-            return res.json({ message: 'Successfully joined the event' });
-        } catch (error) {
-            console.error(error);
-            return res.status(500).json({ message: 'Error joining event' });
-        }
-    },
+			return res.json({ message: 'Successfully joined the event' });
+		} catch (error) {
+			console.error(error);
+			return res.status(500).json({ message: 'Error joining event' });
+		}
+	},
+
+	async getEventUsers(req: Request, res: Response) {
+		const { eventId } = req.params;
+
+		try {
+			const event = await Event.findOne({ where: { id: eventId } });
+			if (!event) {
+				return res.status(404).json({ message: 'Event not found' });
+			}
+
+			const permissions = await Permission.find({
+				where: { event: { id: eventId } },
+				relations: ['user'],
+			});
+
+			const users = permissions.map(p => ({
+				id: p.user.id,
+				fullName: p.user.fullName,
+				email: p.user.email,
+				login: p.user.login,
+				role: p.role, // Attach the role directly to the user object
+			}));
+
+			return res.json(users);
+		} catch (error) {
+			console.error('Error fetching event users:', error);
+			return res.status(500).json({ message: 'Internal server error' });
+		}
+	},
+
+	async removeUserFromEvent(req: Request, res: Response) {
+		const { eventId, userId } = req.params;
+
+		try {
+			const permission = await Permission.findOne({ where: { event: { id: eventId }, user: { id: userId } } });
+
+			if (!permission) {
+				return res.status(404).json({ message: 'User not found in event' });
+			}
+
+			await Permission.remove(permission);
+			return res.json({ message: 'User removed from event successfully' });
+		} catch (error) {
+			console.error('Error removing user from event:', error);
+			return res.status(500).json({ message: 'Internal server error' });
+		}
+	},
 };

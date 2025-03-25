@@ -1,6 +1,7 @@
 import {runInAction, makeAutoObservable } from "mobx";
 import { getUserCalendars, getinvitedUserCalendars } from "../services/userService";
-import { createCalendar, update, inviteUser } from '../services/calendarService';
+import { createCalendar, update, inviteUser, removeUserFromCalendar, getCalendarUsers } from '../services/calendarService';
+import { joinCalendar } from '../services/calendarService';
 
 class CalendarStore {
 	calendars = [];
@@ -70,9 +71,9 @@ class CalendarStore {
 		}
 	}
 
-	async newCalendar(name, desc, userId) {
+	async newCalendar(name, desc, color, userId) {
 		try {
-			const response = await createCalendar(name, desc, userId);
+			const response = await createCalendar(name, desc, color, userId);
 			if (response.status === 201) {
 				this.setCalendars([...this.calendars, response.data]); // Append new calendar
 				// this.calendars.push(response.data);
@@ -115,6 +116,43 @@ class CalendarStore {
 
 	setInvitedCalendars(calendarData) {
 		this.invitedCalendars = calendarData;
+	}
+
+	async joinCalendar(inviteToken) {
+		try {
+			const calendar = await joinCalendar(inviteToken);
+			runInAction(() => {
+				console.log('Joined calendar:', calendar);
+				this.calendars.push(calendar);
+			});
+			return calendar;
+		} catch (error) {
+			console.error('Failed to join calendar:', error);
+			throw error;
+		}
+	}
+
+	async loadCalendarUsers(calendarId) {
+		try {
+			const users = await getCalendarUsers(calendarId);
+			runInAction(() => {
+				this.calendarUsers = users;
+			});
+		} catch (error) {
+			console.error('Failed to load calendar users:', error);
+			this.calendarUsers = [];
+		}
+	}
+
+	async removeUserFromCalendar(calendarId, userId) {
+		try {
+			await removeUserFromCalendar(calendarId, userId);
+			runInAction(() => {
+				this.calendarUsers = this.calendarUsers.filter(user => user.id !== userId);
+			});
+		} catch (error) {
+			console.error('Failed to remove user from calendar:', error);
+		}
 	}
 }
 

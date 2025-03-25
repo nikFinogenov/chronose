@@ -13,12 +13,13 @@ const Header = observer(() => {
 	const location = useLocation();
 
 	const getActiveViewFromPath = useCallback(() => {
-		const path = location.pathname.replace("/", ""); // Remove leading "/"
+		const path = location.pathname.split("/").filter(Boolean); // Remove leading "/"
+		const currentView = path[0];
 		const validViews = ["day", "week", "month", "year"];
-		return validViews.includes(path) ? path.charAt(0).toUpperCase() + path.slice(1) : "Year";
+		return validViews.includes(currentView) ? currentView.charAt(0).toUpperCase() + currentView.slice(1) : "Year";
 	}, [location.pathname]); // Dependency added
 
-	const [activeView, setActiveView] = useState(getActiveViewFromPath);
+	const [activeView, setActiveView] = useState(getActiveViewFromPath());
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [showModal, setShowModal] = useState(false); // State for modal
 	const [newEvent, setNewEvent] = useState({
