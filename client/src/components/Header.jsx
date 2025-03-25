@@ -13,27 +13,27 @@ const Header = observer(() => {
 	const location = useLocation();
 
 	const getActiveViewFromPath = useCallback(() => {
-		const path = location.pathname.split("/").filter(Boolean); // Remove leading "/"
+		const path = location.pathname.split('/').filter(Boolean); // Remove leading "/"
 		const currentView = path[0];
-		const validViews = ["day", "week", "month", "year"];
-		return validViews.includes(currentView) ? currentView.charAt(0).toUpperCase() + currentView.slice(1) : "Year";
+		const validViews = ['day', 'week', 'month', 'year'];
+		return validViews.includes(currentView) ? currentView.charAt(0).toUpperCase() + currentView.slice(1) : 'Year';
 	}, [location.pathname]); // Dependency added
 
 	const [activeView, setActiveView] = useState(getActiveViewFromPath());
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [showModal, setShowModal] = useState(false); // State for modal
 	const [newEvent, setNewEvent] = useState({
-		title: "",
+		title: '',
 		start: null,
 		end: null,
-		description: "",
-		location: "",
+		description: '',
+		location: '',
 		participants: [],
-		color: "#34ebc6",
-		type: "reminder"
+		color: '#34ebc6',
+		type: 'reminder',
 	});
 
-	const handleNavigation = (view) => {
+	const handleNavigation = view => {
 		setActiveView(view);
 		const currentDate = new Date(dateStore.currentDate);
 		const year = currentDate.getFullYear();
@@ -41,10 +41,10 @@ const Header = observer(() => {
 		const day = currentDate.getDate();
 		navigate(`/${view.toLowerCase()}/${year}/${month}/${day}`);
 	};
-	const handleDateChange = (direction) => {
+	const handleDateChange = direction => {
 		if (!activeView) return;
 
-		if (direction === "next") {
+		if (direction === 'next') {
 			dateStore.next(activeView.toLowerCase());
 		} else {
 			dateStore.prev(activeView.toLowerCase());
@@ -82,31 +82,31 @@ const Header = observer(() => {
 	}, [isMenuOpen]);
 	const handleCreateEvent = () => {
 		setNewEvent({
-			title: "",
+			title: '',
 			start: new Date(), // Set to current date/time
 			end: new Date(new Date().getTime() + 60 * 60 * 1000), // Set to one hour later
-			description: "",
-			location: "",
+			description: '',
+			location: '',
 			participants: [],
-			color: "#34ebc6",
-			type: "reminder"
+			color: '#34ebc6',
+			type: 'reminder',
 		});
 		setShowModal(true);
 	};
 
 	const handleSave = async (calendarId, repeat, zoomEnabled, meetEnabled, locationEnabled) => {
 		if (newEvent.title) {
-			await eventStore.createEvent({...newEvent, repeatNess: repeat, zoom: zoomEnabled, meet: meetEnabled, location: locationEnabled}, calendarId, repeat);
+			await eventStore.createEvent({ ...newEvent, repeatNess: repeat, zoom: zoomEnabled, meet: meetEnabled, location: locationEnabled }, calendarId, repeat);
 			setShowModal(false);
 			setNewEvent({
-				title: "",
+				title: '',
 				start: null,
 				end: null,
-				description: "",
-				location: "",
+				description: '',
+				location: '',
 				participants: [],
-				color: "#000000",
-				type: "reminder"
+				color: '#000000',
+				type: 'reminder',
 			});
 		}
 	};
@@ -114,7 +114,14 @@ const Header = observer(() => {
 	return (
 		<div className='flex items-center justify-between w-full p-2 text-black bg-purple-200 shadow-md gradient'>
 			<h1 className='hidden ml-4 text-2xl font-bold sm:block text-gradient'>
-				<Link to='/' onClick={() => { handleNavigation('Year') }}>CloOk</Link>
+				<Link
+					to='/'
+					onClick={() => {
+						handleNavigation('Year');
+					}}
+				>
+					CloOk
+				</Link>
 			</h1>
 
 			<div className='flex items-center'>
@@ -142,17 +149,20 @@ const Header = observer(() => {
 					)}
 				</div>
 
-				<button className='header-btn' onClick={() => {
-					dateStore.today();
-					dateStore.updateIsToday();
-				}}>
+				<button
+					className='header-btn'
+					onClick={() => {
+						dateStore.today();
+						dateStore.updateIsToday();
+					}}
+				>
 					Today
 				</button>
-				<button className='header-btn' onClick={() => handleDateChange("prev")}>
+				<button className='header-btn' onClick={() => handleDateChange('prev')}>
 					<IoChevronBack size={18} />
 				</button>
 
-				<button className='header-btn' onClick={() => handleDateChange("next")}>
+				<button className='header-btn' onClick={() => handleDateChange('next')}>
 					<IoChevronForward size={18} />
 				</button>
 				<button className='header-btn' onClick={handleCreateEvent}>
