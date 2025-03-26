@@ -31,6 +31,21 @@ const Month = observer(() => {
 		setSelectedEvent(null);
 	};
 
+	const handleCloseModal = () => {
+		setShowModal(false);
+		setUpdating(false); // Reset updating when modal is closed
+		setNewEvent({
+			title: '',
+			start: null,
+			end: null,
+			description: '',
+			location: '',
+			participants: [],
+			color: '#34ebc6',
+			type: 'reminder',
+		});
+	};
+
 	const handleEditEvent = event => {
 		setUpdating(true);
 		setNewEvent(event);
@@ -111,10 +126,12 @@ const Month = observer(() => {
 			return;
 		}
 
+		console.log(selectionInfo)
+
 		setNewEvent({
 			title: '',
-			start: selectionInfo.start,
-			end: selectionInfo.end,
+			start: selectionInfo.date,
+			end: selectionInfo.allDay ? null : selectionInfo.end,
 			description: '',
 			location: '',
 			participants: [],
@@ -163,6 +180,7 @@ const Month = observer(() => {
 
 	const handleEventClick = clickInfo => {
 		const event = clickInfo.event;
+
 		setSelectedEvent({
 			id: event.id,
 			title: event.title,

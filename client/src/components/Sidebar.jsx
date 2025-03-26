@@ -9,7 +9,7 @@ import { CiSquarePlus } from 'react-icons/ci';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import CalendarModal from './CalendarModal';
 
-const Sidebar = observer(() => {
+const Sidebar = observer(({ disableMM = false }) => {
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 	const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 	const [selectedCalendar, setSelectedCalendar] = useState(null);
@@ -50,11 +50,15 @@ const Sidebar = observer(() => {
 	};
 
 	return (
-		<div className='min-h-screen p-4 border-r border-gray-300 bg-base-100'>
-			<p className='hidden'>{userStore.user?.id ? '' : ''}</p>
-			<div className='mb-4 text-lg font-semibold'>Today is {new Date(dateStore.currentDate).toLocaleDateString()}</div>
+		<div className='min-h-screen p-4 border-r border-gray-300 bg-base-100 hidden md:block'>
+			{!disableMM && (
+				<>
+					<p className='hidden'>{userStore.user?.id ? '' : ''}</p>
+					<div className='mb-4 text-lg font-semibold'>Today is {new Date(dateStore.currentDate).toLocaleDateString()}</div>
 
-			<MicroMonth />
+					<MicroMonth />
+				</>
+			)}
 
 			<div className='w-full mt-4 join join-vertical bg-base-100'>
 				<div className='border collapse collapse-arrow join-item border-base-300'>

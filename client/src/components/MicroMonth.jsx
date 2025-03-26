@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { dateStore } from "../store/dateStore";
 import { useNavigate } from 'react-router-dom';
+import { calendarStore } from "../store/calendarStore";
+import { getCalendarEvents } from '../services/eventService';
 
 const MicroMonth = observer(({ month = null }) => {
     const today = new Date();
@@ -49,6 +51,37 @@ const MicroMonth = observer(({ month = null }) => {
         }
         return day + "th";
     };
+
+    const handleDateHover = async (year, month, day) => {
+        // Adjust month since JavaScript months are 0-based
+        const selectedDate = new Date(year, month - 1, day); // month - 1 because JS months are 0-indexed
+
+        const endOfDay = new Date(selectedDate);
+        endOfDay.setHours(23, 59, 59, 999); // End of the day (23:59:59.999)
+
+        const startOfDay = new Date(selectedDate);
+        startOfDay.setHours(0, 0, 0, 0); // Start of the day (00:00:00.000)
+
+        console.log('Start of Day:', startOfDay.toISOString());
+        console.log('End of Day:', endOfDay.toISOString());
+
+        // Loop through active calendars
+        for (const calendar of calendarStore.calendars) {
+            if (calendar.isActive) {
+                const data = await getCalendarEvents(calendar.id, startOfDay.toISOString(), endOfDay.toISOString());
+                console.log(data);
+            }
+        }
+
+        // Loop through invited calendars
+        for (const calendar of calendarStore.invitedCalendars) {
+            if (calendar.isActive) {
+                const data = await getCalendarEvents(calendar.id, startOfDay.toISOString(), endOfDay.toISOString());
+                console.log(data);
+            }
+        }
+    };
+
 
     const getFormattedDate = (year, monthNum, day) => {
         const date = new Date(year, monthNum, day);
@@ -152,9 +185,10 @@ const MicroMonth = observer(({ month = null }) => {
                                 // console.log(pathSegments[0]);
                                 const firstElemtnt = window.location.pathname === '/' ? '/day' : `/${window.location.pathname.split('/')[1]}`;
                                 // console.log(firstElemtnt);
-                                navigate(`${firstElemtnt}/${mnth.getFullYear()}/${monthNum+1}/${day}`);
+                                navigate(`${firstElemtnt}/${mnth.getFullYear()}/${monthNum + 1}/${day}`);
                                 // console.log(`/${window.location.pathname.split('/')[1]}/${mnth.getFullYear()}/${monthNum+1}/${day}`);
                             }}
+                            onDoubleClick={() => {navigate(`/day/${mnth.getFullYear()}/${monthNum + 1}/${day}`)}}
                             data-tip={getFormattedDate(mnth.getFullYear(), monthNum, day)}
                         >
                             {day}

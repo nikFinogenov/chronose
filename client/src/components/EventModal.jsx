@@ -3,17 +3,17 @@ import { calendarStore } from "../store/calendarStore";
 import { eventStore } from "../store/eventStore";
 
 const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = false }) => {
-    const [selectedCalendar, setSelectedCalendar] = useState(event.calendarId || null);
+	const [selectedCalendar, setSelectedCalendar] = useState(event.calendarId || (calendarStore.calendars.length > 0 ? calendarStore.calendars[0].id : null));
     const [participantsInput, setParticipantsInput] = useState("");
     const [eventType, setEventType] = useState(event.type || "reminder");
     const [repeatEnabled, setRepeatEnabled] = useState(false);
     const [repeatInterval, setRepeatInterval] = useState("day");
     const [allDay, setAllDay] = useState(event.end ? false : true);
     const [zoomEnabled, setZoomEnabled] = useState(false);
-    // const [meetEnabled, setMeetEnabled] = useState(false);
     const [locationEnabled, setLocationEnabled] = useState(false);
     const [address, setAddress] = useState(event.address || ""); // Address state
     const [showMap, setShowMap] = useState(false); // Control map visibility
+    // const [meetEnabled, setMeetEnabled] = useState(false);
 
     useEffect(() => {
         if (calendarStore.calendars.length === 1) {
@@ -92,8 +92,9 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
     //     setShowModal(false);        
     // };
     const handleSubmit = async () => {
-        if (!event.title || event.title === '') return;
-        let response;
+		if (!event.title || event.title === '') {
+			event.title = "(No Title)"
+		}
         if (allDay) {
             event.end = event.start;
             event.allDay = true;
@@ -148,77 +149,76 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
                         </div>
                     )
                 )}
+				<div className="flex mb-4 bg-gray-200 p-1 rounded-full">
+					{["reminder", "task", "arrangement"].map((type) => (
+						<button
+							key={type}
+							className={`flex-1 py-1 rounded-full transition-all ${eventType === type ? "bg-blue-500 text-white" : "bg-transparent"}`}
+							onClick={() => handleEventTypeChange(type)}
+						>
+							{type.charAt(0).toUpperCase() + type.slice(1)}
+						</button>
+					))}
+				</div>
 
-                <div className="flex mb-4 bg-gray-200 p-1 rounded-full">
-                    {["reminder", "task", "arrangement"].map((type) => (
-                        <button
-                            key={type}
-                            className={`flex-1 py-1 rounded-full transition-all ${eventType === type ? "bg-blue-500 text-white" : "bg-transparent"}`}
-                            onClick={() => handleEventTypeChange(type)}
-                        >
-                            {type.charAt(0).toUpperCase() + type.slice(1)}
-                        </button>
-                    ))}
-                </div>
+				<input type="text" placeholder="Event Title" className="border p-1.5 w-full mb-3"
+					value={event.title} onChange={(e) => setNewEvent({ ...event, title: e.target.value })} />
 
-                <input type="text" placeholder="Event Title" className="border p-1.5 w-full mb-3"
-                    value={event.title} onChange={(e) => setNewEvent({ ...event, title: e.target.value })} />
+				{eventType !== "arrangement" && (
+					<div className="flex items-center mb-3">
+						<input type="checkbox" checked={allDay} onChange={() => setAllDay(!allDay)} className="mr-2" />
+						<span>All Day</span>
+					</div>
+				)}
 
-                {eventType !== "arrangement" && (
-                    <div className="flex items-center mb-3">
-                        <input type="checkbox" checked={allDay} onChange={() => setAllDay(!allDay)} className="mr-2" />
-                        <span>All Day</span>
-                    </div>
-                )}
-
-                {/* {!allDay && ( */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">{allDay ? "Start Date:" : "Start Date & Time:"}</label>
-                    <input
-                        type={allDay ? "date" : "datetime-local"}
-                        className="border p-1.5 w-full mb-3"
-                        value={event.start ? (allDay ? formatDate(event.start) : formatLocalDate(event.start)) : ""}
-                        onChange={(e) => setNewEvent({ ...event, start: new Date(e.target.value) })}
-                    />
-                    {eventType !== "task" && !allDay && (
-                        <>
-                            <label className="block text-sm font-medium text-gray-700">End Date & Time:</label>
-                            <input
-                                type="datetime-local"
-                                className="border p-1.5 w-full mb-3"
-                                value={event.end ? formatLocalDate(event.end) : ""}
-                                onChange={(e) => setNewEvent({ ...event, end: new Date(e.target.value) })}
-                            />
-                        </>
-                    )}
-                </div>
-                {/* )} */}
+				{/* {!allDay && ( */}
+				<div>
+					<label className="block text-sm font-medium text-gray-700">{allDay ? "Start Date:" : "Start Date & Time:"}</label>
+					<input
+						type={allDay ? "date" : "datetime-local"}
+						className="border p-1.5 w-full mb-3"
+						value={event.start ? (allDay ? formatDate(event.start) : formatLocalDate(event.start)) : ""}
+						onChange={(e) => setNewEvent({ ...event, start: new Date(e.target.value) })}
+					/>
+					{eventType !== "task" && !allDay && (
+						<>
+							<label className="block text-sm font-medium text-gray-700">End Date & Time:</label>
+							<input
+								type="datetime-local"
+								className="border p-1.5 w-full mb-3"
+								value={event.end ? formatLocalDate(event.end) : ""}
+								onChange={(e) => setNewEvent({ ...event, end: new Date(e.target.value) })}
+							/>
+						</>
+					)}
+				</div>
+				{/* )} */}
 
 
-                {(eventType === "reminder" || eventType === "task") && (
-                    <>
-                        <textarea placeholder="Click to enter description" className="border p-1.5 w-full mb-3"
-                            value={event.description || ""} onChange={(e) => setNewEvent({ ...event, description: e.target.value })} />
-                        <div className="mb-3">
-                            {
-                                !updating && (<>
-                                    <label className="flex items-center">
-                                        <input type="checkbox" checked={repeatEnabled} onChange={() => setRepeatEnabled(!repeatEnabled)} className="mr-2" />
-                                        Repeat Event
-                                    </label>
-                                    {repeatEnabled && (
-                                        <select className="border p-2 w-full mt-2" value={repeatInterval} onChange={(e) => setRepeatInterval(e.target.value)}>
-                                            <option value="day">Daily</option>
-                                            <option value="week">Weekly</option>
-                                            <option value="month">Monthly</option>
-                                            <option value="year">Yearly</option>
-                                        </select>
-                                    )}
-                                </>)
-                            }
-                        </div>
-                    </>
-                )}
+				{(eventType === "reminder" || eventType === "task") && (
+					<>
+						<textarea placeholder="Click to enter description" className="border p-1.5 w-full mb-3"
+							value={event.description || ""} onChange={(e) => setNewEvent({ ...event, description: e.target.value })} />
+						<div className="mb-3">
+							{
+								!updating && (<>
+									<label className="flex items-center">
+										<input type="checkbox" checked={repeatEnabled} onChange={() => setRepeatEnabled(!repeatEnabled)} className="mr-2" />
+										Repeat Event
+									</label>
+									{repeatEnabled && (
+										<select className="border p-2 w-full mt-2" value={repeatInterval} onChange={(e) => setRepeatInterval(e.target.value)}>
+											<option value="day">Daily</option>
+											<option value="week">Weekly</option>
+											<option value="month">Monthly</option>
+											<option value="year">Yearly</option>
+										</select>
+									)}
+								</>)
+							}
+						</div>
+					</>
+				)}
 
                 {(eventType === "reminder" || eventType === "arrangement") && (
                     <div className='mb-3'>
@@ -300,14 +300,14 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
                     </div>
                 )}
 
-                <div className="flex justify-end space-x-5">
-                    <button className="px-4 py-1 bg-gray-300 rounded" onClick={() => {
-                        setShowModal(false);
-                    }}>Cancel</button>
-                    <button className="px-4 py-1 bg-blue-500 text-white rounded" onClick={handleSubmit}>Save</button>
-                </div>
-            </div>
-        </div>
-    );
+				<div className="flex justify-end space-x-5">
+					<button className="px-4 py-1 bg-gray-300 rounded" onClick={() => {
+						setShowModal(false);
+					}}>Cancel</button>
+					<button className="px-4 py-1 bg-blue-500 text-white rounded" onClick={handleSubmit}>Save</button>
+				</div>
+			</div>
+		</div>
+	);
 };
 export default EventModal;

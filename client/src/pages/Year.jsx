@@ -7,8 +7,8 @@ import { dateStore } from "../store/dateStore";
 const Year = observer(() => {
     return (
         <div className="flex h-max p-4">
-            <Sidebar />
-            <div className="w-full">
+            <Sidebar/>
+            <div className="m-5">
                 <div className="flex flex-col flex-1 items-center">
                     <h1 className="text-3xl mb-5">{new Date(dateStore.currentDate).getFullYear()}</h1>
                     <div className="grid grid-cols-4 gap-20 justify-center">

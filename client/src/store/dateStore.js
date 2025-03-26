@@ -3,6 +3,8 @@ import { makeAutoObservable } from "mobx";
 class DateStore {
     currentDate = new Date().toISOString();
     isTodayPressed = false;
+    selectedView = 'year';
+    selectedDate = null;
 
     constructor() {
         makeAutoObservable(this);
@@ -10,7 +12,7 @@ class DateStore {
 
     next(type) {
         const currentDate = new Date(this.currentDate);
-    
+
         switch (type) {
             case 'day':
                 currentDate.setDate(currentDate.getDate() + 1);
@@ -27,13 +29,13 @@ class DateStore {
             default:
                 break;
         }
-    
+
         this.currentDate = currentDate.toISOString();
     }
-    
+
     prev(type) {
         const currentDate = new Date(this.currentDate);
-    
+
         switch (type) {
             case 'day':
                 currentDate.setDate(currentDate.getDate() - 1);
@@ -50,10 +52,10 @@ class DateStore {
             default:
                 break;
         }
-    
+
         this.currentDate = currentDate.toISOString();
     }
-    
+
     today() {
         this.currentDate = new Date().toISOString();
     }
@@ -62,6 +64,9 @@ class DateStore {
     }
     updateIsToday() {
         this.isTodayPressed = !this.isTodayPressed;
+    }
+    setSelectedDate(date) {
+        this.selectedDate = date;
     }
 }
 

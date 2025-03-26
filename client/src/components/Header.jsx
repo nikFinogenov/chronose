@@ -12,6 +12,10 @@ const Header = observer(() => {
 	const navigate = useNavigate();
 	const location = useLocation();
 
+	useEffect(() => {
+		setActiveView(getActiveViewFromPath)
+	}, [location.pathname])
+
 	const getActiveViewFromPath = useCallback(() => {
 		const path = location.pathname.split('/').filter(Boolean); // Remove leading "/"
 		const currentView = path[0];
@@ -124,7 +128,7 @@ const Header = observer(() => {
 				</Link>
 			</h1>
 
-			<div className='flex items-center'>
+			<div className='flex items-center hidden sm:flex'>
 				<div className='dropdown dropdown-end'>
 					<div tabIndex={0} role='button' className='flex items-center justify-between w-32 header-btn' onClick={() => setIsMenuOpen(!isMenuOpen)}>
 						{activeView}
@@ -180,6 +184,7 @@ const Header = observer(() => {
 					</button>
 				)}
 			</div>
+
 			{showModal && (
 				<EventModal
 					event={newEvent}
