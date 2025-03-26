@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import {runInAction} from 'mobx';
+import { runInAction } from 'mobx';
 import MicroMonth from './MicroMonth';
 import { dateStore } from '../store/dateStore';
 import { userStore } from '../store/userStore';
@@ -9,7 +9,7 @@ import { CiSquarePlus } from 'react-icons/ci';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import CalendarModal from './CalendarModal';
 
-const Sidebar = observer(() => {
+const Sidebar = observer(({ disableMM = false }) => {
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 	const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 	const [selectedCalendar, setSelectedCalendar] = useState(null);
@@ -32,16 +32,16 @@ const Sidebar = observer(() => {
 		return emailRegex.test(email);
 	};
 
-    const handleIsActiveChange = (calendar, value) => {
-        runInAction(() => {
-            calendar.isActive = value; // Update MobX state directly
-        });
-    
-        // Update localStorage for isActive state
-        const storedVisibility = JSON.parse(localStorage.getItem('calendarVisibility')) || {};
-        storedVisibility[calendar.id] = value;
-        localStorage.setItem('calendarVisibility', JSON.stringify(storedVisibility));
-    };
+	const handleIsActiveChange = (calendar, value) => {
+		runInAction(() => {
+			calendar.isActive = value; // Update MobX state directly
+		});
+
+		// Update localStorage for isActive state
+		const storedVisibility = JSON.parse(localStorage.getItem('calendarVisibility')) || {};
+		storedVisibility[calendar.id] = value;
+		localStorage.setItem('calendarVisibility', JSON.stringify(storedVisibility));
+	};
 
 	const openSettingsModal = calendar => {
 		setSelectedCalendar(calendar);
@@ -49,11 +49,15 @@ const Sidebar = observer(() => {
 	};
 
 	return (
-		<div className='min-h-screen p-4 border-r border-gray-300 bg-base-100'>
-			<p className='hidden'>{userStore.user?.id ? '' : ''}</p>
-			<div className='mb-4 text-lg font-semibold'>Today is {new Date(dateStore.currentDate).toLocaleDateString()}</div>
+		<div className='min-h-screen p-4 border-r border-gray-300 bg-base-100 hidden md:block'>
+			{!disableMM && (
+				<>
+					<p className='hidden'>{userStore.user?.id ? '' : ''}</p>
+					<div className='mb-4 text-lg font-semibold'>Today is {new Date(dateStore.currentDate).toLocaleDateString()}</div>
 
-			<MicroMonth />
+					<MicroMonth />
+				</>
+			)}
 
 			<div className='w-full mt-4 join join-vertical bg-base-100'>
 				<div className='border collapse collapse-arrow join-item border-base-300'>
@@ -112,7 +116,7 @@ const Sidebar = observer(() => {
 								<div key={calendar.id} className='flex items-center justify-between px-2 py-1 rounded group'>
 									<label className='flex items-center flex-1 gap-2 overflow-hidden whitespace-nowrap'>
 										{/* <input type='checkbox' className='checkbox checkbox-primary' /> */}
-                                        <input
+										<input
 											type='checkbox'
 											className='checkbox checkbox-primary'
 											checked={calendar.isActive}

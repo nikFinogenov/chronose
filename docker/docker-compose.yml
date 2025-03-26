@@ -47,10 +47,11 @@ services:
         env_file:
             - ../client/.env
         environment:
+            REACT_APP_FRONT_PORT: ${REACT_APP_FRONT_PORT}
             REACT_APP_PORT: ${REACT_APP_PORT}
             REACT_APP_API_URL: ${REACT_APP_API_URL}
         ports:
-            - "${REACT_APP_PORT}:${REACT_APP_PORT}"
+            - "${REACT_APP_FRONT_PORT}:${REACT_APP_FRONT_PORT}"
         depends_on:
             - server
         networks:

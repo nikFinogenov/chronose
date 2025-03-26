@@ -111,6 +111,14 @@ const Week = observer(() => {
 		setSelectedEvent(null);
 	};
 
+	const getTimezoneOffset = () => {
+		const now = new Date();
+		const offset = -now.getTimezoneOffset() / 60; // Convert minutes to hours
+		const formattedOffset = `GMT${offset >= 0 ? `+${offset}` : offset}`;
+		return formattedOffset;
+		// setTimezoneOffset(formattedOffset);
+	};
+
 	const handleSelect = selectionInfo => {
 		if (!localStorage.getItem('token')) {
 			if (!calendarStore.calendars.length) {
@@ -242,7 +250,8 @@ const Week = observer(() => {
 							minute: '2-digit',
 							hour12: false, // 24-часовой формат
 						}}
-						allDaySlot={false}
+						allDaySlot={true}
+						allDayText={getTimezoneOffset()}
 						nowIndicator={true} // Убрана красная линия текущего времени
 						weekNumbers={false} // Номера недель (можно отключить)
 						headerToolbar={{
