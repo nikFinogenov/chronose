@@ -24,7 +24,6 @@ class EventStore {
 
 		try {
 			const response = await getCalendarEvents(calendarId, start, end);
-			console.log(response)
 			// console.log(response);
 			// if(!allDay) {
 			//     allDay = start === end ? true : false
@@ -50,29 +49,34 @@ class EventStore {
 			this.setEvents(calendarId, []);
 		}
 	}
-	
+
 	async loadInvitedEventsForCalendar(calendarId, userId, allDay = false) {
 		if (!calendarId || !userId) return;
 
 		try {
 			const response = await getSharedEvents(userId);
-			console.log(response)
-			// Преобразуем события перед сохранением
+
+			// Получаем уже существующие события
+			const existingEvents = this.eventsByCalendar[calendarId] || [];
+
+			// Преобразуем загруженные события
 			const transformedEvents = response.map(event => ({
 				...event,
-				start: event.startDate,
-				end: event.endDate,
+				start: new Date(event.startDate), // Убеждаемся, что это Date
+				end: new Date(event.endDate),
 				calendarId: calendarId,
-				allDay: !allDay ? (event.startDate === event.endDate ? true : false) : true,
+				allDay: allDay || event.startDate === event.endDate,
 			}));
 
-			// console.log('Loaded invited events:', transformedEvents);
-			console.log(this.getEvents(calendarStore?.calendars[0]?.id));
-			// Объединяем старые и новые события, не создавая вложенные массивы
-			this.setEvents(calendarId, [...(this.eventsByCalendar[calendarId] || []), ...transformedEvents]);
-			console.log(this.getEvents(calendarStore?.calendars[0]?.id));
+			// Фильтруем, оставляя только новые события, которых еще нет в existingEvents
+			const newEvents = transformedEvents.filter(newEvent => !existingEvents.some(existingEvent => existingEvent.id === newEvent.id));
+
+			// Если есть новые события — добавляем
+			if (newEvents.length > 0) {
+				this.setEvents(calendarId, [...existingEvents, ...newEvents]);
+			}
 		} catch (error) {
-			console.error('Failed to load invited events:', error);
+			console.error('Error loading of invited events:', error);
 			this.setEvents(calendarId, []);
 		}
 	}
