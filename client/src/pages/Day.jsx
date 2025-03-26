@@ -85,7 +85,6 @@ const Day = observer(() => {
     };
 
 	const handleEditEvent = event => {
-		// console.log(event);
 		setUpdating(true);
 		setNewEvent(event);
 		setShowModal(true);
@@ -185,20 +184,21 @@ const Day = observer(() => {
 				await eventStore.createEvent({ ...newEvent, repeatNess: repeat, zoom: zoomEnabled, location: locationEnabled }, calendarId, repeat);
 			}
 
-            setUpdating(false);
-            setShowModal(false);
-            setNewEvent({
-                title: '',
-                start: null,
-                end: null,
-                description: '',
-                location: '',
-                participants: [],
-                color: '#000000',
-                type: 'reminder',
-            });
-        }
-    };
+			setUpdating(false);
+			setShowModal(false);
+			setNewEvent({
+				title: '',
+				start: null,
+				end: null,
+				description: '',
+				location: '',
+				participants: [],
+				invitedParticipants: [],
+				color: '#000000',
+				type: 'reminder',
+			});
+		}
+	};
 
     const handleDeleteEvent = async eventId => {
         const calendarId = eventStore.getEventCalendarId(eventId);
@@ -208,21 +208,22 @@ const Day = observer(() => {
         }
     };
 
-    const handleEventClick = clickInfo => {
-        const event = clickInfo.event;
-        setSelectedEvent({
-            id: event.id,
-            title: event.title,
-            start: event.start,
-            end: event.end,
-            description: event.extendedProps.description || '',
-            location: event.extendedProps.location || '',
-            participants: event.extendedProps.participants || [],
-            color: event.backgroundColor || '#000000',
-            calendarId: event.extendedProps.calendarId || 'Unknown',
-            type: event.extendedProps.type,
-        });
-    };
+	const handleEventClick = clickInfo => {
+		const event = clickInfo.event;
+		setSelectedEvent({
+			id: event.id,
+			title: event.title,
+			start: event.start,
+			end: event.end,
+			invitedParticipants: event.extendedProps.invitedParticipants || [],
+			description: event.extendedProps.description || '',
+			location: event.extendedProps.location || '',
+			participants: event.extendedProps.participants || [],
+			color: event.backgroundColor || '#000000',
+			calendarId: event.extendedProps.calendarId || 'Unknown',
+			type: event.extendedProps.type,
+		});
+	};
 
     const handleEventChange = async changeInfo => {
         await eventStore.updateEvent(

@@ -7,6 +7,7 @@ import { userStore } from '../store/userStore';
 import { calendarStore } from '../store/calendarStore';
 import { CiSquarePlus } from 'react-icons/ci';
 import { BsThreeDotsVertical } from 'react-icons/bs';
+import { FaUser } from 'react-icons/fa';
 import CalendarModal from './CalendarModal';
 
 const Sidebar = observer(({ disableMM = false }) => {
@@ -141,10 +142,7 @@ const Sidebar = observer(({ disableMM = false }) => {
 			</div>
 
 			{/* Create Calendar Modal */}
-			<CalendarModal
-				isOpen={isCreateModalOpen}
-				onClose={() => setIsCreateModalOpen(false)}
-			/>
+			<CalendarModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
 
 			{/* Calendar Settings Modal */}
 			{isSettingsModalOpen && selectedCalendar && (
@@ -207,6 +205,25 @@ const Sidebar = observer(({ disableMM = false }) => {
 						>
 							Invite
 						</button>
+
+						<div className='mt-4'>
+							<h4 className='font-semibold text-md'>Participants</h4>
+							{selectedCalendar.participants.length > 0 ? (
+								<ul className='mt-2 space-y-2'>
+									{selectedCalendar.participants.map((participant, index) => (
+										<li key={index} className='flex items-center justify-between p-2 border rounded'>
+											<div className='flex items-center space-x-2'>
+												<FaUser className='text-gray-500' />
+												<span className='text-gray-700'>{participant.email}</span>
+											</div>
+											<span className='px-2 py-1 text-sm bg-gray-200 rounded'>{participant.role}</span>
+										</li>
+									))}
+								</ul>
+							) : (
+								<p className='mt-2 text-gray-500'>No participants yet.</p>
+							)}
+						</div>
 
 						{/* Save buttons */}
 						<div className='flex justify-end mt-4 space-x-2'>

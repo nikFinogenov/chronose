@@ -25,14 +25,6 @@ const Week = observer(() => {
 		participants: [],
 		color: '#34ebc6',
 	});
-	const getTimezoneOffset = () => {
-		const now = new Date();
-		const offset = -now.getTimezoneOffset() / 60; // Convert minutes to hours
-		const formattedOffset = `GMT${offset >= 0 ? `+${offset}` : offset}`;
-		return formattedOffset;
-		// setTimezoneOffset(formattedOffset);
-	};
-
 	// useEffect(() => {
 	//     const fetchEvents = async () => {
 	//         const now = new Date(dateStore.currentDate);

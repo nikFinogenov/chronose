@@ -1,6 +1,6 @@
 import { makeAutoObservable, action, runInAction } from 'mobx';
 import { api } from '../services';
-import { getCalendarEvents } from '../services/eventService';
+import { getCalendarEvents, getEventUsers } from '../services/eventService';
 import { joinEvent, inviteUser } from '../services/eventService';
 import { getSharedEvents } from '../services/userService';
 import { calendarStore } from './calendarStore';
@@ -24,26 +24,28 @@ class EventStore {
 
 		try {
 			const response = await getCalendarEvents(calendarId, start, end);
-			// console.log(response);
-			// if(!allDay) {
-			//     allDay = start === end ? true : false
-			// };
+			const usersMap = new Map();
 
-			// Transform the data before storing it
+			// Загружаем участников для всех событий этого календаря
+			for (const event of response) {
+				const eventUsers = await getEventUsers(event.id);
+				usersMap.set(
+					event.id,
+					eventUsers.map(user => ({ email: user.email, role: user.role }))
+				);
+			}
+			// Преобразуем данные перед сохранением
 			const transformedEvents = response.map(event => ({
 				...event,
-				start: event.startDate,
-				end: event.endDate,
+				invitedParticipants: usersMap.get(event.id) || [],
+				start: new Date(event.startDate),
+				end: new Date(event.endDate),
 				calendarId: calendarId,
 				allDay: !allDay ? (event.startDate === event.endDate ? true : false) : true,
 			}));
-			// console.log(transformedEvents);
 
-			// return transformedEvents;
+			// Сохраняем события в хранилище
 			this.setEvents(calendarId, transformedEvents);
-
-			// Store the events for this specific calendar
-			// this.setEvents(calendarId, transformedEvents);
 		} catch (error) {
 			console.error('Failed to load events:', error);
 			this.setEvents(calendarId, []);
@@ -55,28 +57,37 @@ class EventStore {
 
 		try {
 			const response = await getSharedEvents(userId);
-
-			// Получаем уже существующие события
 			const existingEvents = this.eventsByCalendar[calendarId] || [];
+			const usersMap = new Map();
 
-			// Преобразуем загруженные события
+			// Загружаем участников для всех событий
+			for (const event of response) {
+				const eventUsers = await getEventUsers(event.id);
+				usersMap.set(
+					event.id,
+					eventUsers.map(user => ({ email: user.email, role: user.role }))
+				);
+			}
+
+			// Преобразуем события перед сохранением
 			const transformedEvents = response.map(event => ({
 				...event,
-				start: new Date(event.startDate), // Убеждаемся, что это Date
+				invitedParticipants: usersMap.get(event.id) || [],
+				start: new Date(event.startDate),
 				end: new Date(event.endDate),
 				calendarId: calendarId,
 				allDay: allDay || event.startDate === event.endDate,
 			}));
 
-			// Фильтруем, оставляя только новые события, которых еще нет в existingEvents
+			// Фильтруем, исключая уже загруженные события
 			const newEvents = transformedEvents.filter(newEvent => !existingEvents.some(existingEvent => existingEvent.id === newEvent.id));
 
-			// Если есть новые события — добавляем
+			// Добавляем только новые события
 			if (newEvents.length > 0) {
 				this.setEvents(calendarId, [...existingEvents, ...newEvents]);
 			}
 		} catch (error) {
-			console.error('Error loading of invited events:', error);
+			console.error('Error loading invited events:', error);
 			this.setEvents(calendarId, []);
 		}
 	}
