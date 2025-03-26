@@ -117,155 +117,182 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
 		return emailRegex.test(email);
 	};
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                <div className="flex justify-between">
-                    <h2 className="text-lg font-bold mb-4">{updating ? "Edit Event" : "Create New Event"}</h2>
-                    <input type="color" className="w-7 h-7" value={event.color} onChange={handleColorChange} />
-                </div>
-                {!updating && (
-                    calendarStore.calendars.length > 1 && (
-                        <div className="mb-3">
-                            <label className="block text-sm font-medium text-gray-700">Select Calendar:</label>
-                            <select
-                                className="border p-2 w-full"
-                                value={selectedCalendar || ""}
-                                onChange={handleCalendarChange}
-                            >
-                                <option value="" disabled>Select a calendar</option>
-                                {calendarStore.calendars.map((calendar) => (
-                                    <option key={calendar.id} value={calendar.id}>
-                                        {calendar.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    )
-                )}
+		<div className='fixed inset-0 z-50 flex items-center justify-center bg-gray-700 bg-opacity-50'>
+			<div className='p-6 bg-white rounded-lg shadow-lg w-96'>
+				<div className='flex justify-between'>
+					<h2 className='mb-4 text-lg font-bold'>{updating ? 'Edit Event' : 'Create New Event'}</h2>
+					<input type='color' className='w-7 h-7' value={event.color} onChange={handleColorChange} />
+				</div>
+				{!updating && calendarStore.calendars.length > 1 && (
+					<div className='mb-3'>
+						<label className='block text-sm font-medium text-gray-700'>Select Calendar:</label>
+						<select className='w-full p-2 border' value={selectedCalendar || ''} onChange={handleCalendarChange}>
+							<option value='' disabled>
+								Select a calendar
+							</option>
+							{calendarStore.calendars.map(calendar => (
+								<option key={calendar.id} value={calendar.id}>
+									{calendar.name}
+								</option>
+							))}
+						</select>
+					</div>
+				)}
 
-                <div className="flex mb-4 bg-gray-200 p-1 rounded-full">
-                    {["reminder", "task", "arrangement"].map((type) => (
-                        <button
-                            key={type}
-                            className={`flex-1 py-1 rounded-full transition-all ${eventType === type ? "bg-blue-500 text-white" : "bg-transparent"}`}
-                            onClick={() => handleEventTypeChange(type)}
-                        >
-                            {type.charAt(0).toUpperCase() + type.slice(1)}
-                        </button>
-                    ))}
-                </div>
+				<div className='flex p-1 mb-4 bg-gray-200 rounded-full'>
+					{['reminder', 'task', 'arrangement'].map(type => (
+						<button
+							key={type}
+							className={`flex-1 py-1 rounded-full transition-all ${eventType === type ? 'bg-blue-500 text-white' : 'bg-transparent'}`}
+							onClick={() => handleEventTypeChange(type)}
+						>
+							{type.charAt(0).toUpperCase() + type.slice(1)}
+						</button>
+					))}
+				</div>
 
-                <input type="text" placeholder="Event Title" className="border p-1.5 w-full mb-3"
-                    value={event.title} onChange={(e) => setNewEvent({ ...event, title: e.target.value })} />
+				<input
+					type='text'
+					placeholder='Event Title'
+					className='border p-1.5 w-full mb-3'
+					value={event.title}
+					onChange={e => setNewEvent({ ...event, title: e.target.value })}
+				/>
 
-                {eventType !== "arrangement" && (
-                    <div className="flex items-center mb-3">
-                        <input type="checkbox" checked={allDay} onChange={() => setAllDay(!allDay)} className="mr-2" />
-                        <span>All Day</span>
-                    </div>
-                )}
+				{eventType !== 'arrangement' && (
+					<div className='flex items-center mb-3'>
+						<input type='checkbox' checked={allDay} onChange={() => setAllDay(!allDay)} className='mr-2' />
+						<span>All Day</span>
+					</div>
+				)}
 
-                {/* {!allDay && ( */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">{allDay ? "Start Date:" : "Start Date & Time:"}</label>
-                    <input
-                        type={allDay ? "date" : "datetime-local"}
-                        className="border p-1.5 w-full mb-3"
-                        value={event.start ? (allDay ? formatDate(event.start) : formatLocalDate(event.start)) : ""}
-                        onChange={(e) => setNewEvent({ ...event, start: new Date(e.target.value) })}
-                    />
-                    {eventType !== "task" && !allDay && (
-                        <>
-                            <label className="block text-sm font-medium text-gray-700">End Date & Time:</label>
-                            <input
-                                type="datetime-local"
-                                className="border p-1.5 w-full mb-3"
-                                value={event.end ? formatLocalDate(event.end) : ""}
-                                onChange={(e) => setNewEvent({ ...event, end: new Date(e.target.value) })}
-                            />
-                        </>
-                    )}
-                </div>
-                {/* )} */}
+				{/* {!allDay && ( */}
+				<div>
+					<label className='block text-sm font-medium text-gray-700'>{allDay ? 'Start Date:' : 'Start Date & Time:'}</label>
+					<input
+						type={allDay ? 'date' : 'datetime-local'}
+						className='border p-1.5 w-full mb-3'
+						value={event.start ? (allDay ? formatDate(event.start) : formatLocalDate(event.start)) : ''}
+						onChange={e => setNewEvent({ ...event, start: new Date(e.target.value) })}
+					/>
+					{eventType !== 'task' && !allDay && (
+						<>
+							<label className='block text-sm font-medium text-gray-700'>End Date & Time:</label>
+							<input
+								type='datetime-local'
+								className='border p-1.5 w-full mb-3'
+								value={event.end ? formatLocalDate(event.end) : ''}
+								onChange={e => setNewEvent({ ...event, end: new Date(e.target.value) })}
+							/>
+						</>
+					)}
+				</div>
+				{/* )} */}
 
+				<label className='block text-sm font-medium text-gray-700'>Categories</label>
+				<div className='flex flex-wrap gap-2 mb-4'>
+					<label className='flex items-center'>
+						<input type='checkbox' className='mr-2 checkbox checkbox-primary' />
+						Work
+					</label>
+					<label className='flex items-center'>
+						<input type='checkbox' className='mr-2 checkbox checkbox-primary' />
+						Rest
+					</label>
+					<label className='flex items-center'>
+						<input type='checkbox' className='mr-2 checkbox checkbox-primary' />
+						Study
+					</label>
+				</div>
 
-                {(eventType === "reminder" || eventType === "task") && (
-                    <>
-                        <textarea placeholder="Click to enter description" className="border p-1.5 w-full mb-3"
-                            value={event.description || ""} onChange={(e) => setNewEvent({ ...event, description: e.target.value })} />
-                        <div className="mb-3">
-                            {
-                                !updating && (<>
-                                    <label className="flex items-center">
-                                        <input type="checkbox" checked={repeatEnabled} onChange={() => setRepeatEnabled(!repeatEnabled)} className="mr-2" />
-                                        Repeat Event
-                                    </label>
-                                    {repeatEnabled && (
-                                        <select className="border p-2 w-full mt-2" value={repeatInterval} onChange={(e) => setRepeatInterval(e.target.value)}>
-                                            <option value="day">Daily</option>
-                                            <option value="week">Weekly</option>
-                                            <option value="month">Monthly</option>
-                                            <option value="year">Yearly</option>
-                                        </select>
-                                    )}
-                                </>)
-                            }
-                        </div>
-                    </>
-                )}
+				{(eventType === 'reminder' || eventType === 'task') && (
+					<>
+						<textarea
+							placeholder='Click to enter description'
+							className='border p-1.5 w-full mb-3'
+							value={event.description || ''}
+							onChange={e => setNewEvent({ ...event, description: e.target.value })}
+						/>
+						<div className='mb-3'>
+							{!updating && (
+								<>
+									<label className='flex items-center'>
+										<input type='checkbox' checked={repeatEnabled} onChange={() => setRepeatEnabled(!repeatEnabled)} className='mr-2' />
+										Repeat Event
+									</label>
+									{repeatEnabled && (
+										<select className='w-full p-2 mt-2 border' value={repeatInterval} onChange={e => setRepeatInterval(e.target.value)}>
+											<option value='day'>Daily</option>
+											<option value='week'>Weekly</option>
+											<option value='month'>Monthly</option>
+											<option value='year'>Yearly</option>
+										</select>
+									)}
+								</>
+							)}
+						</div>
+					</>
+				)}
 
-                {(eventType === "reminder" || eventType === "arrangement") && (
-				<div className='mb-3'>
-                <input
-                    type='text'
-                    placeholder='Add participant email'
-                    className='border p-1.5 w-full mb-2'
-                    value={participantsInput}
-                    onChange={e => setParticipantsInput(e.target.value)}
-                    onKeyDown={handleAddParticipant}
-                />
-                <div>
-                    {event.participants.map((participant, index) => (
-                        <div key={index} className='flex items-center justify-between mb-2'>
-                            <span className='px-2 py-1 text-sm text-gray-700 bg-gray-200 rounded-full'>{participant.email}</span>
-                            <select className='p-1 border rounded' value={participant.role} onChange={e => handleRoleChange(participant.email, e.target.value)}>
-                                <option value='editor'>Editor</option>
-                                <option value='viewer'>Viewer</option>
-                                <option value='manager'>Manager</option>
-                            </select>
-                            <button className='text-red-500' onClick={() => handleDeleteParticipant(participant.email)}>
-                                &#10005;
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            </div>
-                )}
-                {eventType === "arrangement" && (
-                    <div className="flex justify-between" >
-                        <label>
-                            <input type="checkbox" checked={zoomEnabled} onChange={() => setZoomEnabled(!zoomEnabled)} className="mr-1" />
-                            Zoom call
-                        </label>
-                        <label>
-                            <input type="checkbox" checked={meetEnabled} onChange={() => setMeetEnabled(!meetEnabled)} className="mr-1" />
-                            Meet call
-                        </label>
-                        <label>
-                            <input type="checkbox" checked={locationEnabled} onChange={() => setLocationEnabled(!locationEnabled)} className="mr-1" />
-                            Location
-                        </label>
-                    </div>
-                )}
+				{(eventType === 'reminder' || eventType === 'arrangement') && (
+					<div className='mb-3'>
+						<input
+							type='text'
+							placeholder='Add participant email'
+							className='border p-1.5 w-full mb-2'
+							value={participantsInput}
+							onChange={e => setParticipantsInput(e.target.value)}
+							onKeyDown={handleAddParticipant}
+						/>
+						<div>
+							{event.participants.map((participant, index) => (
+								<div key={index} className='flex items-center justify-between mb-2'>
+									<span className='px-2 py-1 text-sm text-gray-700 bg-gray-200 rounded-full'>{participant.email}</span>
+									<select className='p-1 border rounded' value={participant.role} onChange={e => handleRoleChange(participant.email, e.target.value)}>
+										<option value='editor'>Editor</option>
+										<option value='viewer'>Viewer</option>
+										<option value='manager'>Manager</option>
+									</select>
+									<button className='text-red-500' onClick={() => handleDeleteParticipant(participant.email)}>
+										&#10005;
+									</button>
+								</div>
+							))}
+						</div>
+					</div>
+				)}
+				{eventType === 'arrangement' && (
+					<div className='flex justify-between'>
+						<label>
+							<input type='checkbox' checked={zoomEnabled} onChange={() => setZoomEnabled(!zoomEnabled)} className='mr-1' />
+							Zoom call
+						</label>
+						<label>
+							<input type='checkbox' checked={meetEnabled} onChange={() => setMeetEnabled(!meetEnabled)} className='mr-1' />
+							Meet call
+						</label>
+						<label>
+							<input type='checkbox' checked={locationEnabled} onChange={() => setLocationEnabled(!locationEnabled)} className='mr-1' />
+							Location
+						</label>
+					</div>
+				)}
 
-                <div className="flex justify-end space-x-5">
-                    <button className="px-4 py-1 bg-gray-300 rounded" onClick={() => {
-                        setShowModal(false);
-                    }}>Cancel</button>
-                    <button className="px-4 py-1 bg-blue-500 text-white rounded" onClick={handleSubmit}>Save</button>
-                </div>
-            </div>
-        </div>
-    );
+				<div className='flex justify-end space-x-5'>
+					<button
+						className='px-4 py-1 bg-gray-300 rounded'
+						onClick={() => {
+							setShowModal(false);
+						}}
+					>
+						Cancel
+					</button>
+					<button className='px-4 py-1 text-white bg-blue-500 rounded' onClick={handleSubmit}>
+						Save
+					</button>
+				</div>
+			</div>
+		</div>
+	);
 };
 export default EventModal;
