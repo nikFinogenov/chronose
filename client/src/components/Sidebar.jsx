@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import {runInAction} from 'mobx';
+import { runInAction } from 'mobx';
 import MicroMonth from './MicroMonth';
 import { dateStore } from '../store/dateStore';
 import { userStore } from '../store/userStore';
 import { calendarStore } from '../store/calendarStore';
 import { CiSquarePlus } from 'react-icons/ci';
 import { BsThreeDotsVertical } from 'react-icons/bs';
+import { FaUser } from 'react-icons/fa';
 import CalendarModal from './CalendarModal';
 
 const Sidebar = observer(() => {
@@ -32,16 +33,16 @@ const Sidebar = observer(() => {
 		return emailRegex.test(email);
 	};
 
-    const handleIsActiveChange = (calendar, value) => {
-        runInAction(() => {
-            calendar.isActive = value; // Update MobX state directly
-        });
-    
-        // Update localStorage for isActive state
-        const storedVisibility = JSON.parse(localStorage.getItem('calendarVisibility')) || {};
-        storedVisibility[calendar.id] = value;
-        localStorage.setItem('calendarVisibility', JSON.stringify(storedVisibility));
-    };
+	const handleIsActiveChange = (calendar, value) => {
+		runInAction(() => {
+			calendar.isActive = value; // Update MobX state directly
+		});
+
+		// Update localStorage for isActive state
+		const storedVisibility = JSON.parse(localStorage.getItem('calendarVisibility')) || {};
+		storedVisibility[calendar.id] = value;
+		localStorage.setItem('calendarVisibility', JSON.stringify(storedVisibility));
+	};
 
 	const openSettingsModal = calendar => {
 		setSelectedCalendar(calendar);
@@ -112,7 +113,7 @@ const Sidebar = observer(() => {
 								<div key={calendar.id} className='flex items-center justify-between px-2 py-1 rounded group'>
 									<label className='flex items-center flex-1 gap-2 overflow-hidden whitespace-nowrap'>
 										{/* <input type='checkbox' className='checkbox checkbox-primary' /> */}
-                                        <input
+										<input
 											type='checkbox'
 											className='checkbox checkbox-primary'
 											checked={calendar.isActive}
@@ -136,10 +137,7 @@ const Sidebar = observer(() => {
 			</div>
 
 			{/* Create Calendar Modal */}
-			<CalendarModal
-				isOpen={isCreateModalOpen}
-				onClose={() => setIsCreateModalOpen(false)}
-			/>
+			<CalendarModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
 
 			{/* Calendar Settings Modal */}
 			{isSettingsModalOpen && selectedCalendar && (
@@ -192,6 +190,25 @@ const Sidebar = observer(() => {
 						>
 							Invite
 						</button>
+
+						<div className='mt-4'>
+							<h4 className='font-semibold text-md'>Participants</h4>
+							{selectedCalendar.participants.length > 0 ? (
+								<ul className='mt-2 space-y-2'>
+									{selectedCalendar.participants.map((participant, index) => (
+										<li key={index} className='flex items-center justify-between p-2 border rounded'>
+											<div className='flex items-center space-x-2'>
+												<FaUser className='text-gray-500' />
+												<span className='text-gray-700'>{participant.email}</span>
+											</div>
+											<span className='px-2 py-1 text-sm bg-gray-200 rounded'>{participant.role}</span>
+										</li>
+									))}
+								</ul>
+							) : (
+								<p className='mt-2 text-gray-500'>No participants yet.</p>
+							)}
+						</div>
 
 						{/* Save buttons */}
 						<div className='flex justify-end mt-4 space-x-2'>

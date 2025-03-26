@@ -92,7 +92,6 @@ const Day = observer(() => {
 	};
 
 	const handleEditEvent = event => {
-		console.log(event);
 		setUpdating(true);
 		setNewEvent(event);
 		setShowModal(true);
@@ -198,6 +197,7 @@ const Day = observer(() => {
 				description: '',
 				location: '',
 				participants: [],
+				invitedParticipants: [],
 				color: '#000000',
 				type: 'reminder',
 			});
@@ -214,12 +214,12 @@ const Day = observer(() => {
 
 	const handleEventClick = clickInfo => {
 		const event = clickInfo.event;
-		console.log(event);
 		setSelectedEvent({
 			id: event.id,
 			title: event.title,
 			start: event.start,
 			end: event.end,
+			invitedParticipants: event.extendedProps.invitedParticipants || [],
 			description: event.extendedProps.description || '',
 			location: event.extendedProps.location || '',
 			participants: event.extendedProps.participants || [],

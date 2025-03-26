@@ -19,24 +19,43 @@ class CalendarStore {
 
 		try {
 			const response = await getUserCalendars(userId);
-            const storedVisibility = JSON.parse(localStorage.getItem('calendarVisibility')) || {};
+			const storedVisibility = JSON.parse(localStorage.getItem('calendarVisibility')) || {};
 
-            // Append isActive property to each calendar based on localStorage or default to true
-            this.calendars = response.map(calendar => ({
-                ...calendar,
-                isActive: storedVisibility[calendar.id] ?? true
-            }));
-    
-            // Ensure localStorage is updated with missing items
-            response.forEach(calendar => {
-                if (!(calendar.id in storedVisibility)) {
-                    storedVisibility[calendar.id] = true;
-                }
-            });
-    
-            localStorage.setItem('calendarVisibility', JSON.stringify(storedVisibility));
-            
-            this.setCalendars(this.calendars);
+			// Загружаем пользователей для каждого календаря
+			const calendarsWithParticipants = await Promise.all(
+				response.map(async calendar => {
+					try {
+						const users = await getCalendarUsers(calendar.id); // Получаем пользователей календаря
+						const participants = users.map(user => ({
+							email: user.email,
+							role: user.role,
+						}));
+
+						return {
+							...calendar,
+							isActive: storedVisibility[calendar.id] ?? true,
+							participants,
+						};
+					} catch (error) {
+						console.error(`Failed to load users for calendar ${calendar.id}:`, error);
+						return {
+							...calendar,
+							isActive: storedVisibility[calendar.id] ?? true,
+							participants: [],
+						};
+					}
+				})
+			);
+
+			// Обновляем localStorage, если данных нет
+			calendarsWithParticipants.forEach(calendar => {
+				if (!(calendar.id in storedVisibility)) {
+					storedVisibility[calendar.id] = true;
+				}
+			});
+			localStorage.setItem('calendarVisibility', JSON.stringify(storedVisibility));
+
+			this.setCalendars(calendarsWithParticipants);
 		} catch (error) {
 			console.error('Failed to load user calendars:', error);
 			this.calendars = [];
@@ -51,22 +70,45 @@ class CalendarStore {
 
 		try {
 			const response = await getinvitedUserCalendars(userId);
-            const storedVisibility = JSON.parse(localStorage.getItem('calendarVisibility')) || {};
-            this.invitedCalendars = response.map(calendar => ({
-                ...calendar,
-                isActive: storedVisibility[calendar.id] ?? true
-            }));
-    
-            // Ensure localStorage is updated with missing items
-            response.forEach(calendar => {
-                if (!(calendar.id in storedVisibility)) {
-                    storedVisibility[calendar.id] = true;
-                }
-            });
-            localStorage.setItem('calendarVisibility', JSON.stringify(storedVisibility));
-			this.setInvitedCalendars(this.invitedCalendars);
+			const storedVisibility = JSON.parse(localStorage.getItem('calendarVisibility')) || {};
+
+			// Загружаем пользователей для каждого приглашенного календаря
+			const invitedCalendarsWithParticipants = await Promise.all(
+				response.map(async calendar => {
+					try {
+						const users = await getCalendarUsers(calendar.id);
+						const participants = users.map(user => ({
+							email: user.email,
+							role: user.role,
+						}));
+
+						return {
+							...calendar,
+							isActive: storedVisibility[calendar.id] ?? true,
+							participants,
+						};
+					} catch (error) {
+						console.error(`Failed to load users for invited calendar ${calendar.id}:`, error);
+						return {
+							...calendar,
+							isActive: storedVisibility[calendar.id] ?? true,
+							participants: [],
+						};
+					}
+				})
+			);
+
+			// Обновляем localStorage, если данных нет
+			invitedCalendarsWithParticipants.forEach(calendar => {
+				if (!(calendar.id in storedVisibility)) {
+					storedVisibility[calendar.id] = true;
+				}
+			});
+			localStorage.setItem('calendarVisibility', JSON.stringify(storedVisibility));
+
+			this.setInvitedCalendars(invitedCalendarsWithParticipants);
 		} catch (error) {
-			console.error('Failed to load user calendars:', error);
+			console.error('Failed to load invited calendars:', error);
 			this.invitedCalendars = [];
 		}
 	}
