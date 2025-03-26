@@ -25,6 +25,13 @@ const Week = observer(() => {
 		participants: [],
 		color: '#34ebc6',
 	});
+	const getTimezoneOffset = () => {
+		const now = new Date();
+		const offset = -now.getTimezoneOffset() / 60; // Convert minutes to hours
+		const formattedOffset = `GMT${offset >= 0 ? `+${offset}` : offset}`;
+		return formattedOffset;
+		// setTimezoneOffset(formattedOffset);
+	};
 
 	// useEffect(() => {
 	//     const fetchEvents = async () => {
@@ -225,7 +232,7 @@ const Week = observer(() => {
 						initialView='timeGridWeek' // Неделя вместо дня
 						selectable={true}
 						editable={true}
-						events={calendarStore.calendars
+						events={[...calendarStore.calendars, ...calendarStore.invitedCalendars]
 							.filter(calendar => calendar.isActive)
 							.flatMap(calendar =>
 								eventStore.getEvents(calendar.id).map(event => ({
@@ -243,7 +250,8 @@ const Week = observer(() => {
 							minute: '2-digit',
 							hour12: false, // 24-часовой формат
 						}}
-						allDaySlot={false}
+						allDaySlot={true}
+						allDayText={getTimezoneOffset()}
 						nowIndicator={true} // Убрана красная линия текущего времени
 						weekNumbers={false} // Номера недель (можно отключить)
 						headerToolbar={{

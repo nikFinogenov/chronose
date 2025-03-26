@@ -10,22 +10,24 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
     const [repeatInterval, setRepeatInterval] = useState("day");
     const [allDay, setAllDay] = useState(event.end ? false : true);
     const [zoomEnabled, setZoomEnabled] = useState(false);
-    const [meetEnabled, setMeetEnabled] = useState(false);
+    // const [meetEnabled, setMeetEnabled] = useState(false);
     const [locationEnabled, setLocationEnabled] = useState(false);
+    const [address, setAddress] = useState(event.address || ""); // Address state
+    const [showMap, setShowMap] = useState(false); // Control map visibility
 
-	useEffect(() => {
-		if (calendarStore.calendars.length === 1) {
-			setSelectedCalendar(calendarStore.calendars[0].id);
-		}
-	}, []);
+    useEffect(() => {
+        if (calendarStore.calendars.length === 1) {
+            setSelectedCalendar(calendarStore.calendars[0].id);
+        }
+    }, []);
     // const handleCalendarChange = (e) => setSelectedCalendar(e.target.value);
     const handleCalendarChange = e => {
-		const calendarId = e.target.value;
-		setSelectedCalendar(calendarId);
-	};
+        const calendarId = e.target.value;
+        setSelectedCalendar(calendarId);
+    };
     const handleColorChange = e => {
-		setNewEvent({ ...event, color: e.target.value });
-	};
+        setNewEvent({ ...event, color: e.target.value });
+    };
     const handleEmailAutoComplete = (email) => {
         if (!email.includes("@")) {
             return `${email}@gmail.com`;  // Automatically append @gmail.com
@@ -40,23 +42,27 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
         }
     };
     const handleAddParticipant = e => {
-		if (e.key === 'Enter') {
-			const email = participantsInput.trim();
-			if (isValidEmail(email)) {
-				setNewEvent({
-					...event,
-					participants: [...event.participants, { email, role: 'viewer' }],
-				});
-				setParticipantsInput('');
-			}
-		}
-	};
+        if (e.key === 'Enter') {
+            const email = participantsInput.trim();
+            if (isValidEmail(email)) {
+                setNewEvent({
+                    ...event,
+                    participants: [...event.participants, { email, role: 'viewer' }],
+                });
+                setParticipantsInput('');
+            }
+        }
+    };
     const handleDeleteParticipant = email => {
-		setNewEvent({
-			...event,
-			participants: event.participants.filter(participant => participant.email !== email),
-		});
-	};
+        setNewEvent({
+            ...event,
+            participants: event.participants.filter(participant => participant.email !== email),
+        });
+    };
+    const handleAddressChange = (e) => {
+        setAddress(e.target.value);
+        setNewEvent({ ...event, address: e.target.value });
+    };
     const formatLocalDate = (dateString) => {
         const date = new Date(dateString);
         return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
@@ -64,11 +70,11 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
             .slice(0, 16);
     };
     const handleRoleChange = (email, newRole) => {
-		setNewEvent({
-			...event,
-			participants: event.participants.map(participant => (participant.email === email ? { ...participant, role: newRole } : participant)),
-		});
-	};
+        setNewEvent({
+            ...event,
+            participants: event.participants.map(participant => (participant.email === email ? { ...participant, role: newRole } : participant)),
+        });
+    };
     const formatDate = (dateString) => {
         if (!dateString) return "";
         const date = new Date(dateString);
@@ -86,36 +92,36 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
     //     setShowModal(false);        
     // };
     const handleSubmit = async () => {
-		if (!event.title || event.title === '') return;
-		let response;
+        if (!event.title || event.title === '') return;
+        let response;
         if (allDay) {
             event.end = event.start;
             event.allDay = true;
         }
 
-		if (updating) {
-			// eventStore.updateEvent(event, selectedCalendar);
-			if (event.calendarId && event.participants.length > 0) {
-				for (const { email, role } of event.participants) {
-					try {
-						await eventStore.inviteUser(event.id, email, role);
-						console.log(`User ${email} invited as ${role} to event ${event.id}`);
-					} catch (error) {
-						console.error(`Failed to invite ${email} as ${role}:`, error);
-					}
-				}
-			}
-		} else {
-			// response = await eventStore.createEvent(event, selectedCalendar);
-		}
-		setShowModal(false);
-		// handleSave(response);
-        handleSave(selectedCalendar, repeatEnabled ? repeatInterval : null, zoomEnabled, meetEnabled, locationEnabled);
-	};
+        if (updating) {
+            // eventStore.updateEvent(event, selectedCalendar);
+            if (event.calendarId && event.participants.length > 0) {
+                for (const { email, role } of event.participants) {
+                    try {
+                        await eventStore.inviteUser(event.id, email, role);
+                        console.log(`User ${email} invited as ${role} to event ${event.id}`);
+                    } catch (error) {
+                        console.error(`Failed to invite ${email} as ${role}:`, error);
+                    }
+                }
+            }
+        } else {
+            // response = await eventStore.createEvent(event, selectedCalendar);
+        }
+        setShowModal(false);
+        // handleSave(response);
+        handleSave(selectedCalendar, repeatEnabled ? repeatInterval : null, zoomEnabled, locationEnabled ? address : locationEnabled);
+    };
     const isValidEmail = email => {
-		const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-		return emailRegex.test(email);
-	};
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return emailRegex.test(email);
+    };
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50 z-50">
             <div className="bg-white p-6 rounded-lg shadow-lg w-96">
@@ -215,46 +221,82 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
                 )}
 
                 {(eventType === "reminder" || eventType === "arrangement") && (
-				<div className='mb-3'>
-                <input
-                    type='text'
-                    placeholder='Add participant email'
-                    className='border p-1.5 w-full mb-2'
-                    value={participantsInput}
-                    onChange={e => setParticipantsInput(e.target.value)}
-                    onKeyDown={handleAddParticipant}
-                />
-                <div>
-                    {event.participants.map((participant, index) => (
-                        <div key={index} className='flex items-center justify-between mb-2'>
-                            <span className='px-2 py-1 text-sm text-gray-700 bg-gray-200 rounded-full'>{participant.email}</span>
-                            <select className='p-1 border rounded' value={participant.role} onChange={e => handleRoleChange(participant.email, e.target.value)}>
-                                <option value='editor'>Editor</option>
-                                <option value='viewer'>Viewer</option>
-                                <option value='manager'>Manager</option>
-                            </select>
-                            <button className='text-red-500' onClick={() => handleDeleteParticipant(participant.email)}>
-                                &#10005;
-                            </button>
+                    <div className='mb-3'>
+                        <input
+                            type='text'
+                            placeholder='Add participant email'
+                            className='border p-1.5 w-full mb-2'
+                            value={participantsInput}
+                            onChange={e => setParticipantsInput(e.target.value)}
+                            onKeyDown={handleAddParticipant}
+                        />
+                        <div>
+                            {event.participants.map((participant, index) => (
+                                <div key={index} className='flex items-center justify-between mb-2'>
+                                    <span className='px-2 py-1 text-sm text-gray-700 bg-gray-200 rounded-full'>{participant.email}</span>
+                                    <select className='p-1 border rounded' value={participant.role} onChange={e => handleRoleChange(participant.email, e.target.value)}>
+                                        <option value='editor'>Editor</option>
+                                        <option value='viewer'>Viewer</option>
+                                        <option value='manager'>Manager</option>
+                                    </select>
+                                    <button className='text-red-500' onClick={() => handleDeleteParticipant(participant.email)}>
+                                        &#10005;
+                                    </button>
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
-            </div>
+                    </div>
                 )}
-                {eventType === "arrangement" && (
+                {eventType === "arrangement" && !updating &&(
                     <div className="flex justify-between" >
                         <label>
                             <input type="checkbox" checked={zoomEnabled} onChange={() => setZoomEnabled(!zoomEnabled)} className="mr-1" />
-                            Zoom call
-                        </label>
-                        <label>
-                            <input type="checkbox" checked={meetEnabled} onChange={() => setMeetEnabled(!meetEnabled)} className="mr-1" />
-                            Meet call
+                            Generate Zoom call
                         </label>
                         <label>
                             <input type="checkbox" checked={locationEnabled} onChange={() => setLocationEnabled(!locationEnabled)} className="mr-1" />
                             Location
                         </label>
+                    </div>
+                )}
+                {locationEnabled && (
+                    <div>
+                        <div className="mb-3">
+                            <label className="block text-sm font-medium text-gray-700">Address:</label>
+                            <input
+                                type="text"
+                                placeholder="Enter address"
+                                className="border p-1.5 w-full"
+                                value={address}
+                                onChange={handleAddressChange}
+                            />
+                            <p
+                                className="text-blue-500 cursor-pointer text-sm mt-1"
+                                onClick={() => setShowMap(true)}
+                            >
+                                Show on map
+                            </p>
+                        </div>
+                        {showMap && address && (
+                            <div className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50 z-50">
+                                <div className="bg-white p-6 rounded-lg shadow-lg w-[800px] h-[650px] relative">
+                                    <button
+                                        className="absolute top-2 right-2 text-gray-700"
+                                        onClick={() => setShowMap(false)}
+                                    >
+                                        ✖
+                                    </button>
+                                    <iframe
+                                        width="100%"
+                                        height="100%"
+                                        loading="lazy"
+                                        allowFullScreen
+                                        referrerPolicy="no-referrer-when-downgrade"
+                                        src={`https://www.google.com/maps/embed/v1/place?key=${process.env.REACT_APP_GOOGLE_MAPS_API}&q=${encodeURIComponent(address)}`}
+                                    ></iframe>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 

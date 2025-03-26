@@ -85,29 +85,32 @@ export const EventController = {
 
     async createEvent(req: Request, res: Response): Promise<Response> {
         const { calendarId } = req.params;
-        const { title, description, start, end, color, type, zoom, meet, location } = req.body;
+        const { title, description, start, end, color, type, zoom, location } = req.body;
+        // new lin
+        let zoomLink = "", locationLink = "";
         // console.log(zoom, meet, location);
-        if (meet) {
-            // try {
-            //     // const googleToken = await getGoogleAccessToken();
-                // const zoomToken = await getZoomAccessToken();
-                // console.log(zoomToken);
-            //     // const meetLink = await generateGoogleMeetLink("Митинг", "2025-03-22T10:00:00Z", "2025-03-22T11:00:00Z", googleToken);
-                // const zoomLink = await generateZoomLink("Zoom Встреча", "2025-03-22T10:00:00Z", 30, zoomToken);
-                // console.log("Generated Meet Link:", zoomLink);
-            // } catch (error) {
-            //     console.error("Failed to generate Meet link:", error);
-            // }
-            // console.log(await generateGoogleMeetLink("testMeet", "2025-03-22T10:00:00Z", "2025-03-22T11:00:00Z"));
-            
-        }
-        if(zoom) {
+        // if (meet) {
+        //     try {
+        //         const res = await generateGoogleMeetLink();
+        //         // zoomLink = res.start_url;
+        //         console.log(res);
+        //     } catch (error) {
+        //         console.error("Failed to generate Meet link:", error);
+        //     }
+        //     // console.log(await generateGoogleMeetLink("testMeet", "2025-03-22T10:00:00Z", "2025-03-22T11:00:00Z"));
 
+        // }
+        if (zoom) {
+            try {
+                const res = await generateZoomLink();
+                zoomLink = res.start_url;
+            } catch (error) {
+                console.error("Failed to generate Zoom link:", error);
+            }
         }
-        if(location) {
-            
+        if (location) {
+            locationLink = location;
         }
-        // console.log(req.body);
 
         try {
             const calendar = await Calendar.findOne({ where: { id: calendarId } });
@@ -118,7 +121,7 @@ export const EventController = {
 
             const event = new Event();
             event.title = title;
-            event.description = description;
+            event.description = zoom && location ? `${zoomLink}\n${locationLink}` : zoom ? zoomLink : location ? locationLink : description;
             event.startDate = new Date(start);
             event.endDate = new Date(end);
             event.color = color;
@@ -402,57 +405,57 @@ export const EventController = {
             const newPermission = Permission.create({ user, event: { id: eventId }, role });
             await newPermission.save();
 
-			return res.json({ message: 'Successfully joined the event' });
-		} catch (error) {
-			console.error(error);
-			return res.status(500).json({ message: 'Error joining event' });
-		}
-	},
+            return res.json({ message: 'Successfully joined the event' });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Error joining event' });
+        }
+    },
 
-	async getEventUsers(req: Request, res: Response) {
-		const { eventId } = req.params;
+    async getEventUsers(req: Request, res: Response) {
+        const { eventId } = req.params;
 
-		try {
-			const event = await Event.findOne({ where: { id: eventId } });
-			if (!event) {
-				return res.status(404).json({ message: 'Event not found' });
-			}
+        try {
+            const event = await Event.findOne({ where: { id: eventId } });
+            if (!event) {
+                return res.status(404).json({ message: 'Event not found' });
+            }
 
-			const permissions = await Permission.find({
-				where: { event: { id: eventId } },
-				relations: ['user'],
-			});
+            const permissions = await Permission.find({
+                where: { event: { id: eventId } },
+                relations: ['user'],
+            });
 
-			const users = permissions.map(p => ({
-				id: p.user.id,
-				fullName: p.user.fullName,
-				email: p.user.email,
-				login: p.user.login,
-				role: p.role, // Attach the role directly to the user object
-			}));
+            const users = permissions.map(p => ({
+                id: p.user.id,
+                fullName: p.user.fullName,
+                email: p.user.email,
+                login: p.user.login,
+                role: p.role, // Attach the role directly to the user object
+            }));
 
-			return res.json(users);
-		} catch (error) {
-			console.error('Error fetching event users:', error);
-			return res.status(500).json({ message: 'Internal server error' });
-		}
-	},
+            return res.json(users);
+        } catch (error) {
+            console.error('Error fetching event users:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+    },
 
-	async removeUserFromEvent(req: Request, res: Response) {
-		const { eventId, userId } = req.params;
+    async removeUserFromEvent(req: Request, res: Response) {
+        const { eventId, userId } = req.params;
 
-		try {
-			const permission = await Permission.findOne({ where: { event: { id: eventId }, user: { id: userId } } });
+        try {
+            const permission = await Permission.findOne({ where: { event: { id: eventId }, user: { id: userId } } });
 
-			if (!permission) {
-				return res.status(404).json({ message: 'User not found in event' });
-			}
+            if (!permission) {
+                return res.status(404).json({ message: 'User not found in event' });
+            }
 
-			await Permission.remove(permission);
-			return res.json({ message: 'User removed from event successfully' });
-		} catch (error) {
-			console.error('Error removing user from event:', error);
-			return res.status(500).json({ message: 'Internal server error' });
-		}
-	},
+            await Permission.remove(permission);
+            return res.json({ message: 'User removed from event successfully' });
+        } catch (error) {
+            console.error('Error removing user from event:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+    },
 };

@@ -240,7 +240,7 @@ const Month = observer(() => {
 					initialView='dayGridMonth' // Show month instead of week
 					selectable={true}
 					editable={true}
-					events={calendarStore.calendars
+					events={[...calendarStore.calendars, ...calendarStore.invitedCalendars]
 						.filter(calendar => calendar.isActive)
 						.flatMap(calendar =>
 							eventStore.getEvents(calendar.id).map(event => ({
@@ -266,6 +266,9 @@ const Month = observer(() => {
 						right: '', // Disable week/day switching
 					}}
 				/>
+				{showModal && <EventModal event={newEvent} setNewEvent={setNewEvent} handleSave={handleSave} setShowModal={setShowModal} updating={updating} />}
+
+				{selectedEvent && <EventDetails event={selectedEvent} onClose={handleCloseEventDetails} onEdit={handleEditEvent} onDelete={handleDeleteEvent} />}
 			</div>
 		</div>
 	);

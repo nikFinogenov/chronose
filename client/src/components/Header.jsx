@@ -94,9 +94,9 @@ const Header = observer(() => {
 		setShowModal(true);
 	};
 
-	const handleSave = async (calendarId, repeat, zoomEnabled, meetEnabled, locationEnabled) => {
+	const handleSave = async (calendarId, repeat, zoomEnabled, locationEnabled) => {
 		if (newEvent.title) {
-			await eventStore.createEvent({ ...newEvent, repeatNess: repeat, zoom: zoomEnabled, meet: meetEnabled, location: locationEnabled }, calendarId, repeat);
+			await eventStore.createEvent({ ...newEvent, repeatNess: repeat, zoom: zoomEnabled, location: locationEnabled }, calendarId, repeat);
 			setShowModal(false);
 			setNewEvent({
 				title: '',
@@ -154,6 +154,7 @@ const Header = observer(() => {
 					onClick={() => {
 						dateStore.today();
 						dateStore.updateIsToday();
+						navigate(`/${activeView.toLowerCase()}`);
 					}}
 				>
 					Today

@@ -1,12 +1,17 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FaTimes, FaEdit, FaTrash, FaClock, FaCalendarAlt } from "react-icons/fa";
 import { calendarStore } from "../store/calendarStore";
+import { Link } from "react-router";
 // import { eventStore } from "../store/eventStore";
 
 const EventDetails = ({ event, onClose, onEdit, onDelete }) => {
     const calendar = calendarStore.calendars.find((cal) => cal.id === event.calendarId);
     const calendar2 = calendarStore.invitedCalendars.find((cal) => cal.id === event.calendarId);
     const calendarName = calendar || calendar2 ? calendar?.name || calendar2?.name : "Unknown Calendar";
+    const [showMap, setShowMap] = useState(false); // Control map visibility
+    const isZoomLink = event.description?.startsWith("https://us05web.zoom.us");
+    const hasNewLine = event.description?.includes('\n');
+    const zoomLink = event.description?.split('\n')[0] || "#";
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -72,6 +77,42 @@ const EventDetails = ({ event, onClose, onEdit, onDelete }) => {
                     <FaCalendarAlt className="mr-2 text-gray-500" />
                     {calendarName}
                 </p>
+                {event.type === 'arrangement' && event.description ? (
+                    <div>
+                        {isZoomLink && (
+                            <a href={zoomLink} className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                                Link to Zoom
+                            </a>
+                        )}
+                        {hasNewLine || !isZoomLink ? (
+                            <p className="text-blue-500 cursor-pointer text-sm mt-1" onClick={() => setShowMap(true)}>
+                                Show on map
+                            </p>
+                        ) : null}
+                    </div>
+                ) : (
+                    <p>{event.description}</p>
+                )}
+                {showMap && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50 z-50">
+                        <div className="bg-white p-6 rounded-lg shadow-lg w-[800px] h-[650px] relative">
+                            <button
+                                className="absolute top-2 right-2 text-gray-700"
+                                onClick={() => setShowMap(false)}
+                            >
+                                ✖
+                            </button>
+                            <iframe
+                                width="100%"
+                                height="100%"
+                                loading="lazy"
+                                allowFullScreen
+                                referrerPolicy="no-referrer-when-downgrade"
+                                src={`https://www.google.com/maps/embed/v1/place?key=${process.env.REACT_APP_GOOGLE_MAPS_API}&q=${encodeURIComponent(event.description.includes('\n') ? event.description.split('\n')[1] : event.description)}`}
+                            ></iframe>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

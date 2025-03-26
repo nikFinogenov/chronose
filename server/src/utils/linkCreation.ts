@@ -4,95 +4,102 @@ import axios from "axios";
 export async function getZoomAccessToken() {
     const clientId = process.env.ZOOM_CLIENT_ID!;
     const clientSecret = process.env.ZOOM_CLIENT_SECRET!;
-    const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+    const accountId = process.env.ACCOUNT_ID;
+    const base64String = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+    const url = `https://zoom.us/oauth/token?grant_type=account_credentials&account_id=${accountId}`;
 
-    const response = await axios.post(
-        "https://zoom.us/oauth/token",
-        "grant_type=client_credentials",
-        {
+    try {
+        const response = await axios.post(url, null, {
             headers: {
-                Authorization: `Basic ${auth}`,
                 "Content-Type": "application/x-www-form-urlencoded",
-            },
-        }
-    );
+                "Authorization": `Basic ${base64String}`
+            }
+        });
 
-    return response.data.access_token;
+        const accessToken = response.data.access_token;
+        // console.log('Access Token:', accessToken);
+        return accessToken;
+    } catch (error) {
+        console.error('Error:', error.response ? error.response.data : error.message);
+        throw error;
+    }
 }
 
 export async function getGoogleAccessToken() {
-    const auth = new google.auth.GoogleAuth({
-        keyFile: "credentials.json", // Файл с ключами OAuth (JSON)
-        scopes: ["https://www.googleapis.com/auth/calendar"],
-    });
-
-    const client = await auth.getClient();
-    const accessToken = await client.getAccessToken();
-
-    return accessToken.token || null;
+    // try {
+    //     const oauth2Client = new google.auth.OAuth2(
+    //         process.env.GOOGLE_CLIENT_ID,
+    //         process.env.GOOGLE_CLIENT_SECRET,
+    //         "http://localhost:3000" // Redirect URI from Google Cloud Console
+    //     );
+        
+    //     oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
+    //     const { token } = await oauth2Client.getAccessToken();
+    //     return token;
+    // } catch (error) {
+    //     console.error('Error retrieving access token', error);
+    //     throw error;
+    // }
 }
-export async function generateGoogleMeetLink(
-    eventTitle: string,
-    startTime: string,
-    endTime: string,
-    accessToken: string
-): Promise<string | null> {
+export async function generateGoogleMeetLink() {
     try {
-        const auth = new google.auth.OAuth2();
-        auth.setCredentials({ access_token: accessToken });
+        return "https://meet.google.com/new"
+    //     const token = await getGoogleAccessToken(); // Replace with OAuth token retrieval logic
+    //     const event = {
+    //         summary: 'Google Meet Event',
+    //         start: {
+    //             dateTime: '2024-09-30T10:30:00Z',
+    //             timeZone: 'UTC'
+    //         },
+    //         end: {
+    //             dateTime: '2024-09-30T11:00:00Z',
+    //             timeZone: 'UTC'
+    //         },
+    //         conferenceData: {
+    //             createRequest: {
+    //                 requestId: 'unique-request-id',
+    //                 conferenceSolutionKey: {
+    //                     type: 'hangoutsMeet'
+    //                 }
+    //             }
+    //         }
+    //     };
 
-        const calendar = google.calendar({ version: "v3", auth });
+    //     const response = await axios.post("https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1", event, {
+    //         headers: {
+    //             'Authorization': `Bearer ${token}`,
+    //             'Content-Type': 'application/json'
+    //         }
+    //     });
 
-        const response = await calendar.events.insert({
-            calendarId: "primary",
-            requestBody: {
-                summary: eventTitle,
-                start: { dateTime: startTime, timeZone: "UTC" },
-                end: { dateTime: endTime, timeZone: "UTC" },
-                conferenceData: {
-                    createRequest: { requestId: Math.random().toString(36).substring(2, 15) },
-                },
-            },
-            conferenceDataVersion: 1, // Нужно явно указать версию
-        });
-
-        return response.data.conferenceData?.entryPoints?.[0]?.uri || null;
+    //     // console.log('Success:', response.data);
+    //     return response.data.conferenceData.entryPoints[0].uri;
     } catch (error) {
-        console.error("Ошибка при создании Google Meet:", error);
-        return null;
+        console.error('Error:', error.response ? error.response.data : error.message);
+        throw error;
     }
 }
-export async function generateZoomLink(
-    topic: string,
-    startTime: string,
-    duration: number,
-    jwtToken: string
-): Promise<string | null> {
+export async function generateZoomLink() {
     try {
-        const response = await axios.post(
-            "https://api.zoom.us/v2/users/me/meetings",
-            {
-                topic,
-                type: 2, // Запланированная встреча
-                start_time: startTime,
-                duration,
-                timezone: "UTC",
-                settings: {
-                    host_video: true,
-                    participant_video: true,
-                },
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${jwtToken}`,
-                    "Content-Type": "application/json",
-                },
-            }
-        );
+        const token = await getZoomAccessToken();
+        const data = {
+            topic: 'Zoom meeting for something.',
+            type: 2, // 2 for scheduled meeting
+            start_time: new Date('2024-09-30T10:30:00Z').toISOString(),
+            duration: 30
+        };
 
-        return response.data.join_url || null;
+        const response = await axios.post("https://api.zoom.us/v2/users/me/meetings", data, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        // console.log('Success:', response.data.start_url);
+        return response.data;
     } catch (error) {
-        console.error("Ошибка при создании Zoom митинга:", error);
-        return null;
+        console.error('Error:', error.response ? error.response.data : error.message);
+        throw error;
     }
 }

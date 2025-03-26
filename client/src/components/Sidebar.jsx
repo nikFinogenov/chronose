@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import {runInAction} from 'mobx';
+import { runInAction } from 'mobx';
 import MicroMonth from './MicroMonth';
 import { dateStore } from '../store/dateStore';
 import { userStore } from '../store/userStore';
@@ -16,6 +16,7 @@ const Sidebar = observer(() => {
 	const [hoveredCalendar, setHoveredCalendar] = useState(null); // For showing three dots on hover
 	const [inviteEmail, setInviteEmail] = useState('');
 	const [inviteRole, setInviteRole] = useState('viewer');
+	const [calendarColor, setCalendarColor] = useState('#ffffff');
 
 	useEffect(() => {
 		async function fetchCalendars() {
@@ -32,16 +33,16 @@ const Sidebar = observer(() => {
 		return emailRegex.test(email);
 	};
 
-    const handleIsActiveChange = (calendar, value) => {
-        runInAction(() => {
-            calendar.isActive = value; // Update MobX state directly
-        });
-    
-        // Update localStorage for isActive state
-        const storedVisibility = JSON.parse(localStorage.getItem('calendarVisibility')) || {};
-        storedVisibility[calendar.id] = value;
-        localStorage.setItem('calendarVisibility', JSON.stringify(storedVisibility));
-    };
+	const handleIsActiveChange = (calendar, value) => {
+		runInAction(() => {
+			calendar.isActive = value; // Update MobX state directly
+		});
+
+		// Update localStorage for isActive state
+		const storedVisibility = JSON.parse(localStorage.getItem('calendarVisibility')) || {};
+		storedVisibility[calendar.id] = value;
+		localStorage.setItem('calendarVisibility', JSON.stringify(storedVisibility));
+	};
 
 	const openSettingsModal = calendar => {
 		setSelectedCalendar(calendar);
@@ -112,7 +113,7 @@ const Sidebar = observer(() => {
 								<div key={calendar.id} className='flex items-center justify-between px-2 py-1 rounded group'>
 									<label className='flex items-center flex-1 gap-2 overflow-hidden whitespace-nowrap'>
 										{/* <input type='checkbox' className='checkbox checkbox-primary' /> */}
-                                        <input
+										<input
 											type='checkbox'
 											className='checkbox checkbox-primary'
 											checked={calendar.isActive}
@@ -145,7 +146,17 @@ const Sidebar = observer(() => {
 			{isSettingsModalOpen && selectedCalendar && (
 				<div className='fixed inset-0 z-50 flex items-center justify-center px-4 bg-black bg-opacity-50'>
 					<div className='p-6 bg-white rounded-lg shadow-lg w-[90%] max-w-sm'>
-						<h2 className='mb-4 text-lg font-semibold'>Calendar Settings</h2>
+						<div className='flex justify-between'>
+							<h2 className='mb-4 text-lg font-semibold'>Calendar Settings</h2>
+							<input
+								type="color"
+								id='color-input'
+								value={selectedCalendar.color}
+								onChange={(e) => setSelectedCalendar({ ...selectedCalendar, color: e.target.value })}
+								className=""
+								style={{ backgroundColor: selectedCalendar.color }}
+							/>
+						</div>
 						<input
 							type='text'
 							value={selectedCalendar.name}

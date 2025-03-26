@@ -22,7 +22,7 @@ temp
 .env.*.local
 credentials.json
 token.json
-
+cred.json
 
 
 # Build outputs
