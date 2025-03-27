@@ -18,7 +18,7 @@ const EventDetails = ({ event, onClose, onEdit, onDelete }) => {
 
     useEffect(() => {
         const fetchParticipants = async () => {
-            if (event.invitedParticipants.length > 0) {
+            if (event.invitedParticipants?.length > 0) {
                 setParticipants(event.invitedParticipants);
             } else if (calendar) {
                 const filteredParticipants = calendar.participants.filter(participant => participant.role !== 'owner');

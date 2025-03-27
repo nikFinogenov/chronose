@@ -8,6 +8,20 @@
 	font-family: "JetBrains Mono", serif !important;
 }
 
+/* Side panel transition */
+.transform {
+	transform: translateX(0);
+  }
+  
+  .-translate-x-full {
+	transform: translateX(-100%);
+  }
+  
+  .transition-transform {
+	transition: transform 0.3s ease;
+  }
+  
+
 /* Color input styles */
 #color-input {
 	-webkit-appearance: none;
@@ -71,7 +85,7 @@
 }
 
 .text-gradient {
-	background: rgba(236, 126, 234, 1);
+	background: #ec7eea;
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 	display: inline-block;

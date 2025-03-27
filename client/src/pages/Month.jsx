@@ -277,7 +277,7 @@ const Month = observer(() => {
 						minute: '2-digit',
 						hour12: false, // 24-часовой формат
 					}}
-					height='93%'
+					height='93vh'
 					nowIndicator={true} // Highlights the current date
 					headerToolbar={{
 						left: '',
