@@ -67,14 +67,14 @@ export class UserSubscriber implements EntitySubscriberInterface<User> {
             relations: ["calendar"]
         });
 
-        console.log(`📌 Found ${permissions.length} permissions`);
+        console.log(`📌 Found ${permissions?.length} permissions`);
 
         // Extract owned calendars
         const ownedCalendars = permissions
             .filter(p => p.role === "owner")
             .map(p => p.calendar);
 
-        console.log(`📌 Found ${ownedCalendars.length} owned calendars`);
+        console.log(`📌 Found ${ownedCalendars?.length} owned calendars`);
 
         for (const ownedCalendar of ownedCalendars) {
             const calendar = await manager.findOne(Calendar, {
@@ -85,7 +85,7 @@ export class UserSubscriber implements EntitySubscriberInterface<User> {
 
             const invitedUsers = calendar.permissions.filter(p => p.user.id !== user.id);
 
-            if (invitedUsers.length > 0) {
+            if (invitedUsers?.length > 0) {
                 // Assign new owner
                 invitedUsers[0].role = "owner";
                 await manager.save(invitedUsers[0]);

@@ -6,12 +6,12 @@ const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API; // Replace wi
 
 const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = false }) => {
     const [participantsInput, setParticipantsInput] = useState("");
-    const [selectedCalendar, setSelectedCalendar] = useState(event.calendarId || (calendarStore.calendars.length > 0 ? calendarStore.calendars[0].id : null));
+    const [selectedCalendar, setSelectedCalendar] = useState(event.calendarId || (calendarStore.calendars?.length > 0 ? calendarStore.calendars[0].id : null));
     const [address, setAddress] = useState(event.address || ""); // Address state
     const [showMap, setShowMap] = useState(false); // Control map visibility
 
     useEffect(() => {
-        if (!event.calendarId && calendarStore.calendars.length > 0) {
+        if (!event.calendarId && calendarStore.calendars?.length > 0) {
             setSelectedCalendar(calendarStore.calendars[0].id);
         }
     }, []);
@@ -30,7 +30,7 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
             setNewEvent({ ...event, title: "(No Title)" });
         }
 
-        if (!selectedCalendar && calendarStore.calendars.length > 0) {
+        if (!selectedCalendar && calendarStore.calendars?.length > 0) {
             setSelectedCalendar(calendarStore.calendars[0].id);
         }
     };
@@ -46,7 +46,7 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
             <div className="bg-white p-6 rounded-lg shadow-lg w-96">
                 <h2 className="text-lg font-bold mb-4">Create New Event</h2>
 
-                {!updating && calendarStore.calendars.length > 1 && (
+                {!updating && calendarStore.calendars?.length > 1 && (
                     <div className="mb-3">
                         <label className="block text-sm font-medium text-gray-700">Select Calendar:</label>
                         <select

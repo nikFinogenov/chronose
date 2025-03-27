@@ -105,7 +105,7 @@ const Month = observer(() => {
 
 	const handleSelect = selectionInfo => {
 		if (!localStorage.getItem('token')) {
-			if (!calendarStore.calendars.length) {
+			if (!calendarStore.calendars?.length) {
 				Swal.fire({
 					title: 'Sorry...',
 					text: 'Login to create events',
@@ -145,7 +145,7 @@ const Month = observer(() => {
 		if (newEvent.title) {
 			if (updating) {
 				await eventStore.updateEvent(newEvent, calendarId);
-				if (newEvent.calendarId && newEvent.participants.length > 0) {
+				if (newEvent.calendarId && newEvent.participants?.length > 0) {
 					for (const { email, role } of newEvent.participants) {
 						try {
 							await eventStore.inviteUser(newEvent.id, email, role);

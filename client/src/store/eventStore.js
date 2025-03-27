@@ -113,7 +113,7 @@ class EventStore {
 				this.setEvents(selectedCalendar, [...(this.eventsByCalendar[selectedCalendar] || []), createdEvent]);
 
 				// Если у события есть участники, пригласить их
-				if (event.participants && event.participants.length > 0) {
+				if (event.participants && event.participants?.length > 0) {
 					for (const { email, role } of event.participants) {
 						try {
 							await this.inviteUser(createdEvent.id, email, role);

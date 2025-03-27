@@ -228,7 +228,7 @@ export const CalendarController = {
 					calendar: calendar,
 				},
 			});
-			if (permission.length > 0) {
+			if (permission?.length > 0) {
 				return res.status(400).json({ message: 'User is already in the calendar' });
 			}
 

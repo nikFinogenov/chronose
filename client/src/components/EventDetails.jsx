@@ -102,7 +102,7 @@ const EventDetails = ({ event, onClose, onEdit, onDelete }) => {
 				</p>
 				<div className='mt-4'>
 					<h4 className='font-semibold text-md'>Participants</h4>
-					{participants.length > 0 ? (
+					{participants?.length > 0 ? (
 						<ul className='mt-2 space-y-2'>
 							{participants.map((participant, index) => (
 								<li key={index} className='flex items-center justify-between p-2 border rounded'>

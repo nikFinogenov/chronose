@@ -4,7 +4,7 @@ import { eventStore } from "../store/eventStore";
 import { userStore } from "../store/userStore";
 
 const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = false }) => {
-	const [selectedCalendar, setSelectedCalendar] = useState(event.calendarId || (calendarStore.calendars.length > 0 ? calendarStore.calendars[0].id : null));
+	const [selectedCalendar, setSelectedCalendar] = useState(event.calendarId || (calendarStore.calendars?.length > 0 ? calendarStore.calendars[0].id : null));
 	const [participantsInput, setParticipantsInput] = useState("");
 	const [eventType, setEventType] = useState(event.type || "reminder");
 	const [repeatEnabled, setRepeatEnabled] = useState(false);
@@ -17,7 +17,7 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
 	// const [meetEnabled, setMeetEnabled] = useState(false);
 
 	useEffect(() => {
-		if (calendarStore.calendars.length === 1) {
+		if (calendarStore.calendars?.length === 1) {
 			setSelectedCalendar(calendarStore.calendars[0].id);
 		}
 	}, []);
@@ -103,7 +103,7 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
 
 		if (updating) {
 			// eventStore.updateEvent(event, selectedCalendar);
-			if (event.calendarId && event.participants.length > 0) {
+			if (event.calendarId && event.participants?.length > 0) {
 				for (const { email, role } of event.participants) {
 					try {
 						await eventStore.inviteUser(event.id, email, role);
@@ -141,7 +141,7 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
 					<input type="color" className="w-7 h-7" value={event.color} onChange={handleColorChange} />
 				</div>
 				{!updating && (
-					availableCalendars.length > 1 && (
+					availableCalendars?.length > 1 && (
 						<div className="mb-3">
 							<label className="block text-sm font-medium text-gray-700">Select Calendar:</label>
 							<select
