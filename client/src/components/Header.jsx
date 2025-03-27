@@ -15,6 +15,8 @@ const Header = observer(() => {
 
 	useEffect(() => {
 		setActiveView(getActiveViewFromPath());
+
+		console.log(activeView)
 	}, [location.pathname]);
 
 	useEffect(() => {
@@ -154,9 +156,8 @@ const Header = observer(() => {
 							{['Day', 'Week', 'Month', 'Year'].map((view) => (
 								<li key={view}>
 									<p
-										className={`cursor-pointer p-2 rounded ${
-											activeView === view ? 'bg-gray-200' : 'hover:bg-gray-100'
-										}`}
+										className={`cursor-pointer p-2 rounded ${activeView === view ? 'bg-gray-200' : 'hover:bg-gray-100'
+											}`}
 										onClick={() => {
 											handleNavigation(view);
 											setIsMenuOpen(false);
@@ -216,76 +217,79 @@ const Header = observer(() => {
 				</button>
 
 				{/* Mobile Side Panel */}
-{isMenuOpen && (
-  <div className='fixed top-0 left-0 z-50 w-64 h-full bg-white shadow-lg p-4 transition-all duration-300 ease-in-out transform'>
-    <h2 className='text-xl font-bold mb-4'>Menu</h2>
-    {/* All elements for small screens */}
-    <div className='flex flex-col'>
-      <div className='p-2 mb-4'>
-        <p className='font-semibold text-lg mb-2'>Select View</p>
-        <select
-          className='w-full p-2 border border-[#ec7eea] rounded-md focus:outline-none focus:ring-2 focus:ring-[#ec7eea] text-black'
-          onChange={(e) => {
-            handleNavigation(e.target.value);
-            setActiveView(e.target.value); // Ensure activeView state is updated
-          }}
-          value={activeView} // Ensure the value reflects the current activeView state
-        >
-          {['Day', 'Week', 'Month', 'Year'].map((view) => (
-            <option key={view} value={view.toLowerCase()}>
-              {view}
-            </option>
-          ))}
-        </select>
-      </div>
+				{isMenuOpen && (
+					<div className='fixed top-0 left-0 z-50 w-64 h-full bg-white shadow-lg p-4 transition-all duration-300 ease-in-out transform'>
+						<h2 className='text-xl font-bold mb-4'>Menu</h2>
+						{/* All elements for small screens */}
+						<div className='flex flex-col'>
+							<div className='p-2 mb-4'>
+								<p className='font-semibold text-lg mb-2'>Select View</p>
+								<div className='flex flex-col'>
+									{['Day', 'Week', 'Month', 'Year'].map((view) => {
+										const lowerView = view.toLowerCase();
+										return (
+											<button
+												key={view}
+												onClick={() => handleNavigation(lowerView)}
+												className={`m-2 py-2 px-4 rounded-md transition-all duration-200 font-medium ${activeView === lowerView
+														? 'bg-[#ec7eea] text-white'
+														: 'border border-[#ec7eea] text-black hover:bg-[#ec7eea]/10'
+													}`}
+											>
+												{view}
+											</button>
+										);
+									})}
+								</div>
+							</div>
 
-      <button
-        className='header-btn p-2 mb-2 border border-[#ec7eea] text-black hover:bg-gray-100 focus:outline-none rounded-md'
-        onClick={() => dateStore.today()}
-      >
-        Today
-      </button>
+							<button
+								className='p-2 mb-2 border border-[#ec7eea] text-black hover:bg-gray-100 focus:outline-none rounded-md'
+								onClick={() => dateStore.today()}
+							>
+								Today
+							</button>
 
-      <div className='flex justify-center mb-2 space-x-4'>
-        <button
-          className='header-btn p-2 border border-[#ec7eea] text-black hover:bg-gray-100 focus:outline-none rounded-md'
-          onClick={() => handleDateChange('prev')}
-        >
-          <IoChevronBack size={18} />
-        </button>
-        <button
-          className='header-btn p-2 border border-[#ec7eea] text-black hover:bg-gray-100 focus:outline-none rounded-md'
-          onClick={() => handleDateChange('next')}
-        >
-          <IoChevronForward size={18} />
-        </button>
-      </div>
+							<div className='flex justify-center mb-2 space-x-4'>
+								<button
+									className='p-3 border border-[#ec7eea] text-black hover:bg-gray-100 focus:outline-none rounded-md'
+									onClick={() => handleDateChange('prev')}
+								>
+									<IoChevronBack size={18} />
+								</button>
+								<button
+									className='p-3 border border-[#ec7eea] text-black hover:bg-gray-100 focus:outline-none rounded-md'
+									onClick={() => handleDateChange('next')}
+								>
+									<IoChevronForward size={18} />
+								</button>
+							</div>
 
-      <button
-        className='header-btn p-2 mb-2 border border-[#ec7eea] text-black hover:bg-gray-100 focus:outline-none rounded-md'
-        onClick={handleCreateEvent}
-      >
-        Create event
-      </button>
+							<button
+								className='p-3 mb-2 border border-[#ec7eea] text-black hover:bg-gray-100 focus:outline-none rounded-md'
+								onClick={handleCreateEvent}
+							>
+								Create event
+							</button>
 
-      {userStore.user === null ? (
-        <button
-          className='header-btn p-2 mb-2 border border-[#ec7eea] text-black hover:bg-gray-100 focus:outline-none rounded-md'
-          onClick={() => navigate('/login')}
-        >
-          Login
-        </button>
-      ) : (
-        <button
-          className='header-btn p-2 mb-2 border border-[#ec7eea] text-black hover:bg-gray-100 focus:outline-none rounded-md'
-          onClick={() => navigate('/settings')}
-        >
-          <IoSettingsSharp size={20} />
-        </button>
-      )}
-    </div>
-  </div>
-)}
+							{userStore.user === null ? (
+								<button
+									className='p-2 mb-2 border border-[#ec7eea] text-black hover:bg-gray-100 focus:outline-none rounded-md'
+									onClick={() => navigate('/login')}
+								>
+									Login
+								</button>
+							) : (
+								<button
+									className='mt-2'
+									onClick={() => navigate('/settings')}
+								>
+									<IoSettingsSharp size={20} />
+								</button>
+							)}
+						</div>
+					</div>
+				)}
 
 			</div>
 
