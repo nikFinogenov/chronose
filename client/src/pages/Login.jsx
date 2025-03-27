@@ -41,7 +41,7 @@ function Login() {
 	};
 
 	const handleForgot = () => {
-		// navigate('/forgot-password');
+		navigate('/password-reset');
 	};
 
 	return loading ? (
