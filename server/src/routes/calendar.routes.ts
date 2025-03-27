@@ -15,7 +15,7 @@ router.post('/', CalendarController.createCalendar.bind(CalendarController));
 
 router.patch('/:calendarId', authMiddleware, CalendarController.updateCalendar.bind(CalendarController));
 
-router.delete('/:calendarId', CalendarController.deleteCalendar.bind(CalendarController));
+router.delete('/:calendarId', authMiddleware, CalendarController.deleteCalendar.bind(CalendarController));
 
 // // Users in Calendar
 router.get('/:calendarId/users', CalendarController.getUsersInCalendar.bind(CalendarController));

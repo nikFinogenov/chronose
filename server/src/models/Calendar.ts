@@ -16,9 +16,6 @@ export class Calendar extends BaseEntity {
     @Column({ nullable: true })
     description: string;
 
-    // @Column({default: true})
-    // isActive: boolean
-
     @Column({ default: "#fcba03" })
 	color: string
 

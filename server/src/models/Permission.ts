@@ -12,9 +12,6 @@ export class Permission extends BaseEntity {
     @ManyToOne(() => User, user => user.permissions)
     user: User;
 
-    // @ManyToOne(() => Permission, permission => permission.userPermissions)
-    // permission: Permission;
-
     @ManyToOne(() => Calendar, { nullable: true, cascade: true, onDelete: "CASCADE" })
     calendar: Calendar;
 

@@ -32,12 +32,4 @@ export class Event extends BaseEntity {
 
 	@OneToMany(() => Permission, (permission) => permission.event)
 	permissions: Permission[];
-
-	// @ManyToMany(() => User, user => user.events, { onDelete: 'CASCADE' })
-	// @JoinTable({
-	// 	name: 'event_users',
-	// 	joinColumn: { name: 'eventId', referencedColumnName: 'id' },
-	// 	inverseJoinColumn: { name: 'userId', referencedColumnName: 'id' },
-	// })
-	// users: User[];
 }

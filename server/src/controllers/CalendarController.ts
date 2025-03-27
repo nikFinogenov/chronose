@@ -140,6 +140,7 @@ export const CalendarController = {
 
 	async deleteCalendar(req: Request, res: Response): Promise<Response> {
 		const { calendarId } = req.params;
+		console.log(req.user);
 		const userId = req.user.id;
 
 		try {

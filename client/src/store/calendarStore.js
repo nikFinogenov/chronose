@@ -1,6 +1,6 @@
 import {runInAction, makeAutoObservable } from "mobx";
 import { getUserCalendars, getinvitedUserCalendars } from "../services/userService";
-import { createCalendar, update, inviteUser, removeUserFromCalendar, getCalendarUsers } from '../services/calendarService';
+import { createCalendar, update, inviteUser, removeUserFromCalendar, getCalendarUsers, removeCalendar, leaveFromCalendar } from '../services/calendarService';
 import { joinCalendar } from '../services/calendarService';
 
 class CalendarStore {
@@ -146,6 +146,31 @@ class CalendarStore {
 			console.log(`User ${email} invited as ${role} to calendar ${calendarId}`);
 		} catch (error) {
 			console.error('Failed to invite user:', error);
+		}
+	}
+	async deleteCalendar(calendarId) {
+		try {
+			const response = await removeCalendar(calendarId);
+			if (response) {
+				runInAction(() => {
+					this.calendars = this.calendars.filter(calendar => calendar.id !== calendarId);
+				});
+			}
+		} catch (error) {
+			console.error("Failed to delete calendar:", error);
+		}
+	}
+	async leaveCalendar(calendarId) {
+		try {
+			const response = await leaveFromCalendar(calendarId);
+			if (response) {
+				runInAction(() => {
+					this.calendars = this.calendars.filter(calendar => calendar.id !== calendarId);
+				});
+			}
+		}
+		catch (error) {
+			console.error("Failed to leave calendar:", error);
 		}
 	}
 

@@ -41,6 +41,26 @@ export const update = async (calendar) => {
     }
 };
 
+export const removeCalendar = async (calendarId) => {
+	try {
+		const response = await api.delete(`/calendars/${calendarId}`);
+        
+        return response;
+	} catch (error) {
+		throw error;
+	}
+};
+
+export const leaveFromCalendar = async (calendarId) => {
+	try {
+		const response = await api.delete(`/calendars/${calendarId}`);
+        
+        return response;
+	} catch (error) {
+		throw error;
+	}
+}
+
 export const inviteUser = async (calendarId, email, role) => {
 	try {
 		const response = await api.post(`${API_URL}/calendars/invite/${encodeURIComponent(calendarId)}`, {

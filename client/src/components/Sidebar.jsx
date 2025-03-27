@@ -9,6 +9,8 @@ import { CiSquarePlus } from 'react-icons/ci';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { FaUser } from 'react-icons/fa';
 import CalendarModal from './CalendarModal';
+import { FaTrash } from "react-icons/fa";
+import Swal from "sweetalert2";
 
 const Sidebar = observer(({ disableMM = false }) => {
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -33,6 +35,17 @@ const Sidebar = observer(({ disableMM = false }) => {
 		const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 		return emailRegex.test(email);
 	};
+	const handleCreateCalendar = () => {
+		if (!userStore.user) {
+			Swal.fire({
+				text: 'Login first',
+				icon: 'warning',
+				confirmButtonText: 'Ok'
+			})
+		} else {
+			setIsCreateModalOpen(true)
+		}
+	}
 
 	const handleIsActiveChange = (calendar, value) => {
 		runInAction(() => {
@@ -50,6 +63,15 @@ const Sidebar = observer(({ disableMM = false }) => {
 		setIsSettingsModalOpen(true);
 	};
 
+	const onDelete = calendar => {
+		calendarStore.deleteCalendar(calendar.id);
+		setSelectedCalendar(null);
+		// if (calendarId) {
+		// 	await eventStore.deleteEvent(eventId, calendarId);
+		// 	setSelectedEvent(null);
+		// }
+	}
+
 	return (
 		<div className='min-h-screen p-4 border-r border-gray-300 bg-base-100 hidden md:block'>
 			{!disableMM && (
@@ -66,7 +88,7 @@ const Sidebar = observer(({ disableMM = false }) => {
 					<input type='checkbox' defaultChecked />
 					<div className='z-10 flex items-center justify-between font-semibold collapse-title'>
 						<span>My calendars</span>
-						<button onClick={() => setIsCreateModalOpen(true)} className='p-1 text-2xl transition rounded-lg hover:bg-gray-200'>
+						<button onClick={() => handleCreateCalendar()} className='p-1 text-2xl transition rounded-lg hover:bg-gray-200'>
 							<CiSquarePlus />
 						</button>
 					</div>
@@ -226,19 +248,26 @@ const Sidebar = observer(({ disableMM = false }) => {
 						</div>
 
 						{/* Save buttons */}
-						<div className='flex justify-end mt-4 space-x-2'>
-							<button onClick={() => setIsSettingsModalOpen(false)} className='text-gray-600 hover:text-gray-900'>
-								Cancel
-							</button>
-							<button
-								onClick={() => {
-									calendarStore.updateCalendar(selectedCalendar);
-									setIsSettingsModalOpen(false);
-								}}
-								className='px-4 py-2 text-white rounded bg-primary'
-							>
-								Save
-							</button>
+						<div className='flex justify-between mt-4 space-x-2'>
+							{calendarStore.calendars[0]?.id !== selectedCalendar.id ? (
+								<button onClick={() => onDelete(selectedCalendar)} className='text-red-500 hover:text-red-700'>
+									<FaTrash size={16} />
+								</button>
+							) : (<div></div>)}
+							<div>
+								<button onClick={() => setIsSettingsModalOpen(false)} className='text-gray-600 hover:text-gray-900 pr-2'>
+									Cancel
+								</button>
+								<button
+									onClick={() => {
+										calendarStore.updateCalendar(selectedCalendar);
+										setIsSettingsModalOpen(false);
+									}}
+									className='px-4 py-2 text-white rounded bg-primary'
+								>
+									Save
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>

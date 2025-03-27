@@ -7,6 +7,7 @@ import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { IoChevronBack, IoChevronForward, IoSettingsSharp } from 'react-icons/io5'; // Импорт иконки настроек
 import EventModal from './EventModal';
 import { eventStore } from '../store/eventStore';
+import Swal from "sweetalert2";
 
 const Header = observer(() => {
 	const navigate = useNavigate();
@@ -22,7 +23,7 @@ const Header = observer(() => {
 				handleCreateEvent();
 			}
 		};
-	
+
 		document.addEventListener('keydown', handleKeyDown);
 		return () => {
 			document.removeEventListener('keydown', handleKeyDown);
@@ -98,17 +99,25 @@ const Header = observer(() => {
 		};
 	}, [isMenuOpen]);
 	const handleCreateEvent = () => {
-		setNewEvent({
-			title: '',
-			start: new Date(), // Set to current date/time
-			end: new Date(new Date().getTime() + 60 * 60 * 1000), // Set to one hour later
-			description: '',
-			location: '',
-			participants: [],
-			color: '#34ebc6',
-			type: 'reminder',
-		});
-		setShowModal(true);
+		if (!userStore.user) {
+			Swal.fire({
+				text: 'Login first',
+				icon: 'warning',
+				confirmButtonText: 'Ok'
+			})
+		} else {
+			setNewEvent({
+				title: '',
+				start: new Date(), // Set to current date/time
+				end: new Date(new Date().getTime() + 60 * 60 * 1000), // Set to one hour later
+				description: '',
+				location: '',
+				participants: [],
+				color: '#34ebc6',
+				type: 'reminder',
+			});
+			setShowModal(true);
+		}
 	};
 
 	const handleSave = async (calendarId, repeat, zoomEnabled, locationEnabled) => {
