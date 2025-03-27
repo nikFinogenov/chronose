@@ -115,7 +115,7 @@ const Day = observer(() => {
 					await eventStore.loadEventsForCalendar(calendar.id, startOfDay.toISOString(), endOfDay.toISOString());
 				}
 			}
-			await eventStore.loadInvitedEventsForCalendar(calendarStore?.calendars[0]?.id, userStore.user.id);
+			await eventStore.loadInvitedEventsForCalendar(calendarStore?.calendars[0]?.id, userStore.user?.id);
 			for (const calendar of calendarStore.invitedCalendars) {
 				if (calendar.isActive) {
 					await eventStore.loadEventsForCalendar(calendar.id, startOfDay.toISOString(), endOfDay.toISOString());

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { calendarStore } from "../store/calendarStore";
 import { eventStore } from "../store/eventStore";
+import { userStore } from "../store/userStore";
 
 const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = false }) => {
 	const [selectedCalendar, setSelectedCalendar] = useState(event.calendarId || (calendarStore.calendars.length > 0 ? calendarStore.calendars[0].id : null));
@@ -123,6 +124,15 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
 		const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 		return emailRegex.test(email);
 	};
+	const availableCalendars = [
+		...calendarStore.calendars,
+		...calendarStore.invitedCalendars.filter(calendar =>
+			calendar.participants.some(
+				participant => participant.email === userStore.user.email &&
+					(participant.role === "editor" || participant.role === "manager")
+			)
+		)
+	];
 	return (
 		<div className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50 z-50">
 			<div className="bg-white p-6 rounded-lg shadow-lg w-96">
@@ -131,7 +141,7 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
 					<input type="color" className="w-7 h-7" value={event.color} onChange={handleColorChange} />
 				</div>
 				{!updating && (
-					calendarStore.calendars.length > 1 && (
+					availableCalendars.length > 1 && (
 						<div className="mb-3">
 							<label className="block text-sm font-medium text-gray-700">Select Calendar:</label>
 							<select
@@ -140,7 +150,7 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
 								onChange={handleCalendarChange}
 							>
 								<option value="" disabled>Select a calendar</option>
-								{calendarStore.calendars.map((calendar) => (
+								{availableCalendars.map((calendar) => (
 									<option key={calendar.id} value={calendar.id}>
 										{calendar.name}
 									</option>

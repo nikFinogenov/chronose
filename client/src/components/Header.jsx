@@ -15,6 +15,19 @@ const Header = observer(() => {
 	useEffect(() => {
 		setActiveView(getActiveViewFromPath)
 	}, [location.pathname])
+	useEffect(() => {
+		const handleKeyDown = (event) => {
+			if (event.ctrlKey && event.key === 't') {
+				event.preventDefault(); // Prevent default browser actions
+				handleCreateEvent();
+			}
+		};
+	
+		document.addEventListener('keydown', handleKeyDown);
+		return () => {
+			document.removeEventListener('keydown', handleKeyDown);
+		};
+	}, []);
 
 	const getActiveViewFromPath = useCallback(() => {
 		const path = location.pathname.split('/').filter(Boolean); // Remove leading "/"

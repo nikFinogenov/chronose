@@ -16,27 +16,28 @@ const EventDetails = ({ event, onClose, onEdit, onDelete }) => {
 	const zoomLink = event.description?.split('\n')[0] || "#";
 	const [participants, setParticipants] = useState([]);
 
-	useEffect(() => {
-		const fetchParticipants = async () => {
-			if (calendar) {
-				const filteredParticipants = calendar.participants.filter(participant => participant.role !== 'owner');
-				setParticipants(filteredParticipants);
-			} else if (calendar2) {
-				// Если календарь приглашённый, получаем пользователей через API
-				try {
-					const filteredParticipants = calendar2.participants.filter(participant => participant.role !== 'owner');
-					setParticipants(filteredParticipants);
-				} catch (error) {
-					console.error('Failed to load event users:', error);
-				}
-			} else {
-				// Если календарь основной, используем пользователей из calendarStore
-				setParticipants(event.invitedParticipants.length > 0 ? event.invitedParticipants : calendar?.users || []);
-			}
-		};
+    useEffect(() => {
+        const fetchParticipants = async () => {
+            if (event.invitedParticipants.length > 0) {
+                setParticipants(event.invitedParticipants);
+            } else if (calendar) {
+                const filteredParticipants = calendar.participants.filter(participant => participant.role !== 'owner');
+                setParticipants(filteredParticipants);
+            } else if (calendar2) {
+                // Если календарь приглашённый, получаем пользователей через API
+                try {
+                    const filteredParticipants = calendar2.participants.filter(participant => participant.role !== 'owner');
+                    setParticipants(filteredParticipants);
+                } catch (error) {
+                    console.error('Failed to load event users:', error);
+                }
+            } else {
+                setParticipants([]);
+            }
+        };
 
-		fetchParticipants();
-	}, [event.id, event.invitedParticipants, calendar, calendar2]);
+        fetchParticipants();
+    }, [event.id, event.invitedParticipants, calendar, calendar2]);
 
 	useEffect(() => {
 		const handleKeyDown = e => {

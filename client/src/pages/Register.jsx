@@ -23,13 +23,13 @@ function Register () {
 
     const validate = () => {
         const errors = {};
-        // if (!fullName) errors.fullName = "Full name is required";
+        if (!fullName) errors.fullName = "Full name is required";
         // if (!username) errors.username = "Username is required";
-        // if (fullName.length < 2) errors.fullName = "Full name must be at least 2 characters";
+        if (fullName.length < 2) errors.fullName = "Full name must be at least 2 characters";
         // if (username.length < 2) errors.username = "Username must be at least 2 characters";
-        // if (!email || !/\S+@\S+\.\S+/.test(email)) errors.email = "Valid Email is required";
-        // if (password.length < 6) errors.password = "Password must be at least 6 characters";
-        // if (password !== confirmPassword) errors.confirmPassword = "Passwords must match";
+        if (!email || !/\S+@\S+\.\S+/.test(email)) errors.email = "Valid Email is required";
+        if (password.length < 6) errors.password = "Password must be at least 6 characters";
+        if (password !== confirmPassword) errors.confirmPassword = "Passwords must match";
         return errors;
     };
 

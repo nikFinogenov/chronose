@@ -89,7 +89,8 @@ const Month = observer(() => {
 			const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 			endOfMonth.setHours(23, 59, 59, 999);
 
-			console.log(`Fetching events from ${startOfMonth.toISOString()} to ${endOfMonth.toISOString()}`);
+			// console.log(`Fetching events from ${startOfMonth.toISOString()} to ${endOfMonth.toISOString()}`);
+			await eventStore.loadInvitedEventsForCalendar(calendarStore?.calendars[0]?.id, userStore.user?.id);
 
 			// Fetch events for all active calendars
 			for (const calendar of [...calendarStore.calendars, ...calendarStore.invitedCalendars]) {

@@ -55,7 +55,8 @@ function AppContent() {
         setLoading(false); // Завершаем загрузку
       }
     };
-    if (localStorage.getItem('token')) loadUser();
+    // if (localStorage.getItem('token')) loadUser();
+    loadUser();
   }, []);
 
   if (loading) {
