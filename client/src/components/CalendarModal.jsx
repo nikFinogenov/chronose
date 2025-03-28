@@ -5,7 +5,7 @@ import { userStore } from '../store/userStore';
 const CalendarModal = ({ isOpen, onClose }) => {
 	const [calendarName, setCalendarName] = useState('');
 	const [calendarDescription, setCalendarDescription] = useState('');
-	const [calendarColor, setCalendarColor] = useState('#ffffff');
+	const [calendarColor, setCalendarColor] = useState('#fcba03');
 
 	const handleCreateCalendar = () => {
 		if (calendarName.trim()) {
@@ -13,7 +13,7 @@ const CalendarModal = ({ isOpen, onClose }) => {
 			onClose();
 			setCalendarName('');
 			setCalendarDescription('');
-			setCalendarColor('#ffffff');
+			setCalendarColor('#fcba03');
 		}
 	};
 

@@ -138,7 +138,7 @@ const EventModal = ({ event, setNewEvent, handleSave, setShowModal, updating = f
 			<div className="bg-white p-6 rounded-lg shadow-lg w-96">
 				<div className="flex justify-between">
 					<h2 className="text-lg font-bold mb-4">{updating ? "Edit Event" : "Create New Event"}</h2>
-					<input type="color" className="w-7 h-7" value={event.color} onChange={handleColorChange} />
+					<input id="color-input" type="color" style={{ backgroundColor: event.color }} value={event.color} onChange={handleColorChange} />
 				</div>
 				{!updating && (
 					availableCalendars?.length > 1 && (
