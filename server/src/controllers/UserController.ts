@@ -46,7 +46,7 @@ export class UserController {
 
 	//     // Get a single user by ID
 	static async getUserById(req: Request, res: Response): Promise<Response> {
-		const { id } = req.params;
+		const { id } = req.params as { id: string };
 
 		try {
 			const user = await User.findOne({ where: { id: id } });
@@ -63,7 +63,7 @@ export class UserController {
 
 	//     // Update a user's information
 	static async updateUser(req: Request, res: Response): Promise<Response> {
-		const { id } = req.params;
+		const { id } = req.params as { id: string };
 		const { fullName, email, password, login, isEmailConfirmed } = req.body;
 
 		try {
@@ -89,7 +89,7 @@ export class UserController {
 
 	//     // Delete a user
 	static async deleteUser(req: Request, res: Response): Promise<Response> {
-		const { id } = req.params;
+		const { id } = req.params as { id: string };
 
 		try {
 			const user = await User.findOneBy({ id: id });
@@ -107,7 +107,7 @@ export class UserController {
 
 	//     // Get all calendars owned by a user
 	static async getOwnedCalendars(req: Request, res: Response): Promise<Response> {
-		const { id } = req.params;
+		const { id } = req.params as { id: string };
 		// console.log(id);
 
 		try {
@@ -145,7 +145,7 @@ export class UserController {
 
 	//     // Get all shared calendars for a user
 	static async getSharedCalendars(req: Request, res: Response): Promise<Response> {
-		const { id } = req.params;
+		const { id } = req.params as { id: string };
 
 		try {
 			const user = await User.findOne({ where: { id: id } });
@@ -178,7 +178,7 @@ export class UserController {
 	}
 
 	static async getSharedEvents(req: Request, res: Response): Promise<Response> {
-		const { id } = req.params;
+		const { id } = req.params as { id: string };
 
 		try {
 			const user = await User.findOne({ where: { id: id } });

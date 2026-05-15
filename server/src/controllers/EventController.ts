@@ -64,7 +64,7 @@ export const EventController = {
     },
 
     async getEventById(req: Request, res: Response): Promise<Response> {
-        const { eventId } = req.params;
+        const { eventId } = req.params as { eventId: string };
 
         try {
             const event = await Event.findOne({
@@ -84,7 +84,7 @@ export const EventController = {
     },
 
     async createEvent(req: Request, res: Response): Promise<Response> {
-        const { calendarId } = req.params;
+        const { calendarId } = req.params as { calendarId: string };
         const { title, description, start, end, color, type, zoom, location } = req.body;
         // new lin
         let zoomLink = "", locationLink = "";
@@ -137,7 +137,7 @@ export const EventController = {
         }
     },
     async createSequenceEvent(req: Request, res: Response): Promise<Response> {
-        const { calendarId } = req.params;
+        const { calendarId } = req.params as { calendarId: string };
         const { title, description, start, end, color, type, repeatNess } = req.body;
 
         try {
@@ -209,7 +209,7 @@ export const EventController = {
     },
 
     async updateEvent(req: Request, res: Response): Promise<Response> {
-        const { eventId } = req.params;
+        const { eventId } = req.params as { eventId: string };
         const { title, description, start, end, color } = req.body;
         const userId = req.user.id;
 
@@ -241,7 +241,7 @@ export const EventController = {
     },
 
     async deleteEvent(req: Request, res: Response): Promise<Response> {
-        const { eventId } = req.params;
+        const { eventId } = req.params as { eventId: string };
         const userId = req.user.id;
 
         try {
@@ -266,7 +266,7 @@ export const EventController = {
     },
 
     async getEventsByCalendar(req: Request, res: Response): Promise<Response> {
-        const { calendarId } = req.params;
+        const { calendarId } = req.params as { calendarId: string };
         const { start, end } = req.query;
         try {
             const startDate = start ? new Date(start as string) : undefined;
@@ -333,7 +333,7 @@ export const EventController = {
     },
 
     async inviteUserToEvent(req: Request, res: Response): Promise<Response> {
-        const { eventId } = req.params;
+        const { eventId } = req.params as { eventId: string };
         const { email, role } = req.body; // Email приглашенного + его права
         const userId = req.user.id;
 
@@ -413,7 +413,7 @@ export const EventController = {
     },
 
     async getEventUsers(req: Request, res: Response) {
-        const { eventId } = req.params;
+        const { eventId } = req.params as { eventId: string };
 
         try {
             const event = await Event.findOne({ where: { id: eventId } });
@@ -442,7 +442,7 @@ export const EventController = {
     },
 
     async removeUserFromEvent(req: Request, res: Response) {
-        const { eventId, userId } = req.params;
+        const { eventId, userId } = req.params as { eventId: string; userId: string };
 
         try {
             const permission = await Permission.findOne({ where: { event: { id: eventId }, user: { id: userId } } });

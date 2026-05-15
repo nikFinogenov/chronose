@@ -27,7 +27,7 @@ export const CalendarController = {
 	},
 
 	async getOwnerByCalendarId(req: Request, res: Response): Promise<Response> {
-		const { calendarId } = req.params;
+		const { calendarId } = req.params as { calendarId: string };
 
 		try {
 			const userPermission = await Permission.findOne({
@@ -50,7 +50,7 @@ export const CalendarController = {
 	},
 
 	async getCalendarById(req: Request, res: Response): Promise<Response> {
-		const { calendarId } = req.params;
+		const { calendarId } = req.params as { calendarId: string };
 
 		try {
 			const calendar = await Calendar.findOne({
@@ -70,7 +70,7 @@ export const CalendarController = {
 	},
 
 	async createCalendar(req: Request, res: Response): Promise<Response> {
-		const { name, description, color, ownerId } = req.body;
+		const { name, description, color, ownerId } = req.body as { name: string; description: string; color: string; ownerId: string };
 
 		try {
 			const owner = await User.findOne({ where: { id: ownerId } });
@@ -108,7 +108,7 @@ export const CalendarController = {
 	},
 
 	async updateCalendar(req: Request, res: Response): Promise<Response> {
-		const { calendarId } = req.params;
+		const { calendarId } = req.params as { calendarId: string };
 		const { name, description, color } = req.body;
 		const userId = req.user.id;
 
@@ -139,7 +139,7 @@ export const CalendarController = {
 	},
 
 	async deleteCalendar(req: Request, res: Response): Promise<Response> {
-		const { calendarId } = req.params;
+		const { calendarId } = req.params as { calendarId: string };
 		console.log(req.user);
 		const userId = req.user.id;
 
@@ -165,7 +165,7 @@ export const CalendarController = {
 	},
 
 	async getUsersInCalendar(req: Request, res: Response): Promise<Response> {
-		const { calendarId } = req.params;
+		const { calendarId } = req.params as { calendarId: string };
 
 		try {
 			const calendar = await Calendar.findOne({
@@ -198,8 +198,8 @@ export const CalendarController = {
 	},
 
 	async addUserToCalendar(req: Request, res: Response): Promise<Response> {
-		const { calendarId } = req.params;
-		const { email, login } = req.body;
+		const { calendarId } = req.params as { calendarId: string };
+		const { email, login } = req.body as { email: string; login: string }		;
 
 		if (!email) {
 			return res.status(400).json({ message: 'Email or login is required' });
@@ -292,7 +292,7 @@ export const CalendarController = {
 	// },
 
 	async getEventsInCalendar(req: Request, res: Response): Promise<Response> {
-		const { calendarId } = req.params;
+		const { calendarId } = req.params as { calendarId: string };
 		const { start, end } = req.query;
 
 		try {
@@ -320,7 +320,7 @@ export const CalendarController = {
 	},
 
 	async createEventInCalendar(req: Request, res: Response): Promise<Response> {
-		const { calendarId } = req.params;
+		const { calendarId } = req.params as { calendarId: string };
 		const { title, description, startDate, endDate } = req.body;
 
 		try {
@@ -347,7 +347,7 @@ export const CalendarController = {
 	},
 
 	async inviteUser(req: Request, res: Response): Promise<Response> {
-		const { calendarId } = req.params;
+		const { calendarId } = req.params as { calendarId: string };
 		const { email, role } = req.body; // Роль передается в теле запроса
 		const userId = req.user.id; // Авторизованный пользователь
 
@@ -422,7 +422,7 @@ export const CalendarController = {
 	},
 
 	async removeUserFromCalendar(req: Request, res: Response) {
-		const { calendarId, userId } = req.params;
+		const { calendarId, userId } = req.params as { calendarId: string; userId: string };
 
 		try {
 			const permission = await Permission.findOne({ where: { calendar: { id: calendarId }, user: { id: userId } } });
